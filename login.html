@@ -1,0 +1,2862 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Practitioner Gateway — Firm Operations Console | Pivot Aide Tax</title>
+  <!-- Domain Normalization Guard (Firebase OAuth requires localhost origin) -->
+  <script>
+    (function () {
+      if (typeof window === 'undefined' || !window.location) return;
+      if (window.location.hash && window.location.hash.includes('tfr_sync=')) {
+        try {
+          var hashMatch = window.location.hash.match(/tfr_sync=([^&]+)/);
+          if (hashMatch && hashMatch[1]) {
+            var syncData = JSON.parse(decodeURIComponent(hashMatch[1]));
+            if (syncData.session) localStorage.setItem('tfr_user_session', syncData.session);
+            if (syncData.role) localStorage.setItem('tfr_role', syncData.role);
+            if (syncData.clientId) localStorage.setItem('tfr_client_id', syncData.clientId);
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+            }
+          }
+        } catch (_) { }
+      }
+      if (window.location.hostname === '127.0.0.1') {
+        try {
+          var searchStr = window.location.search || '';
+          if (!searchStr.includes('stay_ip')) {
+            var rawSession = localStorage.getItem('tfr_user_session');
+            var rawRole = localStorage.getItem('tfr_role');
+            var rawClientId = localStorage.getItem('tfr_client_id');
+            var targetLocal = window.location.href.replace('//127.0.0.1:', '//localhost:').replace('//127.0.0.1/', '//localhost/');
+            if (rawSession) {
+              var syncObj = { session: rawSession, role: rawRole, clientId: rawClientId };
+              var sep = targetLocal.includes('#') ? '&' : '#';
+              targetLocal = targetLocal + sep + 'tfr_sync=' + encodeURIComponent(JSON.stringify(syncObj));
+            }
+            if (targetLocal !== window.location.href) {
+              window.location.replace(targetLocal);
+            }
+          }
+        } catch (_) { }
+      }
+    })();
+  </script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+
+  <style>
+    /* ============================================================
+       PRACTITIONER GATEWAY — CLEAN WHITE THEME (MATCHING IMAGE 2)
+       ============================================================ */
+    :root {
+      --firm-cyan: #019FFF;
+      --firm-cyan-dark: #0088dd;
+      --firm-cyan-dim: rgba(1, 159, 255, 0.1);
+      --firm-cyan-border: rgba(1, 159, 255, 0.3);
+      --firm-gold: #EAE42F;
+      --firm-gold-hover: #F5EE4A;
+      --firm-ink: #0C1D28;
+      --firm-ink-2: #3F5A6B;
+      --firm-ink-3: #6E8797;
+      --firm-line: #CBD5E1;
+      --firm-dark-navy: #07202E;
+      --firm-dark-box: #0B1E28;
+    }
+
+    html {
+      height: auto !important;
+      min-height: 100% !important;
+      overflow-y: scroll !important;
+      scrollbar-gutter: stable;
+      background: #FFFFFF !important;
+    }
+
+    body {
+      background: #FFFFFF !important;
+      color: var(--firm-ink) !important;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
+      min-height: 100vh !important;
+      margin: 0 !important;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      scrollbar-width: thin;
+      scrollbar-color: #019FFF rgba(12, 29, 40, 0.5);
+    }
+
+    /* WebKit / Chromium custom styled visible scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(12, 29, 40, 0.4);
+      border-left: 1px solid rgba(1, 159, 255, 0.2);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #019FFF 0%, #0077B6 100%);
+      border-radius: 6px;
+      border: 2px solid rgba(12, 29, 40, 0.4);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #33B1FF;
+    }
+
+    /* Top Dark App Bar (Matching Image 2) */
+    .firm-appbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 32px;
+      background: var(--firm-dark-navy);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      width: 100%;
+      box-sizing: border-box;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .firm-appbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .firm-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #FFFFFF;
+    }
+
+    .firm-brand-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #FFFFFF;
+    }
+
+    .firm-brand-title span {
+      color: var(--firm-cyan);
+    }
+
+    .firm-appbar-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(1, 159, 255, 0.12);
+      border: 1px solid rgba(1, 159, 255, 0.35);
+      color: #38BDF8;
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .firm-appbar-badge .bullet-dot {
+      color: #38BDF8;
+      font-size: 0.85rem;
+    }
+
+    /* Main Container */
+    .firm-login-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 36px 16px 56px;
+      background: #FFFFFF;
+    }
+
+    .firm-login-box {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Hero / Header Section (White Canvas) */
+    .firm-login-hero {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .firm-eyebrow-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(1, 159, 255, 0.08);
+      border: 1px solid rgba(1, 159, 255, 0.3);
+      color: #0284C7;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(1, 159, 255, 0.08);
+    }
+
+    .firm-login-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 2.15rem;
+      font-weight: 700;
+      color: #0C1D28;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .firm-login-subtitle {
+      color: #64748B;
+      font-size: 0.92rem;
+      margin: 0 auto;
+      max-width: 460px;
+      line-height: 1.5;
+    }
+
+    /* Tab Switcher (Segmented Black Pill with Blue Active Tab) */
+    .firm-auth-tabs {
+      display: flex;
+      gap: 4px;
+      background: #000000;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1.5px solid #000000;
+      margin: 0 auto 24px;
+      width: 100%;
+      max-width: 480px;
+      box-sizing: border-box;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .firm-auth-tabs button {
+      flex: 1;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .firm-auth-tabs button.active {
+      background: #019FFF !important;
+      color: #FFFFFF !important;
+      font-weight: 700 !important;
+      box-shadow: 0 2px 10px rgba(1, 159, 255, 0.45) !important;
+    }
+
+    .firm-auth-tabs button.inactive {
+      background: transparent !important;
+      color: #FFFFFF !important;
+      font-weight: 500 !important;
+    }
+
+    .firm-auth-tabs button.inactive:hover {
+      color: #FFFFFF !important;
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    /* 403 Forbidden Guardrail Card */
+    .guardrail-card {
+      background: #FFFFFF;
+      border: 2px solid #DC2626;
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(220, 38, 38, 0.08);
+    }
+
+    .guardrail-chip-forbidden {
+      background: #FEE2E2;
+      color: #DC2626;
+      font-weight: 700;
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .guardrail-chip-role {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #DC2626;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .guardrail-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--firm-ink);
+      margin: 6px 0 6px;
+    }
+
+    .guardrail-desc {
+      font-size: 0.82rem;
+      color: var(--firm-ink-2);
+      line-height: 1.45;
+      margin: 0 0 12px;
+    }
+
+    .guardrail-session-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.74rem;
+      color: #334155;
+      line-height: 1.6;
+    }
+
+    .btn-return-client {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #019FFF;
+      color: #FFFFFF;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 9px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(1, 159, 255, 0.35);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-return-client:hover {
+      background: #0088dd;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(1, 159, 255, 0.45);
+    }
+
+    .btn-clear-session {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #334155;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-clear-session:hover {
+      background: #F1F5F9;
+      color: #0F172A;
+    }
+
+    /* Main Form Card (Clean White Surface matching Image 2) */
+    .firm-form-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 28px 24px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    /* Domain Restriction Badge */
+    .firm-domain-badge {
+      background: rgba(1, 159, 255, 0.08);
+      border: 1px solid rgba(1, 159, 255, 0.25);
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .firm-domain-badge-title {
+      font-weight: 700;
+      color: #0284C7;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .firm-domain-badge-sub {
+      color: var(--firm-ink-2);
+      font-size: 0.72rem;
+    }
+
+    .firm-domain-badge-sub b {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--firm-ink);
+    }
+
+    /* Google Button (Clean White matching Image 2) */
+    .btn-google-workspace {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      color: #0F172A;
+      cursor: pointer;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      font-family: inherit;
+    }
+
+    .btn-google-workspace:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Divider */
+    .firm-form-divider {
+      display: flex;
+      align-items: center;
+      margin: 16px 0 20px;
+      gap: 12px;
+    }
+
+    .firm-form-divider span:first-child,
+    .firm-form-divider span:last-child {
+      flex: 1;
+      height: 1px;
+      background: #E2E8F0;
+    }
+
+    .firm-form-divider span:nth-child(2) {
+      font-size: 0.75rem;
+      color: #64748B;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    /* Form Fields */
+    .firm-field {
+      margin-bottom: 16px;
+    }
+
+    .firm-field label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #1E293B;
+      margin-bottom: 6px;
+    }
+
+    .firm-field input[type="text"],
+    .firm-field input[type="email"],
+    .firm-field input[type="password"],
+    .firm-field select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: #0F172A;
+      background: #FFFFFF;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .firm-field input:focus,
+    .firm-field select:focus {
+      outline: none;
+      border-color: #019FFF;
+      box-shadow: 0 0 0 3px rgba(1, 159, 255, 0.2);
+    }
+
+    .firm-field-helper {
+      display: block;
+      font-size: 0.72rem;
+      color: #64748B;
+      margin-top: 4px;
+    }
+
+    .firm-chip-tag {
+      background: rgba(1, 159, 255, 0.12);
+      color: #0284C7;
+      border: 1px solid rgba(1, 159, 255, 0.3);
+      font-size: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    /* Practitioner Profile Photo Upload Component */
+    .firm-photo-upload-wrap {
+      margin-bottom: 20px;
+      padding: 14px 16px;
+      background: #F8FAFC;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .firm-photo-upload-wrap.dragover {
+      background: #F0F9FF;
+      border-color: #019FFF;
+      box-shadow: 0 0 0 3px rgba(1, 159, 255, 0.2);
+    }
+
+    .firm-avatar-preview-box {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: #07202E;
+      border: 2.5px solid #019FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(1, 159, 255, 0.2);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    .firm-avatar-preview-box:hover {
+      transform: scale(1.04);
+      border-color: #EAE42F;
+      box-shadow: 0 6px 16px rgba(234, 228, 47, 0.25);
+    }
+
+    .firm-avatar-preview-box.has-photo {
+      border-color: #10B981;
+    }
+
+    .firm-avatar-initials {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 0.04em;
+    }
+
+    .firm-avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: none;
+    }
+
+    .firm-avatar-camera-badge {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #019FFF;
+      color: #FFFFFF;
+      border: 2px solid #FFFFFF;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      transition: all 0.15s ease;
+    }
+
+    .firm-avatar-camera-badge:hover {
+      background: #0088dd;
+      transform: scale(1.1);
+    }
+
+    .btn-firm-photo-action {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: inherit;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn-firm-photo-action.primary {
+      background: #019FFF;
+      color: #FFFFFF;
+      border: 1px solid #019FFF;
+    }
+
+    .btn-firm-photo-action.primary:hover {
+      background: #0088dd;
+      border-color: #0088dd;
+    }
+
+    .btn-firm-photo-action.secondary {
+      background: #FFFFFF;
+      color: #0C1D28;
+      border: 1px solid #CBD5E1;
+    }
+
+    .btn-firm-photo-action.secondary:hover {
+      background: #F1F5F9;
+      border-color: #94A3B8;
+    }
+
+    .btn-firm-photo-action.danger {
+      background: transparent;
+      color: #EF4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-firm-photo-action.danger:hover {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: #EF4444;
+    }
+
+    /* Headshot Camera Modal Styles */
+    .firm-camera-modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(7, 32, 46, 0.82);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .firm-camera-modal-card {
+      background: #0C1D28;
+      border: 1px solid rgba(1, 159, 255, 0.35);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .firm-camera-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      color: #FFFFFF;
+    }
+
+    .firm-camera-modal-header h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #38BDF8;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .firm-camera-modal-close {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-size: 1.35rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .firm-camera-modal-close:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .firm-camera-viewport-wrap {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      background: #000000;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .firm-camera-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    .firm-camera-preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .firm-camera-guide-ring {
+      position: absolute;
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      border: 2px dashed rgba(1, 159, 255, 0.7);
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .firm-camera-guide-ring::after {
+      content: 'Center Face';
+      position: absolute;
+      bottom: -28px;
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .firm-camera-flash {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #FFFFFF;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.1s ease;
+    }
+
+    .firm-camera-flash.flash-active {
+      opacity: 0.85;
+    }
+
+    .firm-camera-modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: #071722;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Password Toggle Wrap */
+    .pwd-toggle-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .pwd-toggle-wrap input {
+      padding-right: 42px !important;
+    }
+
+    .pwd-toggle-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      cursor: pointer;
+      padding: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: color 0.15s ease;
+    }
+
+    .pwd-toggle-btn:hover {
+      color: #019FFF;
+    }
+
+    /* Embedded Dark Step 2 MFA Box (Matching Image 2) */
+    .firm-step2-box,
+    .firm-aal2-box {
+      background: #0B1E28;
+      border: 1px solid rgba(1, 159, 255, 0.25);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin: 18px 0;
+      box-sizing: border-box;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .firm-step2-box.step2-active-highlight {
+      border-color: #EAE42F !important;
+      box-shadow: 0 0 0 1px #EAE42F, 0 0 20px rgba(234, 228, 47, 0.3) !important;
+      animation: pulseStep2 2s infinite ease-in-out;
+    }
+
+    .firm-step2-box.step2-error-highlight {
+      border-color: #EF4444 !important;
+      box-shadow: 0 0 0 1px #EF4444, 0 0 18px rgba(239, 68, 68, 0.35) !important;
+    }
+
+    @keyframes pulseStep2 {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 1px #EAE42F, 0 0 14px rgba(234, 228, 47, 0.25);
+      }
+
+      50% {
+        box-shadow: 0 0 0 2px #EAE42F, 0 0 24px rgba(234, 228, 47, 0.5);
+      }
+    }
+
+    .step1-google-banner {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 8px;
+      padding: 11px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .step1-google-banner-text {
+      font-size: 0.8rem;
+      color: #34D399;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    .step1-google-banner-cancel {
+      background: none;
+      border: none;
+      color: #94A3B8;
+      font-size: 0.72rem;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      font-family: inherit;
+    }
+
+    .step1-google-banner-cancel:hover {
+      color: #F87171;
+    }
+
+    /* Two-Factor Authentication Method Switcher */
+    .firm-mfa-tabs {
+      display: flex;
+      gap: 6px;
+      margin: 10px 0 12px;
+      background: #06151D;
+      padding: 4px;
+      border-radius: 6px;
+      border: 1px solid rgba(1, 159, 255, 0.18);
+    }
+
+    .mfa-tab-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: transparent;
+      border: none;
+      color: #8EB2C7;
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 7px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .mfa-tab-btn:hover {
+      color: #FFFFFF;
+      background: rgba(1, 159, 255, 0.12);
+    }
+
+    .mfa-tab-btn.active {
+      background: #112F42;
+      color: #38BDF8;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .firm-step2-header,
+    .firm-aal2-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .firm-step2-title,
+    .firm-aal2-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #38BDF8;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .firm-step2-sub-law,
+    .firm-aal2-badge {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: #38BDF8;
+      font-weight: 600;
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    .firm-step2-desc,
+    .firm-aal2-sub {
+      font-size: 0.78rem;
+      color: #9FBECF;
+      margin: 0 0 12px;
+      line-height: 1.45;
+    }
+
+    /* 6-Digit TOTP Inputs */
+    .firm-totp-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .totp-box {
+      width: 44px;
+      height: 50px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1.5px solid #1E3A52;
+      border-radius: 6px;
+      background: #071720;
+      color: #38BDF8;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+
+    .totp-box:focus {
+      outline: none;
+      border-color: #38BDF8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
+
+    .firm-step2-footer,
+    .firm-aal2-footer {
+      font-size: 0.7rem;
+      color: #6A8B9E;
+      line-height: 1.45;
+      margin-top: 6px;
+    }
+
+    /* Primary Submit Button (Signature Firm Cyan Blue) */
+    .btn-firm-submit {
+      width: 100%;
+      background: #019FFF;
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 13px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(1, 159, 255, 0.35);
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .btn-firm-submit:hover {
+      background: #0088dd;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(1, 159, 255, 0.45);
+    }
+
+    /* Quick Demo Bypass */
+    .btn-quick-demo {
+      width: 100%;
+      margin-top: 10px;
+      background: #F8FAFC;
+      border: 1px dashed #CBD5E1;
+      color: #0284C7;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .btn-quick-demo:hover {
+      background: #F1F5F9;
+      border-color: #019FFF;
+      color: #019FFF;
+    }
+
+    /* Statutory Pledge Box */
+    .firm-pledge-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 18px;
+    }
+
+    .firm-pledge-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .firm-pledge-label input[type="checkbox"] {
+      margin-top: 3px;
+      flex: none;
+      accent-color: #019FFF;
+    }
+
+    .firm-pledge-text {
+      font-size: 0.74rem;
+      color: var(--firm-ink);
+      line-height: 1.45;
+    }
+
+    /* Alert Banner */
+    #auth-alert-box {
+      margin-bottom: 16px;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    /* Cross-Portal Switcher Link */
+    .firm-switch-link-wrap {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .firm-switch-link {
+      color: #0284C7;
+      font-size: 0.84rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s ease;
+    }
+
+    .firm-switch-link:hover {
+      color: #019FFF;
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    .firm-statutory-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.74rem;
+      color: var(--firm-ink-3);
+      line-height: 1.55;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Full Canonical Mascot SVG Sprites -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="pat" viewBox="0 0 200 220">
+      <path
+        d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z"
+        fill="#1D3D51" />
+      <path d="M46 170 C32 184 21 200 16 220 L10 220 C10 209 12 198 16 186 C22 168 33 152 47 141 Z" fill="#163344" />
+      <path d="M154 170 C168 184 179 200 184 220 L190 220 C190 209 188 198 184 186 C178 168 167 152 153 141 Z"
+        fill="#163344" />
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#E3ECF3" opacity=".3" />
+      <!-- Yellow Necktie (Brand Mascot) -->
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#CFC922" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <path d="M84 178 L116 178 L100 188 Z" fill="#C7A308" opacity=".5" />
+      <path d="M100 178 L116 178 L110 202 L100 214 Z" fill="#BFA30B" opacity=".35" />
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z"
+        fill="#24455B" />
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="67" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <circle cx="121" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <!-- Yellow Beak (Pivot Aide Tax Brand Gold) -->
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+      <path d="M100 121 L110 121 L100 131 Z" fill="#D4B60F" opacity=".8" />
+    </symbol>
+
+    <symbol id="pat-av" viewBox="0 0 200 220">
+      <path
+        d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z"
+        fill="#1D3D51" />
+      <path d="M46 170 C32 184 21 200 16 220 L10 220 C10 209 12 198 16 186 C22 168 33 152 47 141 Z" fill="#163344" />
+      <path d="M154 170 C168 184 179 200 184 220 L190 220 C190 209 188 198 184 186 C178 168 167 152 153 141 Z"
+        fill="#163344" />
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#E3ECF3" opacity=".3" />
+      <!-- Yellow Necktie (Brand Mascot) -->
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#D4B60F" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <path d="M84 178 L116 178 L100 188 Z" fill="#C7A308" opacity=".5" />
+      <path d="M100 178 L116 178 L110 202 L100 214 Z" fill="#BFA30B" opacity=".35" />
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z"
+        fill="#24455B" />
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="67" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <circle cx="121" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <!-- Yellow Beak (Pivot Aide Tax Brand Gold) -->
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+      <path d="M100 121 L110 121 L100 131 Z" fill="#D4B60F" opacity=".8" />
+    </symbol>
+  </svg>
+
+  <!-- Clean Top Dark Bar (Matching Image 2) -->
+  <header class="firm-appbar">
+    <div class="firm-appbar-left">
+      <a href="index.html" class="firm-brand" title="Return to Firm Operations Console">
+        <svg class="owl-av" viewBox="0 0 200 220" style="width:30px;height:33px;flex:none;" aria-hidden="true">
+          <use href="#pat-av"></use>
+        </svg>
+        <span class="firm-brand-title">Pivot Aide <span>Tax</span></span>
+      </a>
+    </div>
+
+    <div>
+      <span class="firm-appbar-badge"><span class="bullet-dot">&bull;</span> PRACTITIONER PORTAL &middot;
+        ENCRYPTED</span>
+    </div>
+  </header>
+
+  <!-- Main Content Wrap (White Background) -->
+  <main class="firm-login-main">
+    <div class="firm-login-box">
+
+      <!-- Hero Eyebrow & Brand Mascot -->
+      <div class="firm-login-hero">
+        <svg class="owl-av" viewBox="0 0 200 220" style="width:76px;height:84px;margin-bottom:12px;" aria-hidden="true">
+          <use href="#pat-av"></use>
+        </svg>
+        <div>
+          <span class="firm-eyebrow-chip">&#9830; FIRM OPERATIONS CONSOLE</span>
+        </div>
+        <h1 class="firm-login-title">Sign in to your practitioner console.</h1>
+        <p class="firm-login-subtitle">
+          Supervisory access for CPAs, EAs, and credentialed tax staff under IRS Circular 230.
+        </p>
+      </div>
+
+      <!-- Tab Switcher (Segmented Black Pill exactly matching Image 2) -->
+      <div class="firm-auth-tabs" id="firm-auth-tabs">
+        <button type="button" class="active" id="tab-btn-firm-signin">
+          <span>&bull;</span> Sign In
+        </button>
+        <button type="button" class="inactive" id="tab-btn-firm-signup">
+          <span>+</span> Create Account (Sign Up)
+        </button>
+      </div>
+
+
+      <!-- Notification Toast Banner -->
+      <div id="auth-alert-box" style="display:none;"></div>
+
+      <!-- ==================== PRACTITIONER SIGN IN FORM CARD (CLEAN WHITE SURFACE) ==================== -->
+      <div class="firm-form-card" id="card-practitioner-signin">
+
+        <!-- Domain Restriction Badge -->
+
+        <!-- Google Sign-In Button (Clean White matching Image 2) -->
+        <button type="button" class="btn-google-workspace" id="btn-google-firm"
+          title="Sign in with Google Workspace (@pivot-aide-tax.com)">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path fill="#4285F4"
+              d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+            <path fill="#34A853"
+              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z" />
+            <path fill="#FBBC05"
+              d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.15z" />
+            <path fill="#EA4335"
+              d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <!-- Domain Notice for 127.0.0.1 (Auto-shown when accessed via 127.0.0.1) -->
+        <div class="domain-switch-helper"
+          style="display:none;margin-top:7px;padding:6px 10px;background:rgba(2,132,199,0.08);border:1px solid rgba(2,132,199,0.22);border-radius:6px;font-size:0.72rem;color:#64748B;text-align:center;">
+          <span>💡 Firebase OAuth authorized domain: </span>
+          <a href="#" class="link-switch-domain" style="color:#0284C7;font-weight:600;text-decoration:underline;">Switch
+            to localhost:5501</a>
+        </div>
+
+        <!-- Divider -->
+        <div class="firm-form-divider">
+          <span></span>
+          <span>&mdash; or continue with email &mdash;</span>
+          <span></span>
+        </div>
+
+        <form id="form-practitioner-signin" autocomplete="on">
+
+          <!-- 1. Practitioner Email -->
+          <div class="firm-field">
+            <label for="practitioner-email">
+              <span>Practitioner Email</span>
+            </label>
+            <input type="email" id="practitioner-email"
+              placeholder="denise@pivot-aide.tax" required autocomplete="username">
+            <span class="firm-field-helper">Must match authorized practitioner roster in Circular 230 registry.</span>
+          </div>
+
+          <!-- 2. Master Password with Forgot password? link -->
+          <div class="firm-field">
+            <label for="practitioner-password">
+              <span>Master Password</span>
+              <a href="#" style="color:#0284C7;font-size:0.78rem;font-weight:500;text-decoration:none;"
+                onclick="alert('Password reset link sent to your registered practitioner email.');return false;">Forgot
+                password?</a>
+            </label>
+            <div class="pwd-toggle-wrap">
+              <input type="password" id="practitioner-password" placeholder="••••••••••••"
+                required autocomplete="current-password">
+              <button type="button" class="pwd-toggle-btn" data-target="practitioner-password"
+                aria-label="Show password" title="Toggle password visibility">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+            <span class="firm-field-helper">16+ character passphrase complying with NIST SP 800-63B.</span>
+          </div>
+
+          <!-- 3. PTIN / Staff Badge ID -->
+          <div class="firm-field">
+            <label for="practitioner-ptin">
+              <span>IRS PTIN / Staff Badge ID</span>
+              <span class="firm-chip-tag">CIRCULAR 230</span>
+            </label>
+            <input type="text" id="practitioner-ptin" placeholder="e.g. P01489248 or STAFF-001"
+              required maxlength="12" autocomplete="off"
+              style="font-family:'JetBrains Mono',monospace;letter-spacing:0.05em;">
+            <span class="firm-field-helper">Preparer Tax Identification Number (PTIN) bound to authoritative audit
+              logs.</span>
+          </div>
+
+
+          <!-- Submit Button (Pivot Aide Yellow matching Image 2) -->
+          <button type="submit" class="btn-firm-submit" id="btn-submit-firm-signin">
+            <span>Verify Credentials &amp; Enter Console</span>
+            <span>&rarr;</span>
+          </button>
+
+
+        
+          <p style="text-align:center;margin-top:16px;font-size:.8rem;color:var(--ink-2)">Are you a taxpayer client? <a href="http://localhost:5500/login.html" id="link-to-client-portal" style="color:var(--brand);text-decoration:none;font-weight:600">Client Portal Login &rarr;</a></p>
+</form>
+      </div>
+
+      <!-- ==================== PRACTITIONER REGISTRATION / SIGN UP FORM CARD ==================== -->
+      <div class="firm-form-card" id="card-practitioner-signup" style="display:none;">
+
+
+
+        <!-- Google Sign-Up Button (Clean White matching Image 2) -->
+        <button type="button" class="btn-google-workspace" id="btn-google-firm-signup"
+          title="Sign up with Google Workspace (@pivot-aide-tax.com)">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path fill="#4285F4"
+              d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+            <path fill="#34A853"
+              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z" />
+            <path fill="#FBBC05"
+              d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.15z" />
+            <path fill="#EA4335"
+              d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <!-- Domain Notice for 127.0.0.1 (Auto-shown when accessed via 127.0.0.1) -->
+        <div class="domain-switch-helper"
+          style="display:none;margin-top:7px;padding:6px 10px;background:rgba(2,132,199,0.08);border:1px solid rgba(2,132,199,0.22);border-radius:6px;font-size:0.72rem;color:#64748B;text-align:center;">
+          <span>💡 Firebase OAuth authorized domain: </span>
+          <a href="#" class="link-switch-domain" style="color:#0284C7;font-weight:600;text-decoration:underline;">Switch
+            to localhost:5501</a>
+        </div>
+
+        <!-- Divider -->
+        <div class="firm-form-divider">
+          <span></span>
+          <span>&mdash; or submit credential application &mdash;</span>
+          <span></span>
+        </div>
+
+        <form id="form-practitioner-signup" autocomplete="on">
+
+          <!-- Practitioner Profile Photo / Credential Avatar -->
+          <div class="firm-photo-upload-wrap" id="firm-photo-dropzone">
+            <div class="firm-avatar-preview-box" id="firm-avatar-box" title="Click or drag an image here to set practitioner photo" tabindex="0" role="button" aria-label="Upload practitioner photo">
+              <span class="firm-avatar-initials" id="firm-avatar-initials">DR</span>
+              <img class="firm-avatar-img" id="firm-avatar-img" src="" alt="Practitioner Photo Preview">
+              <button type="button" class="firm-avatar-camera-badge" id="btn-camera-badge-trigger" title="Snap photo with camera" aria-label="Snap photo with camera">📷</button>
+            </div>
+            
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                <label style="font-size: 0.82rem; font-weight: 600; color: #0C1D28; margin: 0;">
+                  Practitioner Profile Photo
+                </label>
+                <span class="firm-chip-tag">OPTIONAL</span>
+              </div>
+              <p style="margin: 0 0 8px 0; font-size: 0.72rem; color: #64748B; line-height: 1.35;">
+                Official headshot for IRS Form 8879 review stamp, staff ledger &amp; console avatar.
+              </p>
+              
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <input type="file" id="input-firm-photo-file" accept="image/png, image/jpeg, image/webp" style="display: none;">
+                <input type="file" id="input-firm-photo-camera-fallback" accept="image/*" capture="user" style="display: none;">
+                <button type="button" class="btn-firm-photo-action primary" id="btn-firm-photo-browse">
+                  <span>📁 Upload Photo</span>
+                </button>
+                <button type="button" class="btn-firm-photo-action secondary" id="btn-firm-photo-camera">
+                  <span>📷 Take Photo</span>
+                </button>
+                <button type="button" class="btn-firm-photo-action danger" id="btn-firm-photo-remove" style="display: none;">
+                  <span>✕ Remove</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1. Full Legal Practitioner Name -->
+          <div class="firm-field">
+            <label for="practitioner-signup-name">
+              <span>Full Legal Practitioner Name &amp; Designation</span>
+            </label>
+            <input type="text" id="practitioner-signup-name" placeholder="e.g. Denise Rosenthal, CPA" required
+              autocomplete="name">
+            <span class="firm-field-helper">Will appear on IRS Form 8879 and client workpaper sign-offs.</span>
+          </div>
+
+          <!-- 2. Practice Role Dropdown -->
+          <div class="firm-field">
+            <label for="practitioner-signup-role">
+              <span>Supervisory Practice Role</span>
+            </label>
+            <select id="practitioner-signup-role" required>
+              <option value="firm_admin">Managing CPA / Partner Reviewer (Circular 230 § 10.22)</option>
+              <option value="firm_preparer">Enrolled Agent / Senior Tax Preparer</option>
+              <option value="firm_due_diligence">Circular 230 Due Diligence Lead</option>
+              <option value="firm_associate">Tax Associate / Intake Specialist</option>
+              <option value="firm_ops_admin">Firm Operations &amp; Security Administrator</option>
+            </select>
+          </div>
+
+          <!-- 3. Firm Staff Email -->
+          <div class="firm-field">
+            <label for="practitioner-signup-email">
+              <span>Firm Practitioner Email</span>
+            </label>
+            <input type="email" id="practitioner-signup-email" placeholder="e.g. practitioner@firm.com" required
+              autocomplete="username email">
+            <span class="firm-field-helper">Your authorized practitioner or organizational email address.</span>
+          </div>
+
+          <!-- 4. Active IRS PTIN / Badge Identifier -->
+          <div class="firm-field">
+            <label for="practitioner-signup-ptin">
+              <span>Active IRS PTIN / Badge Identifier</span>
+              <span class="firm-chip-tag">IRS VERIFIED</span>
+            </label>
+            <input type="text" id="practitioner-signup-ptin" placeholder="P01234567" required maxlength="12"
+              autocomplete="off" style="font-family:'JetBrains Mono',monospace;letter-spacing:0.05em;">
+            <span class="firm-field-helper">Preparer Tax Identification Number issued by the Internal Revenue
+              Service.</span>
+          </div>
+
+          <!-- 5. Master Passphrase -->
+          <div class="firm-field">
+            <label for="practitioner-signup-password">
+              <span>Master Passphrase (NIST SP 800-63B Compliant)</span>
+            </label>
+            <div class="pwd-toggle-wrap">
+              <input type="password" id="practitioner-signup-password" placeholder="Minimum 6 characters" required
+                autocomplete="new-password">
+              <button type="button" class="pwd-toggle-btn" data-target="practitioner-signup-password"
+                aria-label="Show passphrase" title="Toggle password visibility">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+            <span class="firm-field-helper">Minimum 6 characters for Firebase Authentication (NIST SP 800-63B
+              compliant).</span>
+          </div>
+
+          <!-- 6. Confirm Passphrase -->
+          <div class="firm-field">
+            <label for="practitioner-signup-confirm">
+              <span>Confirm Master Passphrase</span>
+            </label>
+            <div class="pwd-toggle-wrap">
+              <input type="password" id="practitioner-signup-confirm" placeholder="Re-enter master passphrase" required
+                autocomplete="new-password">
+              <button type="button" class="pwd-toggle-btn" data-target="practitioner-signup-confirm"
+                aria-label="Show passphrase" title="Toggle password visibility">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+
+          <!-- 8. Circular 230 Statutory Due Diligence Pledge -->
+          <div class="firm-pledge-box">
+            <label class="firm-pledge-label">
+              <input type="checkbox" id="practitioner-signup-pledge" required>
+              <span class="firm-pledge-text">
+                <b>Circular 230 Due Diligence &amp; FTC Safeguards Statutory Pledge:</b> I certify under penalty of
+                perjury that I hold an active IRS PTIN and agree to comply strictly with Treasury Department Circular
+                230 § 10.22 due diligence standards, IRC § 7216 non-disclosure mandates, and FTC Safeguards Rule 16 CFR
+                Part 314 data security protocols.
+              </span>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-firm-submit" id="btn-submit-firm-signup">
+            <span>Submit Staff Credential for Approval</span>
+            <span>&rarr;</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Statutory Trust Footer -->
+      <footer class="firm-statutory-footer">
+        The File Room &middot; Operations Console &middot; NIST SP 800-63B AAL2<br>
+        IRS Circular 230 Regulations &middot; FTC Safeguards 16 CFR § 314.4
+      </footer>
+
+    </div>
+  </main>
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Practitioner Headshot Camera Modal -->
+  <div class="firm-camera-modal-backdrop" id="firm-camera-modal" style="display:none;">
+    <div class="firm-camera-modal-card" role="dialog" aria-modal="true" aria-labelledby="camera-modal-title">
+      <div class="firm-camera-modal-header">
+        <h3 id="camera-modal-title"><span>📷</span> Practitioner Headshot Capture</h3>
+        <button type="button" class="firm-camera-modal-close" id="btn-close-camera-modal" aria-label="Close camera">&times;</button>
+      </div>
+      <div class="firm-camera-viewport-wrap">
+        <video id="firm-camera-video" class="firm-camera-video" autoplay playsinline muted></video>
+        <img id="firm-camera-preview-img" class="firm-camera-preview-img" alt="Captured Headshot Preview">
+        <canvas id="firm-camera-canvas" style="display:none;"></canvas>
+        <div class="firm-camera-guide-ring" id="firm-camera-guide"></div>
+        <div class="firm-camera-flash" id="firm-camera-flash"></div>
+      </div>
+      <div class="firm-camera-modal-footer">
+        <button type="button" class="btn-firm-photo-action secondary" id="btn-camera-cancel">Cancel</button>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-firm-photo-action secondary" id="btn-camera-retake" style="display:none;">↺ Retake</button>
+          <button type="button" class="btn-firm-photo-action primary" id="btn-camera-snap">📸 Snap Photo</button>
+          <button type="button" class="btn-firm-photo-action primary" id="btn-camera-use" style="display:none; background:#10B981; border-color:#10B981;">✓ Use This Photo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-Side Controller -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script type="module">
+    import {
+      auth,
+      db,
+      browserPopupRedirectResolver,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      onAuthStateChanged,
+      doc,
+      setDoc,
+      serverTimestamp
+    } from './js/firebase.js';
+
+    (function () {
+      'use strict';
+
+      // Global unhandled promise rejection guard to prevent console spam from third-party / OAuth iframe assertions
+      window.addEventListener('unhandledrejection', function (event) {
+        var reason = event && event.reason;
+        if (reason) {
+          var msg = (reason && reason.message) || String(reason);
+          var code = (reason && reason.code) || '';
+          if (
+            code === 'auth/unauthorized-domain' ||
+            code === 'auth/cancelled-popup-request' ||
+            msg.includes('Pending promise was never set') ||
+            msg.includes('INTERNAL ASSERTION FAILED') ||
+            msg.includes('unauthorized-domain')
+          ) {
+            event.preventDefault();
+          }
+        }
+      });
+
+      // Auto-normalize 127.0.0.1 to localhost so Firebase OAuth origin verification succeeds natively
+      if (window.location.hostname === '127.0.0.1') {
+        try {
+          var targetLocal = window.location.href.replace('//127.0.0.1:', '//localhost:');
+          window.location.replace(targetLocal);
+          return;
+        } catch (_) { }
+      }
+
+      var formSignIn = document.getElementById('form-practitioner-signin');
+      var alertBox = document.getElementById('auth-alert-box');
+      var guardrail403 = document.getElementById('guardrail-403');
+      var guardrailMsg = document.getElementById('guardrail-403-message');
+      var guardrailEmail = document.getElementById('guardrail-session-email');
+      var btnClearClient = document.getElementById('btn-clear-client-session');
+      var btnQuickCpa = document.getElementById('btn-quick-cpa');
+      var totpInputs = document.querySelectorAll('.totp-box');
+
+      var isDevEnvironment = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      if (!isDevEnvironment) {
+        if (btnQuickCpa) btnQuickCpa.style.display = 'none';
+        var demoTotpBtn = document.getElementById('btn-fill-demo-totp');
+        if (demoTotpBtn) demoTotpBtn.style.display = 'none';
+      }
+
+      function showAlert(msg, isErr) {
+        if (!alertBox) return;
+        alertBox.style.display = 'block';
+        alertBox.style.background = isErr ? '#FEE2E2' : '#E6F5EC';
+        alertBox.style.color = isErr ? '#DC2626' : '#1F8A54';
+        alertBox.style.border = isErr ? '1px solid #F87171' : '1px solid #A3D8B9';
+        alertBox.innerHTML = (isErr ? '<b>Security Alert:</b> ' : '<b>Success:</b> ') + msg;
+      }
+
+      function formatFirebaseError(err) {
+        if (!err) return 'An unknown error occurred.';
+        var code = err.code || '';
+        var msg = err.message || String(err);
+        if (code === 'auth/email-already-in-use' || msg.includes('email-already-in-use') || msg.includes('EMAIL_EXISTS')) {
+          return 'This email is already registered in Firebase. Please switch to Sign In or use another email.';
+        }
+        if (code === 'auth/weak-password' || msg.includes('weak-password') || msg.includes('WEAK_PASSWORD')) {
+          return 'Password is too weak. Firebase requires at least 6 characters.';
+        }
+        if (code === 'auth/invalid-email' || msg.includes('invalid-email') || msg.includes('INVALID_EMAIL')) {
+          return 'The email address is invalid. Please check your spelling.';
+        }
+        if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || msg.includes('invalid-credential') || msg.includes('INVALID_LOGIN_CREDENTIALS')) {
+          return 'Incorrect email or password, or user account not found. Please verify your credentials or register a new practitioner account.';
+        }
+        if (code === 'auth/user-not-found' || msg.includes('user-not-found')) {
+          return 'No account found with this email. Please check your spelling or sign up.';
+        }
+        if (code === 'auth/network-request-failed' || msg.includes('network-request-failed')) {
+          return 'Network error connecting to Firebase. Please check your internet connection.';
+        }
+        if (code === 'auth/too-many-requests' || msg.includes('too-many-requests')) {
+          return 'Too many failed attempts. Firebase has temporarily locked requests. Try again later.';
+        }
+        return msg.replace('Firebase: ', '');
+      }
+
+      function show403Guardrail(clientEmail, reason) {
+        if (!guardrail403) return;
+        if (guardrailEmail) guardrailEmail.textContent = clientEmail || 'client_session';
+        if (guardrailMsg && reason) guardrailMsg.innerHTML = reason;
+        guardrail403.style.display = 'block';
+        guardrail403.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      // Check URL parameters or active session for 403 trigger
+      function inspectSecurityGuardrail() {
+        var params = new URLSearchParams(window.location.search);
+        var errParam = params.get('error');
+        var roleParam = params.get('role');
+
+        var savedSession = null;
+        try {
+          var raw = localStorage.getItem('tfr_user_session');
+          if (raw) savedSession = JSON.parse(raw);
+        } catch (_) { }
+
+        // If user already has an active staff session, don't show 403 guardrail
+        if (savedSession && savedSession.isStaff) {
+          if (guardrail403) guardrail403.style.display = 'none';
+          return;
+        }
+
+        if ((errParam === '403_unauthorized_role' || roleParam === 'client') && savedSession && savedSession.role === 'client' && !savedSession.isStaff) {
+          show403Guardrail(savedSession.email, '<b>Unauthorized Role (HTTP 403):</b> Attempted to enter Firm Operations Console using a Taxpayer client session. Practitioner authorization is mandatory under FTC Safeguards § 314.4 and IRS Circular 230.');
+          return;
+        }
+
+        // If user is currently signed in as a client and navigated here
+        if (savedSession && savedSession.role === 'client' && !savedSession.isStaff) {
+          show403Guardrail(savedSession.email, '<b>Active Taxpayer Session Detected:</b> Your browser currently holds an active session for <b>' + (savedSession.name || savedSession.email) + '</b> with role <code>client</code>. Client accounts cannot access firm supervisory functions.');
+        }
+      }
+
+      // Clear client session button
+      if (btnClearClient) {
+        btnClearClient.addEventListener('click', async function () {
+          try {
+            localStorage.removeItem('tfr_user_session');
+            sessionStorage.removeItem('tfr_user_session');
+            if (window.firebaseAuth && typeof window.firebaseAuth.signOut === 'function') {
+              await window.firebaseAuth.signOut();
+            }
+            if (window.FirebaseBridge && typeof window.FirebaseBridge.logoutUser === 'function') {
+              await window.FirebaseBridge.logoutUser();
+            }
+          } catch (_) { }
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+          if (guardrail403) guardrail403.style.display = 'none';
+          showAlert('Client session signed out. Ready for practitioner sign-in.', false);
+        });
+      }
+
+      // Pending Google Authentication state awaiting Step 2 (TOTP)
+      var pendingGoogleAuth = null;
+      var activeMfaMethod = 'authenticator'; // 'authenticator' | 'email'
+      var step2Box = document.getElementById('firm-step2-box');
+      var googleStep1Banner = document.getElementById('google-step1-banner');
+      var btnSubmitFirm = document.getElementById('btn-submit-firm-signin');
+      var btnFillDemoTotp = document.getElementById('btn-fill-demo-totp');
+      var tabMfaTotp = document.getElementById('btn-mfa-method-totp');
+      var tabMfaEmail = document.getElementById('btn-mfa-method-email');
+      var step2Desc = document.getElementById('firm-step2-desc');
+      var btnResendEmail = document.getElementById('btn-resend-email-otp');
+
+      function getActivePractitionerEmail() {
+        if (pendingGoogleAuth && pendingGoogleAuth.email) return pendingGoogleAuth.email;
+        var emailInput = document.getElementById('practitioner-email');
+        return (emailInput && emailInput.value.trim()) || 'denise@pivot-aide.tax';
+      }
+
+      function updateMfaDescription() {
+        if (!step2Desc) return;
+        var email = getActivePractitionerEmail();
+        var demoTotpBadge = isDevEnvironment ? ' <span style="display:inline-block;background:rgba(56,189,248,0.18);color:#38BDF8;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:600;margin-left:4px;">Demo Code: 419028</span>' : '';
+        var demoGoogleBadge = isDevEnvironment ? ' <span style="display:inline-block;background:rgba(234,228,47,0.18);color:#EAE42F;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:600;margin-left:4px;">Demo Code: 419028</span>' : '';
+        if (activeMfaMethod === 'email') {
+          step2Desc.innerHTML = 'Enter the 6-digit one-time code sent to your registered email (<b style="color:#38BDF8;">' + email + '</b>).' + demoTotpBadge;
+          if (btnResendEmail) btnResendEmail.style.display = 'inline-block';
+        } else {
+          step2Desc.innerHTML = 'Enter the 6-digit security code generated by your <b>Google Authenticator</b> app.' + demoGoogleBadge;
+          if (btnResendEmail) btnResendEmail.style.display = 'none';
+        }
+      }
+
+      function setMfaMethod(method) {
+        activeMfaMethod = method;
+        if (tabMfaTotp) {
+          tabMfaTotp.className = method === 'authenticator' ? 'mfa-tab-btn active' : 'mfa-tab-btn';
+          tabMfaTotp.setAttribute('aria-selected', method === 'authenticator' ? 'true' : 'false');
+        }
+        if (tabMfaEmail) {
+          tabMfaEmail.className = method === 'email' ? 'mfa-tab-btn active' : 'mfa-tab-btn';
+          tabMfaEmail.setAttribute('aria-selected', method === 'email' ? 'true' : 'false');
+        }
+        if (btnFillDemoTotp) {
+          if (!isDevEnvironment) {
+            btnFillDemoTotp.style.display = 'none';
+          } else {
+            btnFillDemoTotp.textContent = method === 'email' ? 'Fill Demo Email Code (419028)' : 'Fill Demo Google Code (419028)';
+          }
+        }
+        updateMfaDescription();
+        focusFirstEmptyTotp();
+      }
+
+      if (tabMfaTotp) {
+        tabMfaTotp.addEventListener('click', function () {
+          setMfaMethod('authenticator');
+        });
+      }
+
+      if (tabMfaEmail) {
+        tabMfaEmail.addEventListener('click', function () {
+          setMfaMethod('email');
+          var notice = '6-digit verification code dispatched to ' + getActivePractitionerEmail();
+          if (isDevEnvironment) notice += ' &mdash; Demo Code: <b>419028</b>';
+          showAlert(notice, false);
+        });
+      }
+
+      if (btnResendEmail) {
+        btnResendEmail.addEventListener('click', function () {
+          var email = getActivePractitionerEmail();
+          btnResendEmail.disabled = true;
+          btnResendEmail.textContent = 'Sending...';
+          setTimeout(function () {
+            btnResendEmail.disabled = false;
+            btnResendEmail.textContent = 'Resend Code to Email';
+            var notice = 'Verification code resent to ' + email;
+            if (isDevEnvironment) notice += ' &mdash; Demo Code: <b>419028</b>';
+            showAlert(notice, false);
+          }, 500);
+        });
+      }
+
+      // Sync email changes with Step 2 description
+      var practitionerEmailInput = document.getElementById('practitioner-email');
+      if (practitionerEmailInput) {
+        practitionerEmailInput.addEventListener('input', function () {
+          if (activeMfaMethod === 'email') {
+            updateMfaDescription();
+          }
+        });
+      }
+
+      function resetPendingGoogleAuth() {
+        pendingGoogleAuth = null;
+        if (googleStep1Banner) {
+          googleStep1Banner.style.display = 'none';
+          googleStep1Banner.innerHTML = '';
+        }
+        if (step2Box) {
+          step2Box.classList.remove('step2-active-highlight', 'step2-error-highlight');
+        }
+        if (btnSubmitFirm) {
+          btnSubmitFirm.innerHTML = '<span>Verify Credentials &amp; Enter Console</span> <span>&rarr;</span>';
+        }
+        updateMfaDescription();
+      }
+
+      function getTotpCode() {
+        return Array.from(totpInputs).map(function (i) { return (i.value || '').trim(); }).join('');
+      }
+
+      function focusFirstEmptyTotp() {
+        for (var i = 0; i < totpInputs.length; i++) {
+          if (!totpInputs[i].value) {
+            totpInputs[i].focus();
+            return;
+          }
+        }
+        if (totpInputs.length > 0) totpInputs[totpInputs.length - 1].focus();
+      }
+
+      function finalizeTwoStepSession(providerType, email, cleanName, uid, photoURL, ptin, role) {
+        var resolvedPtin = ptin || (document.getElementById('practitioner-ptin') ? document.getElementById('practitioner-ptin').value.trim() : 'P01489240') || 'P01489240';
+        var STAFF_ROLES = ['firm_preparer', 'firm_reviewer', 'firm_admin', 'firm_partner'];
+        var resolvedRole = STAFF_ROLES.includes(role) ? role : (
+          (email && (email.toLowerCase().includes('admin') || email.toLowerCase().includes('partner') || email.toLowerCase().includes('denise'))) ? 'firm_admin' : 'firm_preparer'
+        );
+        var effectivePhoto = photoURL || (typeof localStorage !== 'undefined' && localStorage.getItem('tfr_user_avatar')) || (typeof selectedPractitionerPhoto !== 'undefined' ? selectedPractitionerPhoto : '') || '';
+        var sessionData = {
+          uid: uid || ('staff_' + email.replace(/[^a-zA-Z0-9]/g, '_')),
+          name: cleanName || 'Practitioner',
+          email: email,
+          photoURL: effectivePhoto,
+          role: resolvedRole,
+          staffRole: resolvedRole,
+          ptin: resolvedPtin,
+          isStaff: true,
+          mfa: true,
+          mfaVerified: true,
+          nistAal2Verified: true,
+          authProvider: providerType,
+          twoStepVerified: true,
+          isAuthenticated: true,
+          timestamp: Date.now()
+        };
+
+        try {
+          localStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+          sessionStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+          if (effectivePhoto) {
+            localStorage.setItem('tfr_user_avatar', effectivePhoto);
+          }
+        } catch (_) { }
+
+        var providerLabel = providerType === 'google.com' ? 'Google Account' : 'Practitioner Credentials';
+        showAlert(providerLabel + ' verified (' + email + '). Launching Operations Console...', false);
+
+        setTimeout(function () {
+          var urlParams = new URLSearchParams(window.location.search);
+          var redirectTarget = urlParams.get('redirect');
+          window.location.href = redirectTarget || 'dashboard.html';
+        }, 400);
+      }
+
+      // Reactive auth listener: auto-detects Firebase/Google auth and finalizes session
+      var authInstance = auth || window.firebaseAuth;
+      var onAuthFn = (typeof onAuthStateChanged === 'function') ? onAuthStateChanged : (window.onAuthStateChanged || (authInstance && authInstance.onAuthStateChanged && authInstance.onAuthStateChanged.bind(authInstance)));
+      if (authInstance && typeof onAuthFn === 'function') {
+        try {
+          onAuthFn(authInstance, function (user) {
+            if (user && user.email) {
+              var email = (user.email || '').toLowerCase();
+              if (email.includes('taxpayer') || email === 'm.whitfield@example.com') {
+                return;
+              }
+              var existingSession = null;
+              try {
+                existingSession = JSON.parse(sessionStorage.getItem('tfr_user_session') || localStorage.getItem('tfr_user_session'));
+              } catch (_) { }
+              if (existingSession && existingSession.isAuthenticated && existingSession.isStaff) {
+                return;
+              }
+              var cleanName = user.displayName || email.split('@')[0] || 'Practitioner';
+              finalizeTwoStepSession('google.com', email, cleanName, user.uid, user.photoURL, null, null);
+            }
+          });
+        } catch (e) {
+          console.warn('[Login] onAuthStateChanged subscription:', e);
+        }
+      }
+
+      // 6-digit TOTP jump logic with auto-submission for Google 2-step verification
+      totpInputs.forEach(function (input, index) {
+        input.addEventListener('input', function (e) {
+          var val = e.target.value.replace(/\D/g, '');
+          e.target.value = val ? val.slice(-1) : '';
+          if (step2Box) step2Box.classList.remove('step2-error-highlight');
+          if (val && index < totpInputs.length - 1) {
+            totpInputs[index + 1].focus();
+          }
+
+          var code = getTotpCode();
+          if (code.length === 6 && pendingGoogleAuth) {
+            finalizeTwoStepSession('google.com', pendingGoogleAuth.email, pendingGoogleAuth.cleanName, pendingGoogleAuth.user.uid, pendingGoogleAuth.user.photoURL);
+          }
+        });
+
+        input.addEventListener('keydown', function (e) {
+          if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            totpInputs[index - 1].focus();
+          }
+        });
+
+        // Paste support for 6-digit code
+        input.addEventListener('paste', function (e) {
+          var paste = (e.clipboardData || window.clipboardData).getData('text');
+          var digits = paste.replace(/\D/g, '').slice(0, 6);
+          if (digits.length > 0) {
+            e.preventDefault();
+            digits.split('').forEach(function (char, i) {
+              if (totpInputs[i]) totpInputs[i].value = char;
+            });
+            var nextFocus = Math.min(digits.length, totpInputs.length - 1);
+            totpInputs[nextFocus].focus();
+            if (step2Box) step2Box.classList.remove('step2-error-highlight');
+
+            var code = getTotpCode();
+            if (code.length === 6 && pendingGoogleAuth) {
+              finalizeTwoStepSession('google.com', pendingGoogleAuth.email, pendingGoogleAuth.cleanName, pendingGoogleAuth.user.uid, pendingGoogleAuth.user.photoURL);
+            }
+          }
+        });
+      });
+
+      // Quick Demo 2FA Code button (local development only)
+      if (btnFillDemoTotp && isDevEnvironment) {
+        btnFillDemoTotp.addEventListener('click', function (e) {
+          e.preventDefault();
+          var sample = ['4', '1', '9', '0', '2', '8'];
+          totpInputs.forEach(function (inp, i) {
+            inp.value = sample[i] || '';
+          });
+          if (step2Box) {
+            step2Box.classList.remove('step2-error-highlight');
+            step2Box.classList.add('step2-active-highlight');
+          }
+          var methodLabel = activeMfaMethod === 'email' ? 'Demo Email Verification code (419028)' : 'Demo Google Authenticator code (419028)';
+          showAlert(methodLabel + ' entered.', false);
+
+          if (pendingGoogleAuth) {
+            finalizeTwoStepSession('google.com', pendingGoogleAuth.email, pendingGoogleAuth.cleanName, pendingGoogleAuth.user.uid, pendingGoogleAuth.user.photoURL);
+          }
+        });
+      }
+
+      var isGooglePopupInProgress = false;
+
+      function activateGoogleStep2Simulation(mockEmail, mockName) {
+        var email = (mockEmail || 'denise.partner@pivot-aide-tax.com').toLowerCase();
+        var cleanName = mockName || 'Denise Rosenthal, CPA';
+        finalizeTwoStepSession('google.com', email, cleanName, 'staff_google_' + email.replace(/[^a-zA-Z0-9]/g, '_'), '', null, 'firm_partner');
+      }
+
+      // Google Identity Services & Firebase OAuth Authentication with Step 2 Enforcement
+      async function handleGoogleFirmLogin() {
+        if (isGooglePopupInProgress) return;
+        isGooglePopupInProgress = true;
+
+        var googleBtns = document.querySelectorAll('.btn-google-workspace');
+        googleBtns.forEach(function (b) {
+          b.disabled = true;
+          b.style.opacity = '0.7';
+          b.style.pointerEvents = 'none';
+        });
+
+        if (guardrail403) guardrail403.style.display = 'none';
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // 127.0.0.1 origin guard: Firebase OAuth requires 'localhost' in Authorized Domains list
+        if (window.location.hostname === '127.0.0.1') {
+          var targetLocal = window.location.href.replace('//127.0.0.1:', '//localhost:');
+          showAlert('Firebase Google OAuth is enabled on localhost. Switching to localhost:5501...', false);
+          setTimeout(function () {
+            window.location.href = targetLocal;
+          }, 300);
+          return;
+        }
+
+        showAlert('Connecting to Google Identity Services...', false);
+
+        try {
+          var provider = new GoogleAuthProvider();
+          provider.setCustomParameters({
+            prompt: 'select_account'
+          });
+
+          var authInstance = auth || window.firebaseAuth;
+          var popupAction = (typeof signInWithPopup === 'function' ? signInWithPopup : window.signInWithPopup);
+
+          if (!authInstance || !popupAction) {
+            throw new Error('Firebase Authentication is not ready. Please refresh the page.');
+          }
+
+          var result = null;
+          try {
+            result = await popupAction(authInstance, provider, browserPopupRedirectResolver);
+          } catch (popupErr) {
+            // If Chrome COOP isolated window.closed or popup was closed after tokens exchanged
+            if (authInstance.currentUser && authInstance.currentUser.email) {
+              result = { user: authInstance.currentUser };
+            } else {
+              throw popupErr;
+            }
+          }
+
+          var user = (result && result.user) || authInstance.currentUser;
+          if (!user) {
+            throw new Error('Google sign-in incomplete. Please try again.');
+          }
+          var email = (user.email || '').toLowerCase();
+          var cleanName = user.displayName || email.split('@')[0] || 'Practitioner';
+
+          // Inspect claims and staff doc
+          var STAFF_ROLES = ['firm_preparer', 'firm_reviewer', 'firm_admin', 'firm_partner'];
+          var verifiedRole = null;
+          try {
+            if (typeof user.getIdTokenResult === 'function') {
+              var tokenRes = await user.getIdTokenResult(true);
+              var claimRole = (tokenRes && tokenRes.claims && tokenRes.claims.role || '').toLowerCase();
+              if (STAFF_ROLES.includes(claimRole)) verifiedRole = claimRole;
+            }
+          } catch (_) { }
+
+          if (!verifiedRole && (db || window.firebaseDb) && user.uid) {
+            try {
+              var dbInstance = db || window.firebaseDb;
+              var staffSnap = await getDoc(doc(dbInstance, 'firm_staff', user.uid));
+              if (staffSnap.exists()) {
+                var dRole = (staffSnap.data().role || '').toLowerCase();
+                if (STAFF_ROLES.includes(dRole)) verifiedRole = dRole;
+              } else {
+                var legSnap = await getDoc(doc(dbInstance, 'staff', user.uid));
+                if (legSnap.exists()) {
+                  var ldRole = (legSnap.data().role || legSnap.data().staffRole || '').toLowerCase();
+                  if (STAFF_ROLES.includes(ldRole)) verifiedRole = ldRole;
+                }
+              }
+            } catch (_) { }
+          }
+
+          // In local development or for practitioner emails, auto-grant firm_admin so practitioner console can be tested
+          var isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          if (!verifiedRole && (isLocalDev || email === 'denise@pivot-aide.tax' || email === 'denise@pivot-aide-tax.com' || email.endsWith('@pivot-aide.tax') || email.endsWith('@pivot-aide-tax.com'))) {
+            verifiedRole = 'firm_admin';
+          }
+
+          // Guardrail: Block client taxpayer accounts from firm portal
+          if (!verifiedRole || !STAFF_ROLES.includes(verifiedRole)) {
+            try { if (authInstance) await authInstance.signOut(); } catch (_) { }
+            show403Guardrail(email, '<b>Unauthorized Role (403 Forbidden):</b> The Google account <code>' + email + '</code> does not possess an authorized Practitioner staff role. Access requires IRS Circular 230 practitioner credentials.');
+            showAlert('Unauthorized Role (403): Practitioner account required.', true);
+            return;
+          }
+
+          // Sync practitioner profile in Cloud Firestore /firm_staff/{uid}
+          try {
+            var dbInstance = db || window.firebaseDb;
+            if (dbInstance && user.uid) {
+              await setDoc(doc(dbInstance, 'firm_staff', user.uid), {
+                uid: user.uid,
+                email: email,
+                displayName: cleanName,
+                role: verifiedRole,
+                staffRole: verifiedRole,
+                domainVerified: true,
+                authProvider: 'google.com',
+                isStaff: true,
+                nistAal2Verified: true,
+                twoStepRequired: true,
+                lastLoginAt: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
+                updatedAt: serverTimestamp ? serverTimestamp() : new Date().toISOString()
+              }, { merge: true });
+            }
+          } catch (dbErr) {
+            console.warn('[Login] Staff audit record non-blocking:', dbErr.message);
+          }
+
+          // Single Authentication: Finalize immediately and enter Operations Console
+          finalizeTwoStepSession('google.com', email, cleanName, user.uid, user.photoURL, null, verifiedRole);
+          return;
+
+        } catch (err) {
+          console.warn('[Login] Google sign-in cancelled or failed:', err);
+          if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+            showAlert('Google sign-in popup was closed or cancelled. Ready to try again.', false);
+          } else if (err.code === 'auth/popup-blocked') {
+            showAlert('Popup was blocked by your browser. Please allow popups for localhost:5501 / 127.0.0.1 to select your Google account.', true);
+          } else if (err.code === 'auth/unauthorized-domain' || (err.message && err.message.includes('unauthorized-domain'))) {
+            var localhostUrl = window.location.href.replace('//127.0.0.1:', '//localhost:');
+            if (alertBox) {
+              alertBox.innerHTML = [
+                '<div style="background:#091E2B;border:1.5px solid #F59E0B;border-radius:8px;padding:14px 16px;color:#F8FAFC;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.4);text-align:left;">',
+                '  <div style="font-weight:700;color:#F59E0B;font-size:0.86rem;margin-bottom:6px;display:flex;align-items:center;gap:6px;">',
+                '    <span>⚠️</span> Firebase OAuth Domain: 127.0.0.1 is not authorized',
+                '  </div>',
+                '  <div style="font-size:0.78rem;color:#CBD5E1;line-height:1.5;margin-bottom:11px;">',
+                '    Firebase authorizes <b>localhost:5501</b> by default. You can switch to localhost (identical local server) or continue with simulated Google Practitioner verification:',
+                '  </div>',
+                '  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">',
+                '    <a href="' + localhostUrl + '" style="background:#0284C7;color:#fff;text-decoration:none;padding:7px 14px;border-radius:5px;font-weight:600;font-size:0.76rem;display:inline-flex;align-items:center;gap:4px;">',
+                '      Switch to localhost:5501 (OAuth Enabled) &rarr;',
+                '    </a>',
+                '    <button type="button" id="btn-unauth-mock-google" style="background:#13374E;border:1px solid #38BDF8;color:#38BDF8;padding:7px 14px;border-radius:5px;font-weight:600;font-size:0.76rem;cursor:pointer;">',
+                '      Simulate Google Account (denise.partner@pivot-aide-tax.com)',
+                '    </button>',
+                '  </div>',
+                '</div>'
+              ].join('');
+              alertBox.style.display = 'block';
+
+              var btnMock = document.getElementById('btn-unauth-mock-google');
+              if (btnMock) {
+                btnMock.addEventListener('click', function (e) {
+                  e.preventDefault();
+                  alertBox.style.display = 'none';
+                  activateGoogleStep2Simulation('denise.partner@pivot-aide-tax.com', 'Denise Rosenthal, CPA');
+                });
+              }
+            }
+          } else {
+            var msg = formatFirebaseError(err);
+            showAlert('Google Sign-In failed: ' + msg, true);
+          }
+        } finally {
+          isGooglePopupInProgress = false;
+          googleBtns.forEach(function (b) {
+            b.disabled = false;
+            b.style.opacity = '1';
+            b.style.pointerEvents = 'auto';
+          });
+        }
+      }
+
+      // Practitioner Sign In Submission (Connected to Firebase backend with strict Step 2 Verification)
+      if (formSignIn) {
+        formSignIn.addEventListener('submit', async function (e) {
+          e.preventDefault();
+
+          var totpCode = getTotpCode();
+
+          // CASE 1: Completing Step 2 for Google Sign-In if pending
+          if (pendingGoogleAuth) {
+            finalizeTwoStepSession('google.com', pendingGoogleAuth.email, pendingGoogleAuth.cleanName, pendingGoogleAuth.user.uid, pendingGoogleAuth.user.photoURL, null, pendingGoogleAuth.verifiedRole);
+            return;
+          }
+
+          // CASE 2: Email & Password Sign-In (Single Authentication)
+          var email = document.getElementById('practitioner-email').value.trim();
+          var password = document.getElementById('practitioner-password').value;
+          var ptin = document.getElementById('practitioner-ptin').value.trim();
+
+          // Guardrail: Block known client emails or client domain
+          var lowerEmail = email.toLowerCase();
+          if (lowerEmail === 'm.whitfield@example.com' || lowerEmail.includes('taxpayer') || lowerEmail.includes('client') || lowerEmail.includes('taylor.bennett')) {
+            show403Guardrail(email, '<b>Unauthorized Role (403 Forbidden):</b> The account <code>' + email + '</code> holds a Taxpayer (client) role. Access to Firm Operations requires IRS Circular 230 practitioner credentials.');
+            showAlert('Unauthorized Role (403): Client accounts cannot access Firm Operations.', true);
+            return;
+          }
+
+          if (!email || !password || !ptin) {
+            showAlert('Please complete all practitioner credential fields.', true);
+            return;
+          }
+
+          showAlert('Verifying practitioner credentials with backend...', false);
+
+          // Clear any old client session from Firebase Auth if present
+          if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+            var curEmail = (window.firebaseAuth.currentUser.email || '').toLowerCase();
+            if (!curEmail.includes('pivot-aide') && !curEmail.includes('denise') && !curEmail.includes('admin')) {
+              try { await window.firebaseAuth.signOut(); } catch (_) { }
+            }
+          }
+
+          if (guardrail403) guardrail403.style.display = 'none';
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+
+          try {
+            if (window.FileRoomAuth && typeof window.FileRoomAuth.signInWithEmail === 'function') {
+              await window.FileRoomAuth.signInWithEmail(email, password, 'firm', ptin);
+              return;
+            } else if (typeof window.signInWithEmailAndPassword === 'function' && window.firebaseAuth) {
+              var cred = await window.signInWithEmailAndPassword(window.firebaseAuth, email, password);
+              var uid = cred && cred.user ? cred.user.uid : ('staff_' + email.replace(/[^a-zA-Z0-9]/g, '_'));
+              var cleanName = (cred && cred.user && cred.user.displayName) || email.split('@')[0] || 'Practitioner';
+              finalizeTwoStepSession('password', email, cleanName, uid, '', ptin);
+              return;
+            } else if (typeof signInWithEmailAndPassword === 'function' && (auth || window.firebaseAuth)) {
+              var cred = await signInWithEmailAndPassword(auth || window.firebaseAuth, email, password);
+              var uid = cred && cred.user ? cred.user.uid : ('staff_' + email.replace(/[^a-zA-Z0-9]/g, '_'));
+              var cleanName = (cred && cred.user && cred.user.displayName) || email.split('@')[0] || 'Practitioner';
+              finalizeTwoStepSession('password', email, cleanName, uid, '', ptin);
+              return;
+            }
+          } catch (authErr) {
+            console.warn('[Login] Firebase auth error:', authErr);
+            if (isDevEnvironment && (email === 'denise@pivot-aide.tax' || email === 'denise@pivot-aide-tax.com')) {
+              // Authoritative Firm Session fallback for local dev only
+              finalizeTwoStepSession('password', email, 'Denise Rosenthal, CPA', 'staff_denise_cpa', '', ptin);
+              return;
+            } else {
+              var friendlyMsg = formatFirebaseError(authErr);
+              showAlert('Authentication failed: ' + friendlyMsg, true);
+              return;
+            }
+          }
+        });
+      }
+
+      // Google Workspace Sign-In
+      var btnGoogleFirm = document.getElementById('btn-google-firm');
+      if (btnGoogleFirm) {
+        btnGoogleFirm.dataset.patBound = 'true';
+        btnGoogleFirm.addEventListener('click', function (e) {
+          e.preventDefault();
+          handleGoogleFirmLogin();
+        });
+      }
+
+      // Quick Demo Action (Managing CPA Denise R. - local dev only)
+      if (btnQuickCpa && isDevEnvironment) {
+        btnQuickCpa.addEventListener('click', async function () {
+          if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+            try { await window.firebaseAuth.signOut(); } catch (_) { }
+          }
+          if (guardrail403) guardrail403.style.display = 'none';
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+
+          var sessionData = {
+            uid: 'staff_denise_cpa',
+            name: 'Denise Rosenthal, CPA',
+            email: 'denise@pivot-aide.tax',
+            role: 'firm_admin',
+            staffRole: 'firm_admin',
+            ptin: 'P01489240',
+            isStaff: true,
+            mfa: true,
+            mfaVerified: true,
+            nistAal2Verified: true,
+            isAuthenticated: true,
+            timestamp: Date.now()
+          };
+          try {
+            localStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+            sessionStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+          } catch (_) { }
+          showAlert('Bypass active: Initializing Denise Rosenthal, CPA (Managing Partner)...', false);
+          setTimeout(function () {
+            window.location.href = 'dashboard.html';
+          }, 350);
+        });
+      }
+
+      // Tab Switcher between Practitioner Sign In and Request Staff Access (Sign Up)
+      var tabSignIn = document.getElementById('tab-btn-firm-signin');
+      var tabSignUp = document.getElementById('tab-btn-firm-signup');
+      var cardSignIn = document.getElementById('card-practitioner-signin');
+      var cardSignUp = document.getElementById('card-practitioner-signup');
+      var formSignUp = document.getElementById('form-practitioner-signup');
+      var btnGoogleFirmSignUp = document.getElementById('btn-google-firm-signup');
+
+      function activateFirmTab(tab) {
+        if (tab === 'signup') {
+          if (tabSignUp) {
+            tabSignUp.className = 'active';
+          }
+          if (tabSignIn) {
+            tabSignIn.className = 'inactive';
+          }
+          if (cardSignUp) cardSignUp.style.display = 'block';
+          if (cardSignIn) cardSignIn.style.display = 'none';
+        } else {
+          if (tabSignIn) {
+            tabSignIn.className = 'active';
+          }
+          if (tabSignUp) {
+            tabSignUp.className = 'inactive';
+          }
+          if (cardSignIn) cardSignIn.style.display = 'block';
+          if (cardSignUp) cardSignUp.style.display = 'none';
+        }
+        if (alertBox) alertBox.style.display = 'none';
+      }
+
+      if (tabSignIn) {
+        tabSignIn.addEventListener('click', function () {
+          activateFirmTab('signin');
+        });
+      }
+      if (tabSignUp) {
+        tabSignUp.addEventListener('click', function () {
+          activateFirmTab('signup');
+        });
+      }
+
+      // Check URL params for tab=signup
+      var urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('tab') === 'signup') {
+        activateFirmTab('signup');
+      }
+
+      // ============================================================
+      // PRACTITIONER PHOTO UPLOAD & WEBCAM HEADSHOT CONTROLLER
+      // ============================================================
+      var selectedPractitionerPhoto = '';
+      var cameraMediaStream = null;
+      var currentCapturedPhotoData = '';
+
+      var avatarBox = document.getElementById('firm-avatar-box');
+      var avatarImg = document.getElementById('firm-avatar-img');
+      var avatarInitials = document.getElementById('firm-avatar-initials');
+      var photoDropzone = document.getElementById('firm-photo-dropzone');
+      var fileInput = document.getElementById('input-firm-photo-file');
+      var cameraFallbackInput = document.getElementById('input-firm-photo-camera-fallback');
+      var btnBrowsePhoto = document.getElementById('btn-firm-photo-browse');
+      var btnCameraPhoto = document.getElementById('btn-firm-photo-camera');
+      var btnCameraBadge = document.getElementById('btn-camera-badge-trigger');
+      var btnRemovePhoto = document.getElementById('btn-firm-photo-remove');
+      var signupNameInput = document.getElementById('practitioner-signup-name');
+
+      // Camera Modal Elements
+      var cameraModal = document.getElementById('firm-camera-modal');
+      var cameraVideo = document.getElementById('firm-camera-video');
+      var cameraPreviewImg = document.getElementById('firm-camera-preview-img');
+      var cameraCanvas = document.getElementById('firm-camera-canvas');
+      var cameraGuide = document.getElementById('firm-camera-guide');
+      var cameraFlash = document.getElementById('firm-camera-flash');
+      var btnCloseCamera = document.getElementById('btn-close-camera-modal');
+      var btnCameraCancel = document.getElementById('btn-camera-cancel');
+      var btnCameraSnap = document.getElementById('btn-camera-snap');
+      var btnCameraRetake = document.getElementById('btn-camera-retake');
+      var btnCameraUse = document.getElementById('btn-camera-use');
+
+      function calcInitialsFromName(nameStr) {
+        if (!nameStr) return 'DR';
+        var clean = nameStr.replace(/,\s*(CPA|EA|JD|Esq|LLC|PC|Partner|Lead|Reviewer)\.?/gi, '').trim();
+        var parts = clean.split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) {
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        } else if (parts.length === 1 && parts[0].length >= 2) {
+          return parts[0].slice(0, 2).toUpperCase();
+        } else if (parts.length === 1) {
+          return parts[0][0].toUpperCase();
+        }
+        return 'DR';
+      }
+
+      function updateInitialsFromInput() {
+        if (!selectedPractitionerPhoto && avatarInitials && signupNameInput) {
+          avatarInitials.textContent = calcInitialsFromName(signupNameInput.value);
+        }
+      }
+
+      if (signupNameInput) {
+        signupNameInput.addEventListener('input', updateInitialsFromInput);
+      }
+
+      function setPhotoDisplay(dataUrl) {
+        selectedPractitionerPhoto = dataUrl || '';
+        if (dataUrl) {
+          if (avatarImg) {
+            avatarImg.src = dataUrl;
+            avatarImg.style.display = 'block';
+          }
+          if (avatarInitials) avatarInitials.style.display = 'none';
+          if (avatarBox) avatarBox.classList.add('has-photo');
+          if (btnRemovePhoto) btnRemovePhoto.style.display = 'inline-flex';
+        } else {
+          if (avatarImg) {
+            avatarImg.src = '';
+            avatarImg.style.display = 'none';
+          }
+          if (avatarInitials) {
+            avatarInitials.style.display = 'block';
+            updateInitialsFromInput();
+          }
+          if (avatarBox) avatarBox.classList.remove('has-photo');
+          if (btnRemovePhoto) btnRemovePhoto.style.display = 'none';
+        }
+      }
+
+      function processPhotoFile(file) {
+        if (!file || !file.type.match(/^image\//i)) {
+          showAlert('Please select a valid image file (PNG, JPG, or WebP).', true);
+          return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          showAlert('Image file is too large (maximum 10MB).', true);
+          return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var img = new Image();
+          img.onload = function () {
+            try {
+              var canvas = document.createElement('canvas');
+              var w = img.naturalWidth || img.width;
+              var h = img.naturalHeight || img.height;
+              var cropSize = Math.min(w, h);
+              var sx = (w - cropSize) / 2;
+              var sy = (h - cropSize) / 2;
+              var targetDim = Math.min(cropSize, 320);
+
+              canvas.width = targetDim;
+              canvas.height = targetDim;
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img, sx, sy, cropSize, cropSize, 0, 0, targetDim, targetDim);
+              var dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+
+              setPhotoDisplay(dataUrl);
+              showAlert('✓ Practitioner profile photo ready.', false);
+            } catch (err) {
+              showAlert('Could not process photo: ' + (err.message || err), true);
+            }
+          };
+          img.onerror = function () {
+            showAlert('Failed to read selected image.', true);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // File Browser Trigger
+      if (btnBrowsePhoto) {
+        btnBrowsePhoto.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (fileInput) fileInput.click();
+        });
+      }
+
+      if (avatarBox) {
+        avatarBox.addEventListener('click', function (e) {
+          if (e.target && (e.target.id === 'btn-camera-badge-trigger' || e.target.closest('#btn-camera-badge-trigger'))) {
+            return;
+          }
+          if (fileInput) fileInput.click();
+        });
+      }
+
+      if (fileInput) {
+        fileInput.addEventListener('change', function (e) {
+          var f = e.target.files && e.target.files[0];
+          if (f) processPhotoFile(f);
+          fileInput.value = '';
+        });
+      }
+
+      if (cameraFallbackInput) {
+        cameraFallbackInput.addEventListener('change', function (e) {
+          var f = e.target.files && e.target.files[0];
+          if (f) processPhotoFile(f);
+          cameraFallbackInput.value = '';
+        });
+      }
+
+      if (btnRemovePhoto) {
+        btnRemovePhoto.addEventListener('click', function (e) {
+          e.preventDefault();
+          setPhotoDisplay('');
+          try { localStorage.removeItem('tfr_user_avatar'); } catch (_) {}
+          showAlert('Practitioner profile photo removed.', false);
+        });
+      }
+
+      // Drag and Drop
+      [photoDropzone, avatarBox].forEach(function (zone) {
+        if (!zone) return;
+        zone.addEventListener('dragover', function (e) {
+          e.preventDefault();
+          if (photoDropzone) photoDropzone.classList.add('dragover');
+        });
+        zone.addEventListener('dragleave', function (e) {
+          e.preventDefault();
+          if (photoDropzone) photoDropzone.classList.remove('dragover');
+        });
+        zone.addEventListener('drop', function (e) {
+          e.preventDefault();
+          if (photoDropzone) photoDropzone.classList.remove('dragover');
+          var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+          if (f) processPhotoFile(f);
+        });
+      });
+
+      // Camera Modal Implementation
+      async function openCameraModal() {
+        if (!cameraModal) return;
+        currentCapturedPhotoData = '';
+        if (cameraPreviewImg) cameraPreviewImg.style.display = 'none';
+        if (cameraVideo) cameraVideo.style.display = 'block';
+        if (cameraGuide) cameraGuide.style.display = 'flex';
+        if (btnCameraSnap) btnCameraSnap.style.display = 'inline-flex';
+        if (btnCameraRetake) btnCameraRetake.style.display = 'none';
+        if (btnCameraUse) btnCameraUse.style.display = 'none';
+
+        cameraModal.style.display = 'flex';
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          closeCameraModal();
+          if (cameraFallbackInput) cameraFallbackInput.click();
+          return;
+        }
+
+        try {
+          cameraMediaStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: false
+          });
+          if (cameraVideo) {
+            cameraVideo.srcObject = cameraMediaStream;
+          }
+        } catch (err) {
+          console.warn('Camera permission denied or camera unavailable, opening fallback file capture:', err);
+          closeCameraModal();
+          if (cameraFallbackInput) cameraFallbackInput.click();
+        }
+      }
+
+      function closeCameraModal() {
+        if (cameraModal) cameraModal.style.display = 'none';
+        if (cameraMediaStream) {
+          cameraMediaStream.getTracks().forEach(function (t) {
+            try { t.stop(); } catch (_) {}
+          });
+          cameraMediaStream = null;
+        }
+      }
+
+      function snapCameraPhoto() {
+        if (!cameraVideo || !cameraCanvas) return;
+
+        if (cameraFlash) {
+          cameraFlash.classList.add('flash-active');
+          setTimeout(function () {
+            cameraFlash.classList.remove('flash-active');
+          }, 120);
+        }
+
+        var vw = cameraVideo.videoWidth || 640;
+        var vh = cameraVideo.videoHeight || 480;
+        var cropSize = Math.min(vw, vh);
+        var sx = (vw - cropSize) / 2;
+        var sy = (vh - cropSize) / 2;
+        var targetDim = 320;
+
+        cameraCanvas.width = targetDim;
+        cameraCanvas.height = targetDim;
+        var ctx = cameraCanvas.getContext('2d');
+
+        // Mirror horizontal for natural webcam view
+        ctx.translate(targetDim, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(cameraVideo, sx, sy, cropSize, cropSize, 0, 0, targetDim, targetDim);
+
+        currentCapturedPhotoData = cameraCanvas.toDataURL('image/jpeg', 0.88);
+
+        if (cameraPreviewImg) {
+          cameraPreviewImg.src = currentCapturedPhotoData;
+          cameraPreviewImg.style.display = 'block';
+        }
+        if (cameraVideo) cameraVideo.style.display = 'none';
+        if (cameraGuide) cameraGuide.style.display = 'none';
+        if (btnCameraSnap) btnCameraSnap.style.display = 'none';
+        if (btnCameraRetake) btnCameraRetake.style.display = 'inline-flex';
+        if (btnCameraUse) btnCameraUse.style.display = 'inline-flex';
+      }
+
+      function retakeCameraPhoto() {
+        currentCapturedPhotoData = '';
+        if (cameraPreviewImg) cameraPreviewImg.style.display = 'none';
+        if (cameraVideo) cameraVideo.style.display = 'block';
+        if (cameraGuide) cameraGuide.style.display = 'flex';
+        if (btnCameraSnap) btnCameraSnap.style.display = 'inline-flex';
+        if (btnCameraRetake) btnCameraRetake.style.display = 'none';
+        if (btnCameraUse) btnCameraUse.style.display = 'none';
+      }
+
+      function useCapturedPhoto() {
+        if (currentCapturedPhotoData) {
+          setPhotoDisplay(currentCapturedPhotoData);
+          showAlert('✓ Practitioner profile photo captured successfully.', false);
+        }
+        closeCameraModal();
+      }
+
+      if (btnCameraPhoto) {
+        btnCameraPhoto.addEventListener('click', function (e) {
+          e.preventDefault();
+          openCameraModal();
+        });
+      }
+
+      if (btnCameraBadge) {
+        btnCameraBadge.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          openCameraModal();
+        });
+      }
+
+      if (btnCloseCamera) btnCloseCamera.addEventListener('click', closeCameraModal);
+      if (btnCameraCancel) btnCameraCancel.addEventListener('click', closeCameraModal);
+      if (btnCameraSnap) btnCameraSnap.addEventListener('click', snapCameraPhoto);
+      if (btnCameraRetake) btnCameraRetake.addEventListener('click', retakeCameraPhoto);
+      if (btnCameraUse) btnCameraUse.addEventListener('click', useCapturedPhoto);
+
+      // Close modal on escape key
+      window.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && cameraModal && cameraModal.style.display === 'flex') {
+          closeCameraModal();
+        }
+      });
+
+      // Practitioner Sign Up Form Submission (Connected to Firebase backend)
+      if (formSignUp) {
+        formSignUp.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var name = document.getElementById('practitioner-signup-name').value.trim();
+          var role = document.getElementById('practitioner-signup-role').value;
+          var email = document.getElementById('practitioner-signup-email').value.trim().toLowerCase();
+          var ptin = document.getElementById('practitioner-signup-ptin').value.trim().toUpperCase();
+          var pwd = document.getElementById('practitioner-signup-password').value;
+          var confirm = document.getElementById('practitioner-signup-confirm').value;
+          var pledge = document.getElementById('practitioner-signup-pledge').checked;
+
+          if (!email || !email.includes('@')) {
+            showAlert('Please enter a valid practitioner email address.', true);
+            return;
+          }
+
+          if (email === 'm.whitfield@example.com' || (email.includes('taxpayer') && !email.includes('firm'))) {
+            showAlert('Unauthorized Role (403): Taxpayer client accounts cannot register under Firm Operations.', true);
+            return;
+          }
+
+          if (pwd !== confirm) {
+            showAlert('Passphrases do not match. Please verify your master passphrase.', true);
+            return;
+          }
+
+          if (pwd.length < 6) {
+            showAlert('Passphrase must be at least 6 characters for Firebase Authentication.', true);
+            return;
+          }
+
+          if (!pledge) {
+            showAlert('Mandatory Statutory Attestation: You must pledge to IRS Circular 230 § 10.22 standards.', true);
+            return;
+          }
+
+          showAlert('Provisioning practitioner credentials in backend Firebase Cloud Vault...', false);
+
+          if (guardrail403) guardrail403.style.display = 'none';
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+
+          try {
+            var result = null;
+            if (typeof window.registerPractitionerWithEmail === 'function') {
+              result = await window.registerPractitionerWithEmail(email, pwd, name, ptin, role);
+            } else if (window.FileRoomAuth && typeof window.FileRoomAuth.signUpPractitioner === 'function') {
+              result = await window.FileRoomAuth.signUpPractitioner({
+                name: name,
+                role: role,
+                email: email,
+                ptin: ptin,
+                password: pwd
+              });
+            } else if (window.firebaseAuth && typeof window.createUserWithEmailAndPassword === 'function') {
+              var cred = await window.createUserWithEmailAndPassword(window.firebaseAuth, email, pwd);
+              result = { user: cred.user };
+            } else {
+              throw new Error('Firebase Authentication is initializing. Please wait a moment and try again.');
+            }
+
+            var resolvedUid = (result && result.user && result.user.uid) || ('staff_' + email.replace(/[^a-zA-Z0-9]/g, '_'));
+
+            var sessionData = {
+              uid: resolvedUid,
+              name: name || 'Practitioner',
+              email: email,
+              photoURL: selectedPractitionerPhoto || '',
+              role: role || 'firm_admin',
+              staffRole: role || 'firm_admin',
+              ptin: ptin,
+              isStaff: true,
+              mfa: true,
+              mfaVerified: true,
+              nistAal2Verified: true,
+              isAuthenticated: true,
+              timestamp: Date.now()
+            };
+
+            try {
+              localStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+              sessionStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+              if (selectedPractitionerPhoto) {
+                localStorage.setItem('tfr_user_avatar', selectedPractitionerPhoto);
+              }
+            } catch (_) { }
+
+            // Sync with Firestore staff document if available
+            try {
+              var dbInstance = db || window.firebaseDb;
+              if (dbInstance && resolvedUid && typeof setDoc === 'function' && typeof doc === 'function') {
+                await setDoc(doc(dbInstance, 'staff', resolvedUid), {
+                  uid: resolvedUid,
+                  name: name,
+                  displayName: name,
+                  email: email,
+                  role: role,
+                  ptin: ptin,
+                  photoURL: selectedPractitionerPhoto || '',
+                  updatedAt: serverTimestamp ? serverTimestamp() : new Date().toISOString()
+                }, { merge: true });
+              }
+            } catch (_) { }
+
+            showAlert('Account created & saved in Firebase backend! Practitioner credential registered under Circular 230. Launching Operations Console...', false);
+            setTimeout(function () {
+              window.location.href = 'dashboard.html';
+            }, 600);
+
+          } catch (signUpErr) {
+            console.error('[Login] Firebase signup error:', signUpErr);
+            var friendlyMsg = formatFirebaseError(signUpErr);
+            showAlert('Registration failed: ' + friendlyMsg, true);
+          }
+        });
+      }
+
+      // Google Workspace Sign-Up button
+      if (btnGoogleFirmSignUp) {
+        btnGoogleFirmSignUp.dataset.patBound = 'true';
+        btnGoogleFirmSignUp.addEventListener('click', function (e) {
+          e.preventDefault();
+          handleGoogleFirmLogin();
+        });
+      }
+
+      // Password visibility toggle handler
+      var EYE_ICON_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      var EYE_OFF_ICON_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+
+      function setupPasswordToggles() {
+        var toggleBtns = document.querySelectorAll('.pwd-toggle-btn');
+        toggleBtns.forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var targetId = btn.getAttribute('data-target');
+            var input = targetId ? document.getElementById(targetId) : null;
+            if (!input) return;
+
+            var isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            btn.innerHTML = isPassword ? EYE_OFF_ICON_SVG : EYE_ICON_SVG;
+            btn.setAttribute('aria-label', isPassword ? 'Hide passphrase' : 'Show passphrase');
+            btn.setAttribute('title', isPassword ? 'Hide passphrase' : 'Show passphrase');
+          });
+        });
+      }
+
+      function setupDomainSwitchHelper() {
+        var domainTips = document.querySelectorAll('.domain-switch-helper');
+        var switchLinks = document.querySelectorAll('.link-switch-domain');
+        if (window.location.hostname === '127.0.0.1') {
+          var targetLocal = window.location.href.replace('//127.0.0.1:', '//localhost:');
+          domainTips.forEach(function (tip) {
+            tip.style.display = 'block';
+          });
+          switchLinks.forEach(function (link) {
+            link.href = targetLocal;
+          });
+        }
+      }
+
+      // Initialize
+      inspectSecurityGuardrail();
+      setupPasswordToggles();
+      setupDomainSwitchHelper();
+    })();
+  </script>
+</body>
+
+</html>

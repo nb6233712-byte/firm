@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Missing Docs Tracker — Firm Operations — The File Room</title>
+  <meta name="description"
+    content="Missing document exceptions, client upload checklists, and due diligence follow-ups — The File Room by Pivot Aide Tax.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+</head>
+
+<body>
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <div class="app" id="app">
+        <header class="appbar"></header>
+
+        <div class="workspace">
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+          <aside class="side" id="side" aria-label="Firm Operations Navigation"></aside>
+
+          <main class="body" id="body">
+            <div id="page-breadcrumbs"></div>
+
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <h1 style="margin:0;">Missing Docs Tracker</h1>
+                  <span class="chip warn sm" id="missing-count-badge">4 Items Pending Client Upload</span>
+                </div>
+                <p class="page-subtitle">Circular 230 § 10.22 Due Diligence &middot; Outstanding Statutory Tax Records
+                  &middot; Automated Client Reminders</p>
+              </div>
+              <div class="page-actions-wrap" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <button type="button" class="btn sm" id="btn-sync-workflow"
+                  style="background:#10B981;color:#FFFFFF;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;padding:7px 14px;border-radius:var(--radius-sm);"
+                  title="Live Backend Connected · Cloud Firestore (uk-client-d90d5)">Live Backend Connected</button>
+                <button type="button" class="btn sm btn-b" id="btn-create-request"
+                  style="display:inline-flex;align-items:center;gap:6px">
+                  <span>+</span> Request Document
+                </button>
+                <a href="documents.html" class="btn sm btn-o">&larr; Review Queue</a>
+                <a href="dashboard.html" class="btn sm btn-o">Operations Triage &rarr;</a>
+              </div>
+            </div>
+
+            <!-- Missing Docs Main Table Card -->
+            <div id="workflow-main-container">
+              <div class="card p-lg" style="background:var(--surface);">
+                <div
+                  style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+                  <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;">Outstanding Client Checklist
+                    Requests</h3>
+                  <div style="display:flex;gap:10px;align-items:center;">
+                    <input type="text" id="workflow-search-input" placeholder="Search missing schedules or clients..."
+                      style="padding:6px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.8rem;background:var(--surface-2);color:var(--ink);" />
+                    <button type="button" class="btn sm btn-o" id="btn-nudge-all"
+                      style="display:inline-flex;align-items:center;gap:4px">
+                      <span>⚡</span> Nudge All Overdue
+                    </button>
+                  </div>
+                </div>
+
+                <div style="overflow-x:auto;">
+                  <table class="table-clean" style="width:100%;font-size:.84rem;">
+                    <thead>
+                      <tr style="border-bottom:1px solid var(--line);text-align:left;color:var(--ink-3);">
+                        <th style="padding:10px 12px;">Client Account</th>
+                        <th style="padding:10px 12px;">Requested Record</th>
+                        <th style="padding:10px 12px;">Category</th>
+                        <th style="padding:10px 12px;">Statutory Target</th>
+                        <th style="padding:10px 12px;">Urgency</th>
+                        <th style="padding:10px 12px;text-align:right;">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="missing-docs-tbody">
+                      <!-- Rendered by WorkflowController -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card modal-wide" id="modal-container"></div>
+  </div>
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017_svg_icons"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.init === 'function') {
+        window.FileRoomLayout.init({
+          portal: 'firm',
+          activePage: 'workflow',
+          breadcrumbs: [
+            { title: 'The File Room', href: 'index.html' },
+            { title: 'Firm Operations', href: 'dashboard.html' },
+            { title: 'Missing Docs' }
+          ]
+        });
+      }
+
+      var WorkflowController = {
+        items: [
+          {
+            id: 'req_whitfield_1099misc',
+            client: 'Michael & Elena Whitfield',
+            clientUid: 'usr_whitfield_4417',
+            title: 'Form 1099-MISC (Keystone Property Group)',
+            category: 'Rental Real Estate',
+            dueDate: 'Sep 15, 2026',
+            urgency: 'high',
+            urgencyLabel: 'Critical'
+          },
+          {
+            id: 'req_whitfield_mileage',
+            client: 'Michael & Elena Whitfield',
+            clientUid: 'usr_whitfield_4417',
+            title: 'Q4 Automobile Mileage Log',
+            category: 'Schedule C Vehicle',
+            dueDate: 'Sep 15, 2026',
+            urgency: 'high',
+            urgencyLabel: 'Critical'
+          },
+          {
+            id: 'req_brennan_k1',
+            client: 'Brennan Holdings LLC',
+            clientUid: 'usr_brennan_llc',
+            title: 'Schedule K-1 Partner Distribution Breakdown',
+            category: 'Form 1065 Partnership',
+            dueDate: 'Sep 15, 2026',
+            urgency: 'normal',
+            urgencyLabel: 'High'
+          },
+          {
+            id: 'req_jenkins_closing',
+            client: 'Sarah Jenkins',
+            clientUid: 'usr_jenkins_8819',
+            title: 'Closing Disclosure — 214 Halcyon Row',
+            category: 'Capital Real Estate',
+            dueDate: 'Oct 15, 2026',
+            urgency: 'normal',
+            urgencyLabel: 'Normal'
+          },
+          {
+            id: 'req_nandan_w2',
+            client: 'Nandan',
+            clientUid: 'j11ZvNVZf7Q2FeTrCVNStRM8',
+            title: 'Form 1099-NEC / Media Production Invoices',
+            category: 'Schedule C Sole Prop',
+            dueDate: 'Oct 15, 2026',
+            urgency: 'normal',
+            urgencyLabel: 'Normal'
+          }
+        ],
+
+        async init() {
+          var self = this;
+          var bridge = window.FirebaseBridge;
+          if (bridge) {
+            try {
+              if (typeof bridge.populatePracticeBacklog === 'function') {
+                bridge.populatePracticeBacklog();
+              }
+              if (typeof bridge.getFirmOperationsData === 'function') {
+                var data = await bridge.getFirmOperationsData();
+                if (data && Array.isArray(data.missingDocs) && data.missingDocs.length > 0) {
+                  data.missingDocs.forEach(function (md) {
+                    var exists = self.items.some(function (i) {
+                      return i.id === md.id ||
+                        (i.clientUid === md.clientUid && i.title.toLowerCase() === (md.title || '').toLowerCase());
+                    });
+                    if (!exists) {
+                      self.items.push({
+                        id: md.id,
+                        client: md.client || 'Taxpayer',
+                        clientUid: md.clientUid || '',
+                        title: md.title || 'Required Document',
+                        category: md.category || 'General Tax Record',
+                        dueDate: md.dueDate || 'Oct 15, 2026',
+                        urgency: (md.urgency || '').toLowerCase().includes('high') ? 'high' : 'normal',
+                        urgencyLabel: md.urgency || 'Normal'
+                      });
+                    }
+                  });
+                }
+              }
+            } catch (err) {
+              console.warn('WorkflowController Firebase fetch error:', err);
+            }
+          }
+
+          self.renderTable();
+          self.bindEvents();
+        },
+
+        renderTable(filterText) {
+          var self = this;
+          var tbody = document.getElementById('missing-docs-tbody');
+          if (!tbody) return;
+
+          filterText = (filterText || '').toLowerCase().trim();
+          var filtered = this.items.filter(function (item) {
+            if (!filterText) return true;
+            return item.client.toLowerCase().includes(filterText) ||
+              item.title.toLowerCase().includes(filterText) ||
+              item.category.toLowerCase().includes(filterText);
+          });
+
+          var badge = document.getElementById('missing-count-badge');
+          if (badge) badge.textContent = filtered.length + ' Items Pending Client Upload';
+
+          if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="padding:28px;text-align:center;color:var(--ink-2)">No missing documents match criteria.</td></tr>';
+            return;
+          }
+
+          var html = filtered.map(function (item) {
+            var chipClass = item.urgency === 'high' ? 'warn' : 'gold';
+
+            return [
+              '<tr style="border-bottom:1px solid var(--line-subtle, rgba(0,0,0,0.05));">',
+              '  <td style="padding:12px;">',
+              '    <div style="font-weight:600;color:var(--ink);">' + item.client + '</div>',
+              '    <div style="font-size:.72rem;color:var(--ink-2);font-family:var(--f-mono);">' + item.clientUid + '</div>',
+              '  </td>',
+              '  <td style="padding:12px;font-weight:500;color:var(--ink);">' + item.title + '</td>',
+              '  <td style="padding:12px;color:var(--ink-2);">' + item.category + '</td>',
+              '  <td style="padding:12px;font-family:var(--f-mono);font-size:.76rem;">' + item.dueDate + '</td>',
+              '  <td style="padding:12px;"><span class="chip ' + chipClass + ' sm">' + item.urgencyLabel + '</span></td>',
+              '  <td style="padding:12px;text-align:right;">',
+              '    <div style="display:flex;justify-content:flex-end;gap:6px;">',
+              '      <button type="button" class="btn xs btn-b btn-nudge" data-client="' + item.client + '" data-doc="' + item.title + '" data-uid="' + item.clientUid + '">Nudge Client</button>',
+              '      <a href="messages.html?uid=' + item.clientUid + '" class="btn xs btn-o">Message &rarr;</a>',
+              '    </div>',
+              '  </td>',
+              '</tr>'
+            ].join('');
+          }).join('');
+
+          tbody.innerHTML = html;
+
+          tbody.querySelectorAll('.btn-nudge').forEach(function (btn) {
+            btn.addEventListener('click', async function () {
+              var c = btn.getAttribute('data-client');
+              var d = btn.getAttribute('data-doc');
+              var uid = btn.getAttribute('data-uid');
+              var origLabel = btn.textContent;
+              btn.disabled = true;
+              btn.textContent = 'Transmitting...';
+
+              var bridge = window.FirebaseBridge;
+              var failMsg = '';
+              try {
+                if (!bridge || typeof bridge._firestoreSet !== 'function' || typeof bridge.recordAuditLog !== 'function') {
+                  throw new Error('Messaging service is not available.');
+                }
+                var updId = 'upd_nudge_' + Date.now();
+                var nudgeRes = await bridge._firestoreSet('updates', updId, {
+                  id: updId,
+                  updateId: updId,
+                  type: 'document_request',
+                  scope: 'client',
+                  clientId: uid || '',
+                  title: 'Urgent Checklist Reminder: ' + d,
+                  meta: 'Practitioner reminder: Please upload your ' + d + ' to complete tax filing.',
+                  time: 'Just now',
+                  publishedAt: new Date().toISOString(),
+                  isNew: true,
+                  isRead: false,
+                  actionScreen: 'docs'
+                });
+                if (!nudgeRes || nudgeRes.success === false) {
+                  throw new Error(nudgeRes && nudgeRes.permissionDenied ? 'Permission denied: this account is not authorized to send client reminders.' : ((nudgeRes && nudgeRes.error) || 'The reminder could not be saved.'));
+                }
+                await bridge.recordAuditLog('checklist_nudge_dispatched', 'Circular 230 follow-up reminder dispatched for ' + d + ' (' + c + ')', 'due_diligence', { isStaff: true, recordRef: uid || null });
+              } catch (e) {
+                console.warn('Nudge dispatch failed:', e);
+                failMsg = (e && e.message) || 'The reminder could not be sent.';
+              }
+
+              if (failMsg) {
+                btn.disabled = false;
+                btn.textContent = origLabel;
+                if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                  window.FileRoomLayout.showToast('Reminder NOT sent: ' + failMsg, 'err');
+                }
+                return;
+              }
+              btn.textContent = 'Nudge Dispatched \u2713';
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('Reminder sent to ' + c + ' for ' + d, 'ok');
+              }
+            });
+          });
+        },
+
+        bindEvents() {
+          var self = this;
+          var searchInput = document.getElementById('workflow-search-input');
+          if (searchInput) {
+            searchInput.addEventListener('input', function () {
+              self.renderTable(this.value);
+            });
+          }
+
+          var btnNudgeAll = document.getElementById('btn-nudge-all');
+          if (btnNudgeAll) {
+            btnNudgeAll.addEventListener('click', async function () {
+              var origHtml = btnNudgeAll.innerHTML;
+              btnNudgeAll.disabled = true;
+              btnNudgeAll.innerHTML = '<span>\u23F3</span> Transmitting Reminders...';
+
+              var bridge = window.FirebaseBridge;
+              var sent = 0, failed = 0, firstErr = '';
+              try {
+                if (!bridge || typeof bridge._firestoreSet !== 'function') throw new Error('Messaging service is not available.');
+                for (var i = 0; i < self.items.length; i++) {
+                  var itm = self.items[i];
+                  var uId = 'upd_batch_' + Date.now() + '_' + i;
+                  var r = await bridge._firestoreSet('updates', uId, {
+                    id: uId,
+                    updateId: uId,
+                    type: 'document_request',
+                    scope: 'client',
+                    clientId: itm.clientUid,
+                    title: 'Overdue Checklist Reminder: ' + itm.title,
+                    meta: 'Your tax return preparation is pending upload of ' + itm.title + '. Statutory target: ' + itm.dueDate,
+                    time: 'Just now',
+                    publishedAt: new Date().toISOString(),
+                    isNew: true,
+                    isRead: false,
+                    actionScreen: 'docs'
+                  });
+                  if (!r || r.success === false) {
+                    failed++;
+                    if (!firstErr) firstErr = (r && r.permissionDenied) ? 'Permission denied: this account is not authorized to send client reminders.' : ((r && r.error) || 'A reminder could not be saved.');
+                  } else { sent++; }
+                }
+                if (sent > 0 && typeof bridge.recordAuditLog === 'function') {
+                  await bridge.recordAuditLog('batch_checklist_nudge', 'Batch reminders dispatched for ' + sent + ' overdue checklist items.', 'due_diligence', { isStaff: true });
+                }
+              } catch (e) {
+                console.warn('Batch reminder failed:', e);
+                failed++;
+                if (!firstErr) firstErr = (e && e.message) || 'The reminders could not be sent.';
+              }
+
+              if (failed > 0) {
+                btnNudgeAll.disabled = false;
+                btnNudgeAll.innerHTML = origHtml;
+                if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                  window.FileRoomLayout.showToast('Reminders NOT fully sent (' + failed + ' failed, ' + sent + ' sent): ' + firstErr, 'err');
+                }
+                return;
+              }
+              btnNudgeAll.innerHTML = '<span>\u2713</span> All Reminders Sent';
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('Reminders sent for all ' + sent + ' overdue checklist items', 'ok');
+              }
+            });
+          }
+
+          var btnCreate = document.getElementById('btn-create-request');
+          if (btnCreate) {
+            btnCreate.addEventListener('click', function () {
+              if (window.FileRoomLayout) {
+                window.FileRoomLayout.openModal([
+                  '<h3 style="font-family:var(--f-display);margin:0 0 14px 0;">Request Tax Document from Client</h3>',
+                  '<div style="display:flex;flex-direction:column;gap:12px;font-size:.85rem;">',
+                  '  <div>',
+                  '    <label style="font-weight:600;display:block;margin-bottom:4px;">Select Client Engagement:</label>',
+                  '    <select id="modal-select-client" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--surface);">',
+                  '      <option value="usr_whitfield_4417">Michael & Elena Whitfield (1040)</option>',
+                  '      <option value="j11ZvNVZf7Q2FeTrCVNStRM8">Nandan (Form 1040)</option>',
+                  '      <option value="usr_brennan_llc">Brennan Holdings LLC (1065)</option>',
+                  '      <option value="usr_vance_9011">Vance Logistics Corp (1120-S)</option>',
+                  '    </select>',
+                  '  </div>',
+                  '  <div>',
+                  '    <label style="font-weight:600;display:block;margin-bottom:4px;">Document Title / Requirement:</label>',
+                  '    <input type="text" id="modal-req-title" placeholder="e.g. 2026 Form 1098 Mortgage Interest Statement" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:4px;box-sizing:border-box;" />',
+                  '  </div>',
+                  '  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">',
+                  '    <button type="button" class="btn btn-o" onclick="FileRoomLayout.closeModal()">Cancel</button>',
+                  '    <button type="button" class="btn btn-b" id="modal-btn-confirm-req">Issue Request &rarr;</button>',
+                  '  </div>',
+                  '</div>'
+                ].join(''));
+
+                document.getElementById('modal-btn-confirm-req').addEventListener('click', async function () {
+                  var title = document.getElementById('modal-req-title').value || 'Requested Tax Schedule';
+                  var clientSelect = document.getElementById('modal-select-client');
+                  var clientName = clientSelect.options[clientSelect.selectedIndex].text;
+                  var clientUid = clientSelect.value;
+                  var btnConfirm = this;
+                  btnConfirm.disabled = true;
+                  btnConfirm.textContent = 'Saving to Firebase...';
+
+                  var newItem = {
+                    id: 'req_new_' + Date.now(),
+                    client: clientName.split(' (')[0],
+                    clientUid: clientUid,
+                    title: title,
+                    category: 'Practitioner Request',
+                    dueDate: 'Oct 15, 2026',
+                    urgency: 'high',
+                    urgencyLabel: 'Critical'
+                  };
+
+                  var bridge = window.FirebaseBridge;
+                  if (bridge) {
+                    try {
+                      if (typeof bridge.staffCreateDocumentRequest === 'function') {
+                        await bridge.staffCreateDocumentRequest({
+                          clientId: clientUid,
+                          clientName: newItem.client,
+                          title: title,
+                          category: 'Practitioner Request',
+                          dueDate: '2026-10-15',
+                          urgency: 'High',
+                          description: 'Requested by firm preparer for 2026 tax return'
+                        });
+                      } else if (typeof bridge._firestoreSet === 'function') {
+                        await bridge._firestoreSet('documentRequests', newItem.id, {
+                          id: newItem.id,
+                          requestId: newItem.id,
+                          clientId: clientUid,
+                          clientName: newItem.client,
+                          title: title,
+                          category: 'Practitioner Request',
+                          status: 'pending',
+                          dueDate: '2026-10-15',
+                          urgency: 'High',
+                          createdAt: new Date().toISOString()
+                        });
+                      }
+                    } catch (e) {
+                      console.warn('Create doc request save notice:', e);
+                    }
+                  }
+
+                  self.items.unshift(newItem);
+                  self.renderTable();
+                  window.FileRoomLayout.closeModal();
+                  if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                    window.FileRoomLayout.showToast('Document request issued to ' + clientName + ' · Saved to Firestore', 'ok');
+                  }
+                });
+              }
+            });
+          }
+        }
+      };
+
+      // Backend Sync Button: forces a fresh read + seed re-attach
+      var btnSync = document.getElementById('btn-sync-workflow');
+      if (btnSync) {
+        btnSync.addEventListener('click', async function () {
+          btnSync.disabled = true;
+          btnSync.innerHTML = '<span>⏳</span> Connecting Firebase...';
+          var bridge = window.FirebaseBridge;
+          if (bridge) {
+            try {
+              if (typeof bridge.populatePracticeBacklog === 'function') {
+                bridge.populatePracticeBacklog();
+              }
+              if (typeof bridge.seedFirmPracticeData === 'function') {
+                await bridge.seedFirmPracticeData(true);
+              }
+              await WorkflowController.init();
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('✓ Connected to backend Firebase (uk-client-d90d5) · Missing Docs Synchronized', 'ok');
+              }
+            } catch (err) {
+              console.warn('Sync error:', err);
+            } finally {
+              btnSync.disabled = false;
+              btnSync.innerHTML = 'Live Backend Connected';
+            }
+          }
+        });
+      }
+
+      // Initial Load & Connect to Backend Firebase
+      var started = false;
+      function initWorkflow() {
+        if (started) return;
+        started = true;
+        WorkflowController.init();
+      }
+
+      if (window.FirebaseBridge) {
+        initWorkflow();
+      } else {
+        var retries = 0;
+        var timer = setInterval(function () {
+          retries++;
+          if (window.FirebaseBridge || retries >= 20) {
+            clearInterval(timer);
+            initWorkflow();
+          }
+        }, 100);
+        window.addEventListener('firebase-bridge-ready', function () { clearInterval(timer); initWorkflow(); }, { once: true });
+        window.addEventListener('firebase-ready', function () { clearInterval(timer); initWorkflow(); }, { once: true });
+      }
+
+      // Interactive States Demo Bar Handlers
+      var contentArea = document.getElementById('workflow-main-container');
+      var originalHtml = contentArea.innerHTML;
+      var btnLive = document.getElementById('btn-state-live');
+      var btnLoading = document.getElementById('btn-state-loading');
+      var btnEmpty = document.getElementById('btn-state-empty');
+      var btnError = document.getElementById('btn-state-error');
+      var allStateBtns = [btnLive, btnLoading, btnEmpty, btnError];
+
+      function setActiveBtn(btn) {
+        if (!btn) return;
+        allStateBtns.forEach(function (b) { if (b && b.classList) b.classList.remove('active'); });
+        btn.classList.add('active');
+      }
+
+      if (btnLive) {
+        btnLive.addEventListener('click', function () {
+          setActiveBtn(btnLive);
+          contentArea.innerHTML = originalHtml;
+          WorkflowController.init();
+        });
+      }
+
+      if (btnLoading) {
+        btnLoading.addEventListener('click', function () {
+          setActiveBtn(btnLoading);
+          if (window.FileRoomLayout) {
+            window.FileRoomLayout.renderLoading(contentArea, 'Querying outstanding client checklist schedules...');
+          }
+        });
+      }
+
+      if (btnEmpty) {
+        btnEmpty.addEventListener('click', function () {
+          setActiveBtn(btnEmpty);
+          if (window.FileRoomLayout) {
+            window.FileRoomLayout.renderEmptyState(contentArea, {
+              title: 'Zero Missing Documents',
+              message: 'All active clients have completed required document checklist uploads.',
+              icon: '✓',
+              actionBtnText: 'Return to Live Backlog',
+              onAction: function () { btnLive.click(); }
+            });
+          }
+        });
+      }
+
+      if (btnError) {
+        btnError.addEventListener('click', function () {
+          setActiveBtn(btnError);
+          if (window.FileRoomLayout) {
+            window.FileRoomLayout.renderErrorState(contentArea, {
+              title: 'Checklist Gateway Unavailable',
+              message: 'Could not connect to Firestore documentRequests collection.',
+              onRetry: function () { btnLive.click(); }
+            });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Messages — Client Portal — The File Room</title>
+  <meta name="description" content="Secure file-linked practitioner messaging — The File Room by Pivot Aide Tax.">
+
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+</head>
+
+<body>
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <div class="app" id="app">
+        <header class="appbar"></header>
+
+        <div class="workspace">
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+          <aside class="side" id="side" aria-label="Client Portal Navigation"></aside>
+
+          <main class="body" id="body">
+            <div id="page-breadcrumbs"></div>
+
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <h1 style="margin:0;">Secure Messages</h1>
+                  <span class="chip ok sm" id="backend-status-chip" style="font-size:.72rem;">● Connected to Backend (Firestore)</span>
+                  <span class="chip ok sm" id="user-name-chip" style="font-size:.72rem;font-weight:600;">● <span id="display-client-name">Connecting Firebase...</span></span>
+                  <button type="button" class="btn sm btn-o" id="btn-edit-client-name" style="padding:2px 8px;font-size:.72rem;line-height:1.2;" title="Edit name and sync with Firebase backend">✎ Edit Name</button>
+                </div>
+                <p class="page-subtitle">File-linked conversation with Denise R., CPA &middot; IRC § 7216 Protected Channel</p>
+              </div>
+              <div class="page-actions-wrap" style="display:flex;gap:8px;align-items:center;">
+                <button type="button" class="btn sm btn-o" id="btn-clear-messages" style="color:var(--err);border-color:var(--err);" title="Remove all messages and start fresh">
+                  <span>🗑</span> Remove All Messages
+                </button>
+                <a href="documents.html" class="btn sm btn-o">&larr; Documents</a>
+              </div>
+            </div>
+
+            <!-- States Verification Bar -->
+            <div class="states-demo-bar">
+              <span class="states-demo-label">MESSAGE STATE:</span>
+              <button type="button" class="states-demo-btn active" id="btn-state-live">● Live View</button>
+              <button type="button" class="states-demo-btn" id="btn-state-loading">Loading State</button>
+              <button type="button" class="states-demo-btn" id="btn-state-empty">Empty State</button>
+              <button type="button" class="states-demo-btn" id="btn-state-error">Error State</button>
+            </div>
+
+            <div id="messages-content-area">
+              <div class="card p-lg" style="background:var(--surface);display:flex;flex-direction:column;height:450px;">
+                <div style="flex:1;overflow-y:auto;padding-right:8px;display:flex;flex-direction:column;gap:14px;" id="msg-thread">
+                  <div id="msg-empty-placeholder" style="text-align:center;padding:60px 20px;color:var(--ink-2);font-size:.88rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+                    <div style="font-size:2.4rem;line-height:1;">💬</div>
+                    <div style="font-weight:600;color:var(--ink);font-size:1.05rem;">Secure IRC § 7216 Messaging Channel</div>
+                    <div style="max-width:440px;line-height:1.5;">All sample messages have been removed. This conversation is connected to your Cloud Firestore backend. Type a message below to start.</div>
+                  </div>
+                </div>
+
+                <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:10px;">
+                  <input type="text" id="input-msg-text" placeholder="Type a message to your assigned CPA..." style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:6px;font-size:.85rem;background:var(--surface);" />
+                  <button type="button" class="btn btn-b" id="btn-send-msg">Send &rarr;</button>
+                </div>
+              </div>
+            </div>
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card modal-wide" id="modal-container"></div>
+  </div>
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/formspree.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.init === "function") {
+        window.FileRoomLayout.init({
+          portal: 'client',
+          activePage: 'messages',
+          breadcrumbs: [
+            { title: 'The File Room', href: '../index.html' },
+            { title: 'Client Portal', href: 'dashboard.html' },
+            { title: 'Messages' }
+          ]
+        });
+      }
+
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.clearBadge === 'function') {
+        window.FileRoomLayout.clearBadge('messages');
+      }
+      try { localStorage.setItem('tfr_unread_messages', '0'); } catch (_) {}
+
+      var contentArea = document.getElementById('messages-content-area');
+      var originalHtml = contentArea.innerHTML;
+      var btnLive = document.getElementById('btn-state-live');
+      var btnLoading = document.getElementById('btn-state-loading');
+      var btnEmpty = document.getElementById('btn-state-empty');
+      var btnError = document.getElementById('btn-state-error');
+      var allBtns = [btnLive, btnLoading, btnEmpty, btnError];
+
+      function setActive(b) {
+        allBtns.forEach(function (btn) { btn.classList.remove('active'); });
+        b.classList.add('active');
+      }
+
+      // Resolve authenticated UID & client information from Firebase Backend
+      var clientUid = 'j11ZvNVZf7Q2FeTrCVNStRM8';
+      var clientName = 'Nandan';
+      var clientEmail = 'nandanfitnessvlog@gmail.com';
+      var currentMessagesList = [];
+
+      function updateNameDisplay(name) {
+        var el = document.getElementById('display-client-name');
+        if (el && name) {
+          el.textContent = name;
+        }
+      }
+
+      function resolveLocalSession() {
+        try {
+          var bUser = (window.FirebaseBridge && window.FirebaseBridge.currentUser) || (window.firebaseAuth && window.firebaseAuth.currentUser);
+          if (bUser) {
+            if (bUser.uid) clientUid = bUser.uid;
+            if (bUser.displayName) {
+              clientName = bUser.displayName;
+            } else if (bUser.email) {
+              clientEmail = bUser.email;
+              var p0 = bUser.email.split('@')[0].replace(/[._-]+/g, ' ');
+              clientName = p0.split(' ').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(' ');
+            }
+          }
+          var rawSession = localStorage.getItem('tfr_user_session');
+          if (rawSession) {
+            var parsed = JSON.parse(rawSession);
+            if (parsed) {
+              if (parsed.uid) clientUid = parsed.uid;
+              if (parsed.displayName || parsed.name) {
+                clientName = parsed.displayName || parsed.name;
+              } else if (parsed.email) {
+                clientEmail = parsed.email;
+                var part = parsed.email.split('@')[0].replace(/[._-]+/g, ' ');
+                clientName = part.split(' ').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(' ');
+              }
+              if (parsed.email) clientEmail = parsed.email;
+            }
+          }
+
+          // Custom edited client name override
+          var customName = localStorage.getItem('tfr_client_custom_name');
+          if (customName) {
+            clientName = customName;
+          }
+
+          // Dynamic UID resolution for authenticated taxpayer
+          if ((!clientUid || clientUid === 'j11ZvNVZf7Q2FeTrCVNStRM8') && window.FirebaseBridge && typeof window.FirebaseBridge.getUserUid === 'function') {
+            var dynamicUid = window.FirebaseBridge.getUserUid();
+            if (dynamicUid && dynamicUid !== 'usr_whitfield_4417') {
+              clientUid = dynamicUid;
+            }
+          }
+
+          localStorage.setItem('tfr_last_active_client_thread', clientUid);
+          localStorage.setItem('tfr_last_active_client_name', clientName);
+          localStorage.setItem('tfr_last_active_client_email', clientEmail);
+        } catch (_) {}
+        updateNameDisplay(clientName);
+      }
+      resolveLocalSession();
+
+      function syncNameWithFirebase() {
+        var bridge = window.FirebaseBridge;
+        if (!bridge) return;
+
+        var fbAuthUser = (window.firebaseAuth && window.firebaseAuth.currentUser) || (bridge.auth && bridge.auth.currentUser);
+        var cur = fbAuthUser || (bridge.getCurrentUser && bridge.getCurrentUser()) || bridge.currentUser;
+        if (cur) {
+          if (cur.uid) {
+            clientUid = cur.uid;
+          }
+          if (cur.email) {
+            clientEmail = cur.email;
+          }
+          if (cur.displayName) {
+            clientName = cur.displayName;
+            updateNameDisplay(clientName);
+          } else if (cur.email) {
+            var p = cur.email.split('@')[0].replace(/[._-]+/g, ' ');
+            clientName = p.split(' ').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(' ');
+            updateNameDisplay(clientName);
+          }
+        }
+
+        // 1. Resolve from FirebaseBridge / Firebase Auth
+        if (typeof bridge.getUserName === 'function') {
+          var resolved = bridge.getUserName(clientUid);
+          if (resolved) {
+            clientName = resolved;
+            updateNameDisplay(resolved);
+          }
+        }
+
+        // 2. Fetch authoritative profile from Cloud Firestore (/clients or /users)
+        if (typeof bridge.fetchUserProfile === 'function') {
+          bridge.fetchUserProfile(clientUid).then(function (prof) {
+            if (prof && (prof.displayName || prof.name)) {
+              var authoritativeName = prof.displayName || prof.name;
+              clientName = authoritativeName;
+              updateNameDisplay(authoritativeName);
+              if (currentMessagesList && currentMessagesList.length > 0) {
+                renderMessageBubbles(currentMessagesList);
+              }
+            }
+          }).catch(function () {});
+        }
+      }
+
+      var unsubscribeMessages = null;
+      var isSending = false;
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatMsgTime(isoOrStr) {
+        if (!isoOrStr) return 'Just now';
+        try {
+          var d = new Date(isoOrStr);
+          if (isNaN(d.getTime())) return isoOrStr;
+          var now = new Date();
+          var isToday = d.toDateString() === now.toDateString();
+          var timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+          if (isToday) return 'Today ' + timeStr;
+          var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          return d.getDate() + ' ' + months[d.getMonth()] + ' ' + timeStr;
+        } catch (_) {
+          return isoOrStr;
+        }
+      }
+
+      var knownMessageIds = new Set();
+      var markedReadIds = new Set();
+
+      function renderMessageBubbles(messages) {
+        currentMessagesList = messages || [];
+        var thread = document.getElementById('msg-thread');
+        if (!thread) return;
+
+        if (!messages || messages.length === 0) {
+          thread.innerHTML = '<div id="msg-empty-placeholder" style="text-align:center;padding:60px 20px;color:var(--ink-2);font-size:.88rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;"><div style="font-size:2.4rem;line-height:1;">💬</div><div style="font-weight:600;color:var(--ink);font-size:1.05rem;">Secure IRC § 7216 Messaging Channel</div><div style="max-width:440px;line-height:1.5;">All sample messages have been removed. This conversation is connected to your Cloud Firestore backend. Type a message below to start.</div></div>';
+          return;
+        }
+
+        var bridge = window.FirebaseBridge;
+        var liveClientName = clientName || (bridge && bridge.getUserName && bridge.getUserName(clientUid)) || 'Client';
+
+        var html = messages.map(function (msg) {
+          var isFromClient = msg.senderRole === 'client' || msg.senderId === clientUid || msg.avatar === 'MW' || (clientEmail && msg.senderEmail === clientEmail);
+          var timeText = formatMsgTime(msg.createdAt || msg._isoTime);
+          var safeText = escapeHtml(msg.text || '');
+          var msgId = msg.id || msg.messageId || '';
+
+          if (isFromClient) {
+            // Live Firebase authenticated name; historical messages preserve original author name
+            var clientLabel = escapeHtml(msg.senderName || liveClientName || 'Client');
+            return [
+              '<div class="msg-bubble-wrap" id="bubble-' + msgId + '" style="position:relative;background:rgba(1,159,255,0.08);padding:12px 16px;border-radius:8px;max-width:80%;align-self:flex-end;border-right:3px solid var(--accent);box-shadow:0 1px 3px rgba(0,0,0,0.05);">',
+              '  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px;">',
+              '    <div style="font-size:.72rem;color:var(--accent);font-weight:600;">' + clientLabel + ' &middot; ' + timeText + '<span id="status-' + msgId + '" class="msg-status-badge sent" style="font-size:.7rem;color:var(--accent);margin-left:6px;font-weight:normal;">✓ Sent</span></div>',
+              '    <button type="button" class="btn-del-msg" data-id="' + msgId + '" style="background:none;border:none;color:var(--ink-3);font-size:.85rem;cursor:pointer;padding:0 4px;line-height:1;" title="Delete message">&times;</button>',
+              '  </div>',
+              '  <div style="font-size:.85rem;color:var(--ink);line-height:1.45;word-break:break-word;">' + safeText + '</div>',
+              '</div>'
+            ].join('');
+          } else {
+            var senderTitle = escapeHtml(msg.senderName || 'Denise R., CPA');
+            var isAssistant = msg.senderRole === 'assistant' || msg.avatar === 'PAT';
+            var borderCol = isAssistant ? 'var(--gold, #EAE42F)' : 'var(--brand)';
+            return [
+              '<div class="msg-bubble-wrap" id="bubble-' + msgId + '" style="position:relative;background:var(--surface-2);padding:12px 16px;border-radius:8px;max-width:80%;align-self:flex-start;border-left:3px solid ' + borderCol + ';box-shadow:0 1px 3px rgba(0,0,0,0.05);">',
+              '  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px;">',
+              '    <div style="font-size:.72rem;color:var(--brand);font-weight:600;">' + senderTitle + ' &middot; ' + timeText + '</div>',
+              '  </div>',
+              '  <div style="font-size:.85rem;color:var(--ink);line-height:1.45;word-break:break-word;">' + safeText + '</div>',
+              '</div>'
+            ].join('');
+          }
+        }).join('');
+
+        thread.innerHTML = html;
+        thread.scrollTop = thread.scrollHeight;
+
+        // Wire individual delete buttons with ownership verification
+        var delBtns = thread.querySelectorAll('.btn-del-msg');
+        delBtns.forEach(function (btn) {
+          btn.onclick = async function (e) {
+            e.stopPropagation();
+            var mId = btn.getAttribute('data-id');
+            if (!mId) return;
+
+            var targetMsg = currentMessagesList.find(function (m) { return (m.id || m.messageId) === mId; });
+            if (targetMsg && (targetMsg.senderRole !== 'client' && targetMsg.senderId !== clientUid)) {
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('Permission denied: You cannot delete messages sent by firm staff.', 'err');
+              }
+              return;
+            }
+
+            btn.disabled = true;
+            try {
+              if (window.FirebaseBridge && typeof window.FirebaseBridge.deleteMessage === 'function') {
+                var delRes = await window.FirebaseBridge.deleteMessage(mId, clientUid);
+                if (delRes && delRes.success) {
+                  knownMessageIds.delete(mId);
+                  markedReadIds.delete(mId);
+                  if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                    window.FileRoomLayout.showToast('Message removed from backend', 'info');
+                  }
+                } else {
+                  throw new Error((delRes && delRes.error) || 'Deletion failed');
+                }
+              }
+            } catch (delErr) {
+              btn.disabled = false;
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('Could not remove message: ' + delErr.message, 'err');
+              }
+            }
+          };
+        });
+
+        // Auto mark unread incoming practitioner messages as read with deduplication
+        var unreadIds = messages
+          .filter(function (m) {
+            var mId = m.id || m.messageId;
+            return !m.readByClient && (m.senderRole !== 'client' && m.senderId !== clientUid) && !markedReadIds.has(mId);
+          })
+          .map(function (m) { return m.id || m.messageId; })
+          .filter(Boolean);
+
+        if (unreadIds.length > 0 && window.FirebaseBridge && typeof window.FirebaseBridge.markMessagesAsRead === 'function') {
+          unreadIds.forEach(function (id) { markedReadIds.add(id); });
+          window.FirebaseBridge.markMessagesAsRead(unreadIds, 'client').catch(function () {});
+        }
+
+        if (window.FileRoomLayout && typeof window.FileRoomLayout.clearBadge === 'function') {
+          window.FileRoomLayout.clearBadge('messages');
+        }
+        try { localStorage.setItem('tfr_unread_messages', '0'); } catch (_) {}
+      }
+
+      function connectFirebaseMessages() {
+        if (typeof unsubscribeMessages === 'function') {
+          unsubscribeMessages();
+          unsubscribeMessages = null;
+        }
+
+        var statusChip = document.getElementById('backend-status-chip');
+        if (statusChip) {
+          statusChip.textContent = '● Connected to Backend (Firestore Live)';
+          statusChip.className = 'chip ok sm';
+        }
+
+        syncNameWithFirebase();
+
+        var bridge = window.FirebaseBridge;
+        if (!bridge) return;
+
+        var initialLoadDone = false;
+        if (typeof bridge.subscribeMessages === 'function') {
+          unsubscribeMessages = bridge.subscribeMessages(
+            function (msgs) {
+              if (initialLoadDone && msgs && msgs.length > 0) {
+                var newIncoming = msgs.filter(function (m) {
+                  var mid = m.id || m.messageId;
+                  return mid && !knownMessageIds.has(mid) && m.senderRole !== 'client' && m.senderId !== clientUid;
+                });
+                if (newIncoming.length > 0) {
+                  var latest = newIncoming[newIncoming.length - 1];
+                  try {
+                    if (window.FileRoomLayout && typeof window.FileRoomLayout.playNotificationSound === 'function') {
+                      window.FileRoomLayout.playNotificationSound();
+                    }
+                  } catch (_) {}
+                  if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                    window.FileRoomLayout.showToast('💬 New message from ' + (latest.senderName || 'Denise R., CPA'), 'info');
+                  }
+                }
+              }
+              if (msgs && msgs.length > 0) {
+                msgs.forEach(function (m) {
+                  var mid = m.id || m.messageId;
+                  if (mid) knownMessageIds.add(mid);
+                });
+              }
+              initialLoadDone = true;
+              renderMessageBubbles(msgs);
+            },
+            function (err) {
+              if (typeof bridge.getDefaultMessages === 'function') {
+                renderMessageBubbles(bridge.getDefaultMessages(clientUid));
+              }
+            },
+            'eng_2026_' + clientUid,
+            clientUid
+          );
+        } else if (typeof bridge.getMessages === 'function') {
+          bridge.getMessages(clientUid).then(function (res) {
+            renderMessageBubbles((res && res.data) || []);
+          });
+        }
+      }
+
+      function attachMsgEvents() {
+        var btnSend = document.getElementById('btn-send-msg');
+        var inputMsg = document.getElementById('input-msg-text');
+        var btnClear = document.getElementById('btn-clear-messages');
+        if (!btnSend || !inputMsg) return;
+
+        // Centered Confirmation Modal for Clear All Messages
+        function showCenteredConfirmClearModal(onConfirm) {
+          var existingBackdrop = document.getElementById('clear-confirm-modal-backdrop');
+          if (existingBackdrop) {
+            existingBackdrop.remove();
+          }
+
+          var modalHtml = [
+            '<div id="clear-confirm-modal-backdrop" style="position:fixed;inset:0;background:rgba(7,32,46,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:999999;padding:20px;">',
+            '  <div id="clear-confirm-modal-card" style="background:#0C1D28;border:1px solid rgba(255,255,255,0.18);border-radius:14px;box-shadow:0 24px 50px rgba(0,0,0,0.6);width:100%;max-width:440px;overflow:hidden;color:#FFFFFF;font-family:inherit;">',
+            '    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);">',
+            '      <div style="display:flex;align-items:center;gap:10px;">',
+            '        <span style="font-size:1.3rem;">⚠️</span>',
+            '        <h3 style="margin:0;font-size:1.1rem;font-weight:700;color:#FFFFFF;letter-spacing:-0.01em;">Remove All Messages?</h3>',
+            '      </div>',
+            '      <button type="button" id="btn-close-clear-modal-x" style="background:transparent;border:0;color:rgba(255,255,255,0.6);font-size:1.4rem;cursor:pointer;line-height:1;padding:0 4px;" title="Close">&times;</button>',
+            '    </div>',
+            '    <div style="padding:26px 22px;text-align:center;">',
+            '      <div style="font-size:2.4rem;margin-bottom:12px;">💬 ➔ 🗑️</div>',
+            '      <p style="margin:0 0 10px 0;font-size:1rem;font-weight:600;color:#F2F8FC;line-height:1.45;">Are you sure you want to remove all messages from this backend conversation?</p>',
+            '      <p style="margin:0;font-size:0.83rem;color:rgba(242,248,252,0.65);line-height:1.45;">This will permanently clear conversation history with your CPA practitioner across Firebase and local cache.</p>',
+            '    </div>',
+            '    <div style="padding:14px 20px;background:rgba(0,0,0,0.25);border-top:1px solid rgba(255,255,255,0.1);display:flex;justify-content:center;gap:12px;">',
+            '      <button type="button" id="btn-cancel-clear-modal" class="btn sm btn-o" style="flex:1;max-width:130px;min-width:100px;border-color:rgba(255,255,255,0.22);color:#DCEBF3;">Cancel</button>',
+            '      <button type="button" id="btn-modal-confirm-clear" class="btn sm" style="flex:1;max-width:160px;min-width:130px;background:#DC2626;color:#FFFFFF;border:1px solid #DC2626;font-weight:600;box-shadow:0 2px 8px rgba(220,38,38,0.4);">Yes, Remove All</button>',
+            '    </div>',
+            '  </div>',
+            '</div>'
+          ].join('');
+
+          document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+          var backdrop = document.getElementById('clear-confirm-modal-backdrop');
+          var btnCloseX = document.getElementById('btn-close-clear-modal-x');
+          var btnCancel = document.getElementById('btn-cancel-clear-modal');
+          var btnConfirm = document.getElementById('btn-modal-confirm-clear');
+
+          function closeModal() {
+            if (backdrop && backdrop.parentNode) {
+              backdrop.parentNode.removeChild(backdrop);
+            }
+          }
+
+          if (btnCloseX) btnCloseX.onclick = closeModal;
+          if (btnCancel) btnCancel.onclick = closeModal;
+          if (backdrop) {
+            backdrop.onclick = function (e) {
+              if (e.target === backdrop) closeModal();
+            };
+          }
+          if (btnConfirm) {
+            btnConfirm.onclick = function () {
+              closeModal();
+              if (typeof onConfirm === 'function') onConfirm();
+            };
+          }
+        }
+
+        // Wire Clear All Messages Button
+        if (btnClear) {
+          btnClear.onclick = function () {
+            showCenteredConfirmClearModal(async function () {
+              btnClear.disabled = true;
+              try {
+                if (window.FirebaseBridge && typeof window.FirebaseBridge.clearAllMessages === 'function') {
+                  var clearRes = await window.FirebaseBridge.clearAllMessages(clientUid);
+                  if (!clearRes || !clearRes.success) {
+                    throw new Error((clearRes && clearRes.error) || 'Backend clearing failed');
+                  }
+                } else {
+                  try {
+                    localStorage.removeItem('tfr_local_messages_' + clientUid);
+                    localStorage.removeItem('tfr_local_messages_usr_whitfield_4417');
+                    localStorage.removeItem('tfr_local_messages_usr_taylor_bennett_test_example_com');
+                    localStorage.setItem('tfr_messages_cleared_' + clientUid, 'true');
+                  } catch (_) {}
+                }
+                knownMessageIds.clear();
+                markedReadIds.clear();
+                renderMessageBubbles([]);
+                if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                  window.FileRoomLayout.showToast('All messages removed from backend', 'ok');
+                }
+              } catch (err) {
+                console.warn('Clear messages notice:', err);
+                if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                  window.FileRoomLayout.showToast('Failed to clear messages: ' + (err.message || 'Backend error'), 'err');
+                }
+              } finally {
+                btnClear.disabled = false;
+              }
+            });
+          };
+        }
+
+        async function retryMessage(msgId, text) {
+          var statusEl = document.getElementById('status-' + msgId);
+          if (statusEl) {
+            statusEl.innerHTML = '<span class="msg-status-badge pending" style="font-size:.7rem;color:var(--ink-2);margin-left:8px;font-weight:normal;">⏳ Retrying...</span>';
+          }
+          try {
+            var bridge = window.FirebaseBridge;
+            var sendRes = await bridge.sendMessage(text, {
+              messageId: msgId,
+              taxYear: 2026,
+              clientId: clientUid,
+              senderName: clientName,
+              senderEmail: clientEmail
+            });
+            if (sendRes && sendRes.offlineCached) {
+              if (statusEl) {
+                statusEl.innerHTML = '<span class="msg-status-badge queued" style="font-size:.7rem;color:var(--brand);margin-left:8px;font-weight:600;">⏳ Queued offline</span>';
+              }
+              if (window.FileRoomLayout && typeof FileRoomLayout.showToast === 'function') {
+                FileRoomLayout.showToast('Queued offline — will synchronize once reconnected to backend', 'info');
+              }
+            } else if (sendRes && sendRes.success && !sendRes.offlineCached) {
+              if (statusEl) {
+                statusEl.innerHTML = '<span class="msg-status-badge sent" style="font-size:.7rem;color:var(--accent);margin-left:8px;font-weight:600;">✓ Sent</span>';
+              }
+              knownMessageIds.add(msgId);
+              if (window.FileRoomLayout && typeof FileRoomLayout.showToast === 'function') {
+                FileRoomLayout.showToast('Message sent to Denise, CPA via encrypted IRC § 7216 channel', 'ok');
+              }
+            } else {
+              throw new Error((sendRes && sendRes.error) || 'Backend message submission rejected');
+            }
+          } catch (retryErr) {
+            if (statusEl) {
+              statusEl.innerHTML = '<span class="msg-status-badge failed" style="font-size:.7rem;color:var(--err);margin-left:8px;font-weight:600;">⚠️ Failed <button type="button" class="btn-retry-msg" data-id="' + msgId + '" style="background:none;border:1px solid var(--err);border-radius:4px;color:var(--err);font-size:.68rem;padding:1px 6px;cursor:pointer;margin-left:4px;">Retry</button></span>';
+              var retryBtn = statusEl.querySelector('.btn-retry-msg');
+              if (retryBtn) {
+                retryBtn.onclick = function () { retryMessage(msgId, text); };
+              }
+            }
+            if (window.FileRoomLayout && typeof FileRoomLayout.showToast === 'function') {
+              FileRoomLayout.showToast('Unable to send message: ' + (retryErr.message || 'Network error'), 'err');
+            }
+          }
+        }
+
+        async function handleSend() {
+          var text = inputMsg.value.trim();
+          if (!text || isSending) return;
+
+          isSending = true;
+          btnSend.disabled = true;
+          btnSend.style.opacity = '0.7';
+
+          var stableMsgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+
+          // Optimistic UI: display pending message bubble immediately
+          var thread = document.getElementById('msg-thread');
+          var emptyEl = document.getElementById('msg-empty-placeholder');
+          if (emptyEl) emptyEl.style.display = 'none';
+
+          var optimisticDiv = document.createElement('div');
+          optimisticDiv.className = 'msg-bubble-wrap';
+          optimisticDiv.id = 'bubble-' + stableMsgId;
+          optimisticDiv.style.cssText = 'position:relative;background:rgba(1,159,255,0.08);padding:12px 16px;border-radius:8px;max-width:80%;align-self:flex-end;border-right:3px solid var(--accent);box-shadow:0 1px 3px rgba(0,0,0,0.05);';
+          optimisticDiv.innerHTML = [
+            '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px;">',
+            '  <div style="font-size:.72rem;color:var(--accent);font-weight:600;">' + escapeHtml(clientName || 'Taxpayer') + ' &middot; Just now<span id="status-' + stableMsgId + '" class="msg-status-badge pending" style="font-size:.7rem;color:var(--ink-2);margin-left:8px;font-weight:normal;">⏳ Sending...</span></div>',
+            '  <button type="button" class="btn-del-msg" data-id="' + stableMsgId + '" style="background:none;border:none;color:var(--ink-3);font-size:.85rem;cursor:pointer;padding:0 4px;line-height:1;" title="Delete message">&times;</button>',
+            '</div>',
+            '<div style="font-size:.85rem;color:var(--ink);line-height:1.45;word-break:break-word;">' + escapeHtml(text) + '</div>'
+          ].join('');
+
+          if (thread) {
+            thread.appendChild(optimisticDiv);
+            thread.scrollTop = thread.scrollHeight;
+          }
+
+          inputMsg.value = '';
+
+          try {
+            var bridge = window.FirebaseBridge;
+            var sendRes = null;
+            if (bridge && typeof bridge.sendMessage === 'function') {
+              sendRes = await bridge.sendMessage(text, {
+                messageId: stableMsgId,
+                taxYear: 2026,
+                clientId: clientUid,
+                senderName: clientName,
+                senderEmail: clientEmail
+              });
+            }
+
+            // Cross-window sync if firm portal opened this window
+            try {
+              if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({ type: 'tfr_new_message', clientId: clientUid, text: text }, '*');
+              }
+            } catch (_) {}
+
+            var statusEl = document.getElementById('status-' + stableMsgId);
+            if (sendRes && sendRes.offlineCached) {
+              if (statusEl) {
+                statusEl.innerHTML = '<span class="msg-status-badge queued" style="font-size:.7rem;color:var(--brand);margin-left:8px;font-weight:600;">⏳ Queued offline</span>';
+              }
+              if (window.FileRoomLayout && typeof FileRoomLayout.showToast === 'function') {
+                FileRoomLayout.showToast('Queued offline — will synchronize once reconnected to backend', 'info');
+              }
+            } else if (sendRes && sendRes.success && !sendRes.offlineCached) {
+              if (statusEl) {
+                statusEl.innerHTML = '<span class="msg-status-badge sent" style="font-size:.7rem;color:var(--accent);margin-left:8px;font-weight:600;">✓ Sent</span>';
+              }
+              knownMessageIds.add(stableMsgId);
+              if (window.FileRoomLayout && typeof FileRoomLayout.showToast === 'function') {
+                FileRoomLayout.showToast('Message sent to Denise, CPA via encrypted IRC § 7216 channel', 'ok');
+              }
+            } else {
+              throw new Error((sendRes && sendRes.error) || 'Backend message submission rejected');
+            }
+          } catch (err) {
+            console.error('Error sending message:', err);
+            var statusEl = document.getElementById('status-' + stableMsgId);
+            if (statusEl) {
+              statusEl.innerHTML = '<span class="msg-status-badge failed" style="font-size:.7rem;color:var(--err);margin-left:8px;font-weight:600;">⚠️ Failed <button type="button" class="btn-retry-msg" data-id="' + stableMsgId + '" style="background:none;border:1px solid var(--err);border-radius:4px;color:var(--err);font-size:.68rem;padding:1px 6px;cursor:pointer;margin-left:4px;">Retry</button></span>';
+              var retryBtn = statusEl.querySelector('.btn-retry-msg');
+              if (retryBtn) {
+                retryBtn.onclick = function () { retryMessage(stableMsgId, text); };
+              }
+            }
+            if (window.FileRoomLayout && typeof FileRoomLayout.showToast === 'function') {
+              FileRoomLayout.showToast('Unable to send message: ' + (err.message || 'Network error'), 'err');
+            }
+          } finally {
+            isSending = false;
+            btnSend.disabled = false;
+            btnSend.style.opacity = '1';
+            inputMsg.focus();
+          }
+        }
+
+        btnSend.onclick = handleSend;
+
+        inputMsg.onkeydown = function (e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+          }
+        };
+      }
+
+      function wireEditNameButton() {
+        var btnEdit = document.getElementById('btn-edit-client-name');
+        if (!btnEdit) return;
+        btnEdit.onclick = function () {
+          var container = document.getElementById('modal-container');
+          if (container) {
+            container.classList.add('modal-wide');
+            container.style.maxWidth = '';
+          }
+          var cur = clientName || 'Taxpayer';
+          FileRoomLayout.openModal([
+            '<div class="modal-hdr" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);">',
+            '  <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;">Edit Name & Sync to Firebase</h3>',
+            '  <button type="button" data-close-modal style="background:transparent;border:0;font-size:1.2rem;cursor:pointer;">&times;</button>',
+            '</div>',
+            '<div class="modal-body" style="padding:20px;font-size:.85rem;line-height:1.5;">',
+            '  <p>Your name is synchronized with <b>Firebase Authentication</b> and <b>Cloud Firestore</b> (collections: <code>clients</code> &amp; <code>users</code>). Any updates here immediately update your message signature, tax return files, and audit records.</p>',
+            '  <div style="margin-top:14px;">',
+            '    <label style="display:block;font-size:.78rem;font-weight:600;color:var(--ink-2);margin-bottom:6px;">Full Legal Taxpayer Name:</label>',
+            '    <input type="text" id="modal-input-name" value="' + escapeHtml(cur) + '" placeholder="e.g. Taylor Bennett or Michael Whitfield" style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:6px;font-size:.9rem;background:var(--surface);box-sizing:border-box;" />',
+            '  </div>',
+            '  <div style="font-size:.75rem;color:var(--ink-2);margin-top:10px;">',
+            '    🔒 Synchronizes with <code>auth.currentUser.displayName</code> and Firestore document <code>clients/' + escapeHtml(clientUid) + '</code>.',
+            '  </div>',
+            '</div>',
+            '<div class="modal-ftr" style="padding:12px 20px;background:var(--surface-2);border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;">',
+            '  <button type="button" class="btn sm btn-o" data-close-modal>Cancel</button>',
+            '  <button type="button" class="btn sm btn-b" id="modal-btn-save-name">Save to Firebase Backend &rarr;</button>',
+            '</div>'
+          ].join(''));
+
+          setTimeout(function () {
+            var inp = document.getElementById('modal-input-name');
+            if (inp) { inp.focus(); inp.select(); }
+            var btnSave = document.getElementById('modal-btn-save-name');
+            if (btnSave) {
+              btnSave.onclick = async function () {
+                var newName = (inp ? inp.value : '').trim();
+                if (!newName) {
+                  alert('Please enter a valid legal name.');
+                  return;
+                }
+                btnSave.disabled = true;
+                btnSave.textContent = 'Saving to Firebase...';
+                try {
+                  var bridge = window.FirebaseBridge;
+                  if (bridge && typeof bridge.updateUserName === 'function') {
+                    await bridge.updateUserName(newName, clientUid);
+                  }
+                  clientName = newName;
+                  updateNameDisplay(newName);
+                  FileRoomLayout.closeModal();
+                  if (currentMessagesList && currentMessagesList.length > 0) {
+                    renderMessageBubbles(currentMessagesList);
+                  }
+                  if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                    window.FileRoomLayout.showToast('✓ Name synced to Firebase backend (' + newName + ')', 'ok');
+                  }
+                } catch (saveErr) {
+                  alert('Error updating name: ' + saveErr.message);
+                  btnSave.disabled = false;
+                  btnSave.textContent = 'Save to Firebase Backend →';
+                }
+              };
+            }
+          }, 50);
+        };
+      }
+
+      // Initial attachment & Firebase wireup
+      attachMsgEvents();
+      wireEditNameButton();
+
+      window.addEventListener('tfr:user_profile_updated', function (ev) {
+        var detail = ev && ev.detail;
+        if (detail && detail.name) {
+          clientName = detail.name;
+          updateNameDisplay(clientName);
+          if (currentMessagesList && currentMessagesList.length > 0) {
+            renderMessageBubbles(currentMessagesList);
+          }
+        }
+      });
+
+      // Cross-tab BroadcastChannel listener for instant live replies
+      try {
+        if (typeof BroadcastChannel !== 'undefined') {
+          var clientBc = new BroadcastChannel('tfr_messages_sync');
+          var isNandanAlias = function(id) {
+            return typeof id === 'string' && (id.toLowerCase().includes('nandan') || id.toLowerCase().includes('wlvw'));
+          };
+          clientBc.onmessage = function (e) {
+            var detail = e && e.data;
+            if (!detail) return;
+            var cId = detail.clientId;
+            var isMatch = !cId || cId === clientUid || (isNandanAlias(cId) && isNandanAlias(clientUid));
+            if (isMatch) {
+              connectFirebaseMessages();
+              if (detail.type === 'firm_reply') {
+                if (window.FileRoomLayout && typeof FileRoomLayout.playNotificationSound === 'function') {
+                  FileRoomLayout.playNotificationSound();
+                }
+                if (window.FileRoomLayout && typeof FileRoomLayout.showToast === 'function') {
+                  FileRoomLayout.showToast('💬 New message from Denise R., CPA received live', 'ok');
+                }
+              }
+            }
+          };
+        }
+      } catch (_) {}
+
+      // Storage event listener for cross-tab message updates
+      window.addEventListener('storage', function (e) {
+        if (e && e.key && (e.key === 'tfr_local_messages_' + clientUid || e.key.startsWith('tfr_local_messages_'))) {
+          connectFirebaseMessages();
+        }
+      });
+
+      // Cross-window postMessage listener
+      window.addEventListener('message', function (ev) {
+        if (ev && ev.data && (ev.data.type === 'tfr_new_message' || ev.data.type === 'tfr:message_received')) {
+          connectFirebaseMessages();
+        }
+      });
+
+      function setupAuthObserver() {
+        var bridge = window.FirebaseBridge;
+        var auth = (bridge && bridge.auth) || window.firebaseAuth;
+        var onAuthFn = (bridge && bridge.onAuthStateChanged) || window.onAuthStateChanged;
+        if (typeof onAuthFn === 'function' && auth) {
+          onAuthFn(auth, function (user) {
+            if (user) {
+              var newUid = user.uid;
+              if (newUid !== clientUid) {
+                clientUid = newUid;
+                clientEmail = user.email || clientEmail;
+                connectFirebaseMessages();
+              }
+            }
+          });
+        }
+      }
+
+      if (window.FirebaseBridge) {
+        connectFirebaseMessages();
+        setupAuthObserver();
+      } else {
+        var onBridgeReady = function () {
+          window.removeEventListener('firebase-ready', onBridgeReady);
+          window.removeEventListener('firebase-bridge-ready', onBridgeReady);
+          connectFirebaseMessages();
+          setupAuthObserver();
+        };
+        window.addEventListener('firebase-ready', onBridgeReady);
+        window.addEventListener('firebase-bridge-ready', onBridgeReady);
+      }
+
+      // State demo controls
+      btnLive.addEventListener('click', function () {
+        setActive(btnLive);
+        contentArea.innerHTML = originalHtml;
+        attachMsgEvents();
+        connectFirebaseMessages();
+        FileRoomLayout.showToast('Live message conversation loaded from Firestore', 'info');
+      });
+
+      btnLoading.addEventListener('click', function () {
+        setActive(btnLoading);
+        if (typeof unsubscribeMessages === 'function') {
+          unsubscribeMessages();
+          unsubscribeMessages = null;
+        }
+        FileRoomLayout.renderLoading(contentArea, 'Loading encrypted messaging thread from Cloud Firestore...');
+      });
+
+      btnEmpty.addEventListener('click', function () {
+        setActive(btnEmpty);
+        if (typeof unsubscribeMessages === 'function') {
+          unsubscribeMessages();
+          unsubscribeMessages = null;
+        }
+        FileRoomLayout.renderEmpty(contentArea, {
+          icon: '✉',
+          title: 'No Active Messages',
+          desc: 'You have no outstanding inquiries from your preparer. Start a conversation if you have questions about your 2026 file.',
+          actionText: 'Start New Message',
+          actionHref: '#'
+        });
+      });
+
+      btnError.addEventListener('click', function () {
+        setActive(btnError);
+        if (typeof unsubscribeMessages === 'function') {
+          unsubscribeMessages();
+          unsubscribeMessages = null;
+        }
+        FileRoomLayout.renderError(contentArea, {
+          title: 'Messaging Service Unavailable',
+          desc: 'Could not connect to Firestore messages collection. Please retry.',
+          onRetry: function () { btnLive.click(); }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

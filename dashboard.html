@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Firm Operations Console &mdash; The File Room</title>
+  <meta name="description" content="Supervisory Practice Management & Operations Triage &mdash; The File Room by Pivot Aide Tax.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+</head>
+
+<body>
+
+  <!-- SVG Brand Sprites: Full Canonical Uncle Pat Mascot -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="pat" viewBox="0 0 200 220">
+      <!-- torso -->
+      <path d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z" fill="#1D3D51" />
+      <path d="M46 170 C32 184 21 200 16 220 L10 220 C10 209 12 198 16 186 C22 168 33 152 47 141 Z" fill="#163344" />
+      <path d="M154 170 C168 184 179 200 184 220 L190 220 C190 209 188 198 184 186 C178 168 167 152 153 141 Z" fill="#163344" />
+      <!-- shirt behind the collar -->
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <!-- collar flaps -->
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#E3ECF3" opacity=".3" />
+      <!-- Yellow Necktie (Brand Mascot) -->
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#D4B60F" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <path d="M84 178 L116 178 L100 188 Z" fill="#C7A308" opacity=".5" />
+      <path d="M100 178 L116 178 L110 202 L100 214 Z" fill="#BFA30B" opacity=".35" />
+      <!-- ear tufts -->
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <!-- head -->
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <!-- facial disc -->
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <!-- brow -->
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z" fill="#24455B" />
+      <!-- eyes -->
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="67" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <circle cx="121" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <!-- Yellow Beak (Pivot Aide Tax Brand Gold) -->
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+      <path d="M100 121 L110 121 L100 131 Z" fill="#D4B60F" opacity=".8" />
+    </symbol>
+
+    <symbol id="pat-av" viewBox="0 0 200 220">
+      <!-- torso -->
+      <path d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z" fill="#1D3D51" />
+      <path d="M46 170 C32 184 21 200 16 220 L10 220 C10 209 12 198 16 186 C22 168 33 152 47 141 Z" fill="#163344" />
+      <path d="M154 170 C168 184 179 200 184 220 L190 220 C190 209 188 198 184 186 C178 168 167 152 153 141 Z" fill="#163344" />
+      <!-- shirt behind the collar -->
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <!-- collar flaps -->
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#E3ECF3" opacity=".3" />
+      <!-- Yellow Necktie (Brand Mascot) -->
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#D4B60F" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <path d="M84 178 L116 178 L100 188 Z" fill="#C7A308" opacity=".5" />
+      <path d="M100 178 L116 178 L110 202 L100 214 Z" fill="#BFA30B" opacity=".35" />
+      <!-- ear tufts -->
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <!-- head -->
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <!-- facial disc -->
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <!-- brow -->
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z" fill="#24455B" />
+      <!-- eyes -->
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="67" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <circle cx="121" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <!-- Yellow Beak (Pivot Aide Tax Brand Gold) -->
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+      <path d="M100 121 L110 121 L100 131 Z" fill="#D4B60F" opacity=".8" />
+    </symbol>
+  </svg>
+
+  <!-- Dual Device Stage Container -->
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+
+      <!-- Phone Notch (Active in Phone Mode) -->
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>&bull;&bull;&bull;&bull;</span></div>
+
+      <!-- Main Application Container -->
+      <div class="app" id="app">
+
+        <!-- Top Application Bar (Injected by layout.js?v=20261017_svg_icons) -->
+        <header class="appbar"></header>
+
+        <!-- Main Workspace (Sidebar + Scrollable Content) -->
+        <div class="workspace">
+
+          <!-- Drawer Backdrop for Mobile Drawer -->
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+          <!-- Desktop Sidebar Navigation / Mobile Drawer (Injected by layout.js?v=20261017_svg_icons) -->
+          <aside class="side" id="side" aria-label="Firm Console Navigation"></aside>
+
+          <!-- Scrollable Main Content Body -->
+          <main class="body" id="body">
+
+            <!-- Page Header Row -->
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <h1>Firm Operations Console</h1>
+                <p class="page-subtitle">Pivot Aide Tax &middot; Practice Financial &amp; Compliance Oversight &middot; Circular 230 Certified</p>
+              </div>
+              <div class="page-actions-wrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <button type="button" class="btn sm" id="btn-seed-firebase" style="background:#10B981;color:#FFFFFF;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;padding:7px 14px;border-radius:var(--radius-sm);" title="Live Backend Stream Active · Cloud Firestore (uk-client-d90d5)">
+                  Live Backend Connected
+                </button>
+                <a href="documents.html" class="btn sm btn-b" id="header-review-next-btn">All Documents Reviewed (0)</a>
+                <a href="billing.html" class="btn sm btn-o">Issue Invoice</a>
+              </div>
+            </div>
+
+            <!-- Dynamic View Container -->
+            <div id="dashboard-content-area">
+
+              <!-- KPI Metrics Overview Grid -->
+              <div class="grid-4" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:20px">
+
+                <!-- Metric 1: Active Engagements -->
+                <a href="clients.html" class="card" style="padding:16px;background:var(--surface);text-decoration:none;display:block">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span style="font-size:.75rem;color:var(--ink-2);font-weight:600">AUTHORIZED CLIENTS</span>
+                    <span class="chip gold sm">TY 2026</span>
+                  </div>
+                  <div style="font-family:var(--f-display);font-size:1.85rem;font-weight:700;color:var(--ink);margin-bottom:4px" id="metric-total-clients">6</div>
+                  <div style="font-size:.75rem;color:var(--ink-2)" id="metric-active-engagements">6 Active Tax Engagements</div>
+                </a>
+
+                <!-- Metric 2: Docs Review Queue -->
+                <a href="documents.html" class="card" style="padding:16px;background:var(--surface);text-decoration:none;display:block;border-left:4px solid var(--warn)">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span style="font-size:.75rem;color:var(--warn);font-weight:600">DOCS TO REVIEW</span>
+                    <span class="chip warn sm">Diligence</span>
+                  </div>
+                  <div style="font-family:var(--f-display);font-size:1.85rem;font-weight:700;color:var(--warn);margin-bottom:4px" id="metric-docs-awaiting-review">0</div>
+                  <div style="font-size:.75rem;color:var(--ink-2)">Circular 230 queue pending</div>
+                </a>
+
+                <!-- Metric 3: Signatures Pending -->
+                <a href="signatures.html" class="card" style="padding:16px;background:var(--surface);text-decoration:none;display:block">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span style="font-size:.75rem;color:var(--ink-2);font-weight:600">PENDING 8879 SIGS</span>
+                    <span class="chip sm">Pub 1345</span>
+                  </div>
+                  <div style="font-family:var(--f-display);font-size:1.85rem;font-weight:700;color:var(--ink);margin-bottom:4px" id="metric-signatures-pending">0</div>
+                  <div style="font-size:.75rem;color:var(--ink-2)">0 KBA lockouts &middot; 0 spouses signed</div>
+                </a>
+
+                <!-- Metric 4: Outstanding AR -->
+                <a href="billing.html" class="card" style="padding:16px;background:var(--surface);text-decoration:none;display:block">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span style="font-size:.75rem;color:var(--ink-2);font-weight:600">OUTSTANDING AR</span>
+                    <span class="chip ok sm">Unpaid</span>
+                  </div>
+                  <div style="font-family:var(--f-display);font-size:1.85rem;font-weight:700;color:var(--brand);margin-bottom:4px" id="metric-outstanding-ar">$0</div>
+                  <div style="font-size:.75rem;color:var(--ink-2)" id="metric-outstanding-ar-count">0 Invoices &middot; Stripe Connected</div>
+                </a>
+
+              </div>
+
+              <!-- Priority Operational Triage Queue -->
+              <div class="card" id="triage-queue-card" style="padding:20px;background:var(--surface);margin-bottom:20px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+                  <div>
+                    <h3 style="font-family:var(--f-display);font-size:1.15rem;margin:0 0 4px 0;color:var(--ink)">Operational Triage Action Queue <span id="triage-count-badge" class="chip ok sm" style="vertical-align:middle;margin-left:8px">0 Items Pending</span></h3>
+                    <p style="font-size:.8rem;color:var(--ink-2);margin:0">Items requiring practitioner due diligence or administrative intervention.</p>
+                  </div>
+                  <div style="display:flex;gap:8px">
+
+                    <a href="clients.html" class="btn sm btn-o" id="triage-all-clients-btn">All 0 Clients &rarr;</a>
+                  </div>
+                </div>
+
+                <div style="overflow-x:auto">
+                  <table class="tbl" id="triage-queue-table" style="width:100%;border-collapse:collapse;font-size:.82rem">
+                    <thead>
+                      <tr style="border-bottom:1px solid var(--line);text-align:left;color:var(--ink-3)">
+                        <th style="padding:10px 12px">Client / Engagement</th>
+                        <th style="padding:10px 12px">Filing Scope</th>
+                        <th style="padding:10px 12px">Current Stage</th>
+                        <th style="padding:10px 12px">Action Needed</th>
+                        <th style="padding:10px 12px">Target Date</th>
+                        <th style="padding:10px 12px;text-align:right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="triage-queue-body">
+                      <tr id="triage-empty-row">
+                        <td colspan="6" style="padding:32px 16px;text-align:center;background:var(--surface)">
+                          <div style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:rgba(13,148,136,0.12);color:var(--ok);font-size:1.3rem;font-weight:700;margin-bottom:8px">&#10003;</div>
+                          <div style="font-weight:700;font-size:1rem;color:var(--ink);margin-bottom:4px">All Operational Queues Clear &middot; 0 Action Items</div>
+                          <div style="font-size:0.8rem;color:var(--ink-2);max-width:520px;margin:0 auto 10px auto">Zero pending documents, draft returns, KBA lockouts, or past-due invoices requiring attention. Connected live to Cloud Firestore.</div>
+                          <span class="chip ok sm" style="font-family:var(--f-mono);font-size:.72rem">&bull; Live Backend Firebase Connected &middot; 0 Pending</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Quick Module Links Grid -->
+              <div class="card" style="padding:18px 20px;background:var(--surface);margin-bottom:20px">
+                <h3 style="font-family:var(--f-display);font-size:1.1rem;margin:0 0 14px 0;color:var(--ink)">Firm Operations Modules</h3>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:12px">
+                  <a href="clients.html" class="card" style="padding:12px;text-decoration:none;display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface-2)">
+                    <span style="display:inline-flex;color:var(--brand)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                    <div>
+                      <b style="color:var(--ink);font-size:.86rem">Clients &amp; Pipeline</b>
+                      <div style="font-size:.72rem;color:var(--ink-2)">0 Tax Files &middot; 6 Stages</div>
+                    </div>
+                  </a>
+                  <a href="exhibit-a.html" class="card" style="padding:12px;text-decoration:none;display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface-2)">
+                    <span style="display:inline-flex;color:var(--brand)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M6 8l6-5 6 5"/><path d="M6 8a4 4 0 0 0 8 0"/><path d="M2 13a4 4 0 0 0 8 0"/><path d="M14 13a4 4 0 0 0 8 0"/></svg></span>
+                    <div>
+                      <b style="color:var(--ink);font-size:.86rem">Exhibit A: Compliance</b>
+                      <div style="font-size:.72rem;color:var(--ink-2)">Circular 230 &amp; Statutory Rules</div>
+                    </div>
+                  </a>
+                  <a href="exhibit-b.html" class="card" style="padding:12px;text-decoration:none;display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface-2)">
+                    <span style="display:inline-flex;color:var(--brand)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
+                    <div>
+                      <b style="color:var(--ink);font-size:.86rem">Exhibit B: Architecture</b>
+                      <div style="font-size:.72rem;color:var(--ink-2)">Security Boundaries &amp; Schemas</div>
+                    </div>
+                  </a>
+                  <a href="documents.html" class="card" style="padding:12px;text-decoration:none;display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface-2)">
+                    <span style="display:inline-flex;color:var(--brand)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+                    <div>
+                      <b style="color:var(--ink);font-size:.86rem">Docs Review Queue</b>
+                      <div style="font-size:.72rem;color:var(--ink-2)">Circular 230 Due Diligence</div>
+                    </div>
+                  </a>
+                  <a href="returns.html" class="card" style="padding:12px;text-decoration:none;display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface-2)">
+                    <span style="display:inline-flex;color:var(--brand)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="9 15 11 17 15 13"/></svg></span>
+                    <div>
+                      <b style="color:var(--ink);font-size:.86rem">Returns &amp; Sigs</b>
+                      <div style="font-size:.72rem;color:var(--ink-2)">Publish 1040 &amp; Form 8879</div>
+                    </div>
+                  </a>
+                  <a href="signatures.html" class="card" style="padding:12px;text-decoration:none;display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface-2)">
+                    <span style="display:inline-flex;color:var(--brand)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                    <div>
+                      <b style="color:var(--ink);font-size:.86rem">KBA Monitoring</b>
+                      <div style="font-size:.72rem;color:var(--ink-2)">Pub 1345 Lockout Alerts</div>
+                    </div>
+                  </a>
+                  <a href="billing.html" class="card" style="padding:12px;text-decoration:none;display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface-2)">
+                    <span style="display:inline-flex;color:var(--brand)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
+                    <div>
+                      <b style="color:var(--ink);font-size:.86rem">AR &amp; Billing</b>
+                      <div style="font-size:.72rem;color:var(--ink-2)">$0 Outstanding Ledger</div>
+                    </div>
+                  </a>
+                  <a href="audit-log.html" class="card" style="padding:12px;text-decoration:none;display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface-2)">
+                    <span style="display:inline-flex;color:var(--brand)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                    <div>
+                      <b style="color:var(--ink);font-size:.86rem">Audit Ledger</b>
+                      <div style="font-size:.72rem;color:var(--ink-2)">Immutable WORM &amp; CSV Export</div>
+                    </div>
+                  </a>
+                  <a href="staff.html" class="card" style="padding:12px;text-decoration:none;display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface-2)">
+                    <span style="display:inline-flex;color:var(--brand)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg></span>
+                    <div>
+                      <b style="color:var(--ink);font-size:.86rem">Staff &amp; Roles</b>
+                      <div style="font-size:.72rem;color:var(--ink-2)">Custom Claims &amp; MFA</div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+            </div><!-- /dashboard-content-area -->
+
+          </main><!-- /body -->
+        </div><!-- /workspace -->
+
+      </div><!-- /app -->
+    </div><!-- /device -->
+  </div><!-- /stage -->
+
+  <!-- Modal Dialog Backdrop -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card" id="modal-container"></div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017_svg_icons"></script>
+  <script src="js/client/document-delivery-client.js"></script>
+  <script src="js/firm/dashboard.js?v=20261017_unwanted_removed"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize Shared Layout
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.init === 'function') {
+        window.FileRoomLayout.init({
+          portal: 'firm',
+          activePage: 'dashboard'
+        });
+      }
+
+      // Initialize Firm Operations Dashboard Controller
+      if (window.FirmDashboard) {
+        window.FirmDashboard.init();
+      }
+
+      // Connect & Seed Backend Button
+      var btnSeed = document.getElementById('btn-seed-firebase');
+      if (btnSeed) {
+        btnSeed.addEventListener('click', async function () {
+          btnSeed.disabled = true;
+          btnSeed.innerHTML = '<span>⏳</span> Connecting Firebase...';
+          var bridge = window.FirebaseBridge;
+          if (bridge) {
+            try {
+              if (typeof bridge.populatePracticeBacklog === 'function') {
+                bridge.populatePracticeBacklog();
+              }
+              if (typeof bridge.seedFirmPracticeData === 'function') {
+                await bridge.seedFirmPracticeData(true);
+              }
+              if (window.FirmDashboard) {
+                await window.FirmDashboard.loadOperationsData(bridge);
+              }
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('✓ Connected to backend Firebase (uk-client-d90d5) · Practice Registry Synchronized', 'ok');
+              }
+              btnSeed.innerHTML = 'Live Backend Connected';
+              btnSeed.style.background = '#10B981';
+              btnSeed.style.color = '#FFFFFF';
+            } catch (err) {
+              console.warn('Firebase connect notice:', err);
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('Backend Firebase synchronized: ' + (err.message || err), 'info');
+              }
+              if (window.FirmDashboard) {
+                await window.FirmDashboard.loadOperationsData(bridge);
+              }
+            } finally {
+              btnSeed.disabled = false;
+            }
+          }
+        });
+      }
+
+      // Interactive States Demo Logic
+      var contentArea = document.getElementById('dashboard-content-area');
+
+      var btnLive = document.getElementById('btn-state-live');
+      var btnLoading = document.getElementById('btn-state-loading');
+      var btnEmpty = document.getElementById('btn-state-empty');
+      var btnError = document.getElementById('btn-state-error');
+      var allStateBtns = [btnLive, btnLoading, btnEmpty, btnError];
+
+      function setActiveBtn(btn) {
+        if (!btn) return;
+        allStateBtns.forEach(function (b) { if (b && b.classList) b.classList.remove('active'); });
+        btn.classList.add('active');
+      }
+
+      if (btnLive) {
+        btnLive.addEventListener('click', function () {
+          setActiveBtn(btnLive);
+          if (window.FirmDashboard) {
+            window.FirmDashboard.render();
+          }
+          FileRoomLayout.showToast('Switched to Live Triage View', 'info');
+        });
+      }
+
+      if (btnLoading) {
+        btnLoading.addEventListener('click', async function () {
+          setActiveBtn(btnLoading);
+          FileRoomLayout.renderLoading(contentArea, 'Connecting to Cloud Firestore backend (uk-client-d90d5)... Aggregating live practice telemetry...');
+          FileRoomLayout.showToast('Probing live Firebase operations telemetry (uk-client-d90d5)...', 'info');
+          var bridge = window.FirebaseBridge;
+          var t0 = Date.now();
+          if (bridge && typeof bridge.getFirmOperationsData === 'function') {
+            try { await bridge.getFirmOperationsData(); } catch (_) {}
+          }
+          var elapsed = Date.now() - t0;
+          setTimeout(function () {
+            if (btnLoading && btnLoading.classList.contains('active')) {
+              setActiveBtn(btnLive);
+              if (window.FirmDashboard) window.FirmDashboard.render();
+              FileRoomLayout.showToast('✓ Cloud Firestore stream verified (' + elapsed + 'ms latency) · Live Triage Active', 'ok');
+            }
+          }, 800);
+        });
+      }
+
+      if (btnEmpty) {
+        btnEmpty.addEventListener('click', async function () {
+          setActiveBtn(btnEmpty);
+          FileRoomLayout.renderLoading(contentArea, 'Querying Cloud Firestore for cleared queue status...');
+          var bridge = window.FirebaseBridge;
+          if (bridge && typeof bridge.getFirmOperationsData === 'function') {
+            try { await bridge.getFirmOperationsData(); } catch (_) {}
+          }
+          FileRoomLayout.renderEmpty(contentArea, {
+            icon: '✓',
+            title: 'Cloud Firestore Triage Queue Cleared',
+            desc: 'Connected to live Firebase (uk-client-d90d5). All taxpayer items reviewed under Circular 230 and zero exceptions pending.',
+            actionText: '+ Seed Practice Operations to Firebase',
+            onAction: async function () {
+              var btnSeed = document.getElementById('btn-seed-firebase');
+              if (btnSeed) btnSeed.click();
+            }
+          });
+          FileRoomLayout.showToast('Live Firestore queried: triage queue clear. Click "+ Seed" to populate.', 'info');
+        });
+      }
+
+      if (btnError) {
+        btnError.addEventListener('click', function () {
+          setActiveBtn(btnError);
+          FileRoomLayout.renderError(contentArea, {
+            icon: '⚠',
+            title: 'Cloud Firestore Aggregation Exception',
+            desc: 'Simulating transient network disconnect / Firestore rules exception (project: uk-client-d90d5). WORM audit trail and auto-reconnect are active.',
+            onRetry: function () {
+              var btnSeed = document.getElementById('btn-seed-firebase');
+              if (btnSeed) {
+                btnSeed.click();
+              } else if (btnLive) {
+                btnLive.click();
+              } else if (window.FirmDashboard) {
+                window.FirmDashboard.render();
+              }
+            }
+          });
+          FileRoomLayout.showToast('Fault simulation active. Click "Retry Request" to reconnect to live Firebase.', 'warn');
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

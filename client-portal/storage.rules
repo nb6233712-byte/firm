@@ -1,0 +1,124 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── Helper Functions & Role-Based Access Control (RBAC) ──────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Default new accounts and unassigned tokens to 'client'
+    function getUserRole() {
+      return (request.auth != null && request.auth.token != null && request.auth.token.role != null) 
+        ? request.auth.token.role 
+        : 'client';
+    }
+
+    // Multi-Factor Authentication (MFA) is strictly required for privileged staff
+    function isMfaEnforced() {
+      return request.auth != null && (
+        request.auth.token.mfa == true ||
+        request.auth.token.firebase.sign_in_second_factor != null
+      );
+    }
+
+    function isFirmPreparer() {
+      return isAuthenticated() && (
+        getUserRole() == 'firm_preparer' ||
+        getUserRole() == 'firm_reviewer' ||
+        getUserRole() == 'firm_practitioner' ||
+        getUserRole() == 'firm_staff'
+      ) && isMfaEnforced();
+    }
+
+    function isFirmAdmin() {
+      return isAuthenticated() && (
+        getUserRole() == 'firm_admin' ||
+        getUserRole() == 'firm_partner'
+      ) && isMfaEnforced();
+    }
+
+    function isFirmStaff() {
+      return isFirmAdmin() || isFirmPreparer();
+    }
+
+    function isValidTaxDocument() {
+      // Limit to 25MB statutory ceiling and allowed tax document MIME types
+      return request.resource.size <= 25 * 1024 * 1024 &&
+        (request.resource.contentType.matches('application/pdf') ||
+         request.resource.contentType.matches('image/png') ||
+         request.resource.contentType.matches('image/jpeg') ||
+         request.resource.contentType.matches('image/jpg') ||
+         request.resource.contentType.matches('image/heic') ||
+         request.resource.contentType.matches('text/csv'));
+    }
+
+    // ── 1. Regulated Client Inbound Upload Vault ──────────────────────
+    // Path: clients/{clientId}/tax-years/{taxYear}/documents/{documentId}
+    match /clients/{userId}/tax-years/{taxYear}/documents/{documentId} {
+      // Only the client owner or authorized firm staff with MFA can read
+      allow read: if isOwner(userId) || isFirmStaff();
+      // Only the client owner can upload their own tax documents with 25MB MIME limits
+      allow write: if isOwner(userId) && isValidTaxDocument();
+      // Only firm staff can delete uploaded files
+      allow delete: if isFirmStaff();
+    }
+
+    // Path: clients/{clientId}/engagements/{engagementId}/documents/{documentId}
+    match /clients/{userId}/engagements/{engagementId}/documents/{documentId} {
+      allow read: if isOwner(userId) || isFirmStaff();
+      allow write: if isOwner(userId) && isValidTaxDocument();
+      allow delete: if isFirmStaff();
+    }
+
+    // Legacy Fallback Path
+    match /clients/{userId}/documents/{documentId} {
+      allow read: if isOwner(userId) || isFirmStaff();
+      allow write: if isOwner(userId) && isValidTaxDocument();
+      allow delete: if isFirmStaff();
+    }
+
+    // ── 1B. Cloud Functions Ingestion Vault (/intake_submissions) ─────
+    // Path: intake_submissions/{clientId}/{taxYear}/{fileName}
+    match /intake_submissions/{userId}/{taxYear}/{fileName} {
+      allow read: if isOwner(userId) || isFirmStaff();
+      // Direct client write disabled; ingested via Cloud Function fallback
+      allow write: if isFirmStaff();
+      // Only firm admin can delete ingested fallback records under WORM compliance
+      allow delete: if isFirmAdmin();
+    }
+
+    // ── 2. Prepared Tax Returns & Form 8879 Vault ─────────────────────
+    // Path: clients/{clientId}/returns/{returnFileId}
+    match /clients/{userId}/returns/{returnFileId} {
+      // Client can download their prepared return; staff can view all returns
+      allow read: if isOwner(userId) || isFirmStaff();
+      // ONLY firm staff can upload finalized returns (clients cannot upload returns)
+      allow write: if isFirmStaff();
+      // Only Firm Admin can delete published tax returns (preparers cannot delete)
+      allow delete: if isFirmAdmin();
+    }
+
+    // ── 3. Secure Message Attachments Vault ───────────────────────────
+    // Path: clients/{clientId}/engagements/{engagementId}/messages/{messageId}/{fileName}
+    match /clients/{userId}/engagements/{engagementId}/messages/{messageId}/{fileName} {
+      // Both client and assigned staff can view conversation attachments
+      allow read: if isOwner(userId) || isFirmStaff();
+      // Both client and assigned staff can upload attachments with 25MB statutory limit
+      allow write: if (isOwner(userId) || isFirmStaff()) && isValidTaxDocument();
+      // Only firm staff can delete attachment files
+      allow delete: if isFirmStaff();
+    }
+
+    match /clients/{userId}/messages/{messageId}/{fileName} {
+      allow read: if isOwner(userId) || isFirmStaff();
+      allow write: if (isOwner(userId) || isFirmStaff()) && isValidTaxDocument();
+      allow delete: if isFirmStaff();
+    }
+  }
+}

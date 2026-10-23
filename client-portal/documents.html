@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tax Documents &amp; Upload Vault &mdash; Client Portal &mdash; The File Room</title>
+  <meta name="description" content="Secure 25MB tax document ingestion vault and Circular 230 review checklist &mdash; The File Room by Pivot Aide Tax.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+  <style>
+    /* Mobile-first responsive perfection for Tax Document rows and action buttons */
+    .doc-item-row {
+      box-sizing: border-box !important;
+      max-width: 100% !important;
+    }
+    .doc-item-row .doc-actions-wrap {
+      display: flex !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+      max-width: 100% !important;
+    }
+    .doc-item-row .doc-actions-wrap .btn,
+    .doc-item-row .doc-actions-wrap .chip,
+    .btn-attach-forminit,
+    .btn-preview-pdf,
+    .btn-download-pdf,
+    .btn-view-meta,
+    .btn-replace-doc,
+    .btn-upload-item,
+    .btn-upload-sample-pdf {
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      margin: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 4px !important;
+    }
+    @media (max-width: 768px) {
+      .doc-item-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        padding: 12px 14px !important;
+      }
+      .doc-item-row > div:first-child {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+      }
+      .doc-item-row .doc-actions-wrap {
+        width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        margin-top: 4px !important;
+      }
+      .doc-item-row .doc-actions-wrap .btn,
+      .doc-item-row .doc-actions-wrap .chip {
+        font-size: 0.74rem !important;
+        padding: 5px 8px !important;
+      }
+      #body {
+        padding-bottom: 110px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SVG Brand Sprites: Full Canonical Uncle Pat Mascot -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="pat" viewBox="0 0 200 220">
+      <!-- torso -->
+      <path d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z" fill="#1D3D51" />
+      <path d="M46 170 C32 184 21 200 16 220 L10 220 C10 209 12 198 16 186 C22 168 33 152 47 141 Z" fill="#163344" />
+      <path d="M154 170 C168 184 179 200 184 220 L190 220 C190 209 188 198 184 186 C178 168 167 152 153 141 Z" fill="#163344" />
+      <!-- shirt behind the collar -->
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <!-- collar flaps -->
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#E3ECF3" opacity=".3" />
+      <!-- tie -->
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#CFC922" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <path d="M84 178 L116 178 L100 188 Z" fill="#B4AE18" opacity=".5" />
+      <!-- ear tufts -->
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <!-- head -->
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <!-- facial disc -->
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <!-- brow -->
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z" fill="#24455B" />
+      <!-- eyes -->
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="67" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <circle cx="121" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <!-- beak -->
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+      <path d="M100 121 L110 121 L100 131 Z" fill="#B4AE18" opacity=".45" />
+    </symbol>
+
+    <symbol id="pat-av" viewBox="22 4 156 172">
+      <!-- torso -->
+      <path d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z" fill="#1D3D51" />
+      <!-- shirt behind the collar -->
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <!-- collar flaps -->
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <!-- tie -->
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#CFC922" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <!-- ear tufts -->
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <!-- head -->
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <!-- facial disc -->
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <!-- brow -->
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z" fill="#24455B" />
+      <!-- eyes -->
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="67" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <circle cx="121" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <!-- beak -->
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+      <path d="M100 121 L110 121 L100 131 Z" fill="#B4AE18" opacity=".45" />
+    </symbol>
+  </svg>
+
+  <!-- Dual Device Stage Container -->
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+
+      <!-- Phone Notch (Active in Phone Mode) -->
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <!-- Main Application Container -->
+      <div class="app" id="app">
+
+        <!-- Top Application Bar (Injected by layout.js) -->
+        <header class="appbar"></header>
+
+        <!-- Main Workspace (Sidebar + Scrollable Content) -->
+        <div class="workspace">
+
+          <!-- Drawer Backdrop for Mobile Drawer -->
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+          <!-- Desktop Sidebar Navigation / Mobile Drawer (Injected by layout.js) -->
+          <aside class="side" id="side" aria-label="Client Portal Navigation"></aside>
+
+          <!-- Scrollable Main Content Body -->
+          <main class="body" id="body">
+
+            <!-- Breadcrumbs -->
+            <div id="page-breadcrumbs"></div>
+
+            <!-- Page Header Row -->
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <h1>Tax Documents &amp; Ingestion Vault</h1>
+                <p class="page-subtitle" id="docs-page-subtitle">Taylor Bennett &middot; Form 1040 Joint &middot; Tax Year 2026 &middot; Secure Client Portal</p>
+              </div>
+              <div class="page-actions-wrap">
+                <button type="button" class="btn sm btn-b" id="hdr-btn-upload">Upload Files &rarr;</button>
+                <a href="messages.html" class="btn sm btn-o">Message</a>
+              </div>
+            </div>
+
+            <!-- Active Engagement Selector Bar -->
+            <div class="card" style="padding:12px 18px;margin-bottom:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <label for="select-client-engagement" style="font-size:.82rem;font-weight:600;color:var(--ink);white-space:nowrap;">Active Engagement:</label>
+                <select id="select-client-engagement" style="padding:6px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.84rem;background:var(--surface);color:var(--ink);font-weight:500;">
+                  <option value="eng_2026_whitfield_1040" selected>TY 2026 — Form 1040 Individual &amp; Schedule C (Active Filing)</option>
+                  <option value="eng_2026_whitfield_1065">TY 2026 — Form 1065 Partnership Return (Blue Ridge Ventures)</option>
+                  <option value="eng_2025_whitfield_prior">TY 2025 — Form 1040 Prior Year Return (Completed)</option>
+                </select>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="chip gold sm" id="engagement-status-badge">● Intake Open</span>
+                <span style="font-size:.74rem;color:var(--ink-3);font-family:var(--f-mono)" id="engagement-id-label">eng_2026_whitfield_1040</span>
+              </div>
+            </div>
+
+            <!-- Interactive States Verification Bar -->
+            <div class="states-demo-bar">
+              <span class="states-demo-label">VAULT STATE:</span>
+              <button type="button" class="states-demo-btn active" id="btn-state-live">● Live View</button>
+              <button type="button" class="states-demo-btn" id="btn-state-loading">Loading State</button>
+              <button type="button" class="states-demo-btn" id="btn-state-empty">Empty State</button>
+              <button type="button" class="states-demo-btn" id="btn-state-error">Error State</button>
+            </div>
+
+            <!-- Dynamic View Container -->
+            <div id="documents-content-area">
+
+              <!-- Status & Progress Banner (Revealed during upload or error) -->
+              <div id="docs-status-banner" style="display:none;margin-bottom:18px;padding:12px 16px;border-radius:var(--radius-md);transition:all .2s ease"></div>
+
+              <!-- Drag & Drop Upload Dropzone -->
+              <div class="card doc-dropzone" id="drop-zone" tabindex="0" role="region" aria-label="Tax Document Upload Dropzone">
+                <div class="doc-dropzone-icon">📁</div>
+                <h3 style="font-family:var(--f-display);font-size:1.2rem;margin:0 0 6px 0;color:var(--ink)">Drag &amp; drop tax records here, or click to browse</h3>
+                <p style="font-size:.82rem;color:var(--ink-2);max-width:540px;margin:0 auto 16px auto;line-height:1.45">
+                  Upload PDF forms, W-2s, 1099 statements, K-1s, closing disclosures, or receipts. Supported formats: <b>PDF, PNG, JPG, HEIC, and CSV</b> (up to 25 MB each).
+                </p>
+                <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+                  <button type="button" class="btn sm btn-b" id="btn-choose-files">Choose Files from Device</button>
+                  <button type="button" class="btn sm btn-o" id="btn-use-camera">📷 Scan with Phone Camera</button>
+                </div>
+                <input type="file" id="file-input-hidden" multiple accept=".pdf,.png,.jpg,.jpeg,.heic,.csv" style="display:none" aria-hidden="true">
+                <div style="margin-top:12px;font-size:.72rem;color:var(--ink-3);font-family:var(--f-mono)">
+                  Byte-level Magic Signature Inspection &middot; Executables (.exe, scripts) Strictly Prohibited &middot; FTC Safeguards Rule &amp; IRS Pub 4557 Compliant (25 MB limit)
+                </div>
+              </div>
+
+              <!-- Synthetic Test PDF Pack (14 Records) &middot; Live Firebase Ingestion Suite -->
+              <div class="card" style="margin-bottom:20px;padding:14px 18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md)">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:1.1rem;color:var(--brand)">⚡</span>
+                    <b style="font-size:.86rem;color:var(--ink)">Synthetic Tax PDF Pack (14 Records) &middot; Live Firebase Ingestion</b>
+                    <span class="chip ok sm" style="font-size:.7rem">Ready to Ingest</span>
+                  </div>
+                  <span style="font-size:.74rem;color:var(--ink-3);font-family:var(--f-mono)">1-Click Test PDF &rarr; Cloud Storage &amp; Firestore</span>
+                </div>
+                <div style="font-size:.78rem;color:var(--ink-2);margin-bottom:10px;line-height:1.4">
+                  Click any synthetic test tax record below to immediately run byte-level verification, upload to Google Cloud Storage, update Firestore in real time, and verify live PDF preview &amp; download:
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px" id="quick-test-pdf-chips">
+                  <button type="button" class="btn sm btn-o btn-quick-test-pdf" data-file="01_Test_W2_Source_Record.pdf" data-id="usr_whitfield_4417_req_w2" title="Halstead Media W-2 Wage Record"><span>📄</span> W-2 (Halstead Media)</button>
+                  <button type="button" class="btn sm btn-o btn-quick-test-pdf" data-file="02_Test_1099_MISC_Source_Record.pdf" data-id="usr_whitfield_4417_req_1099_misc" title="Keystone Properties 1099-MISC"><span>📄</span> 1099-MISC Rental</button>
+                  <button type="button" class="btn sm btn-o btn-quick-test-pdf" data-file="03_Test_1099_NEC_Source_Record.pdf" data-id="usr_whitfield_4417_req_1099_nec" title="Apex Design Co 1099-NEC"><span>📄</span> 1099-NEC Nonemployee</button>
+                  <button type="button" class="btn sm btn-o btn-quick-test-pdf" data-file="04_Test_Schedule_K1_Source_Record.pdf" data-id="usr_whitfield_4417_req_k1" title="Blue Ridge Ventures K-1"><span>📄</span> Schedule K-1 (Partnership)</button>
+                  <button type="button" class="btn sm btn-o btn-quick-test-pdf" data-file="05_Test_1099B_Brokerage_Statement.pdf" data-id="usr_whitfield_4417_req_1099b" title="1099-B Brokerage Statement"><span>📄</span> 1099-B Brokerage</button>
+                  <button type="button" class="btn sm btn-o btn-quick-test-pdf" data-file="06_Test_Closing_Disclosure.pdf" data-id="usr_whitfield_4417_req_closing" title="Halcyon Way Closing Disclosure"><span>📄</span> Closing Disclosure</button>
+                  <button type="button" class="btn sm btn-o btn-quick-test-pdf" data-file="07_Test_Form_1098_Mortgage_Interest.pdf" data-id="usr_whitfield_4417_req_1098" title="Form 1098 Mortgage Interest"><span>📄</span> Form 1098 Mortgage</button>
+                  <button type="button" class="btn sm btn-o btn-quick-test-pdf" data-file="08_Test_Charity_Receipts.pdf" data-id="usr_whitfield_4417_req_charity" title="Charity Contribution Receipts"><span>📄</span> Charity Receipts</button>
+                  <button type="button" class="btn sm btn-o btn-quick-test-pdf" data-file="09_Test_Vehicle_Mileage_Log.pdf" data-id="usr_whitfield_4417_req_mileage" title="Vehicle Mileage Log"><span>📄</span> Mileage Log</button>
+                  <button type="button" class="btn sm btn-o btn-quick-test-pdf" data-file="13_Test_Form_8879_Signature_Specimen.pdf" data-id="usr_whitfield_4417_req_8879" title="Form 8879 IRS e-File Authorization"><span>📄</span> Form 8879 e-File</button>
+                </div>
+              </div>
+
+              <!-- Filter Tabs Row -->
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+                <div>
+                  <h3 style="font-family:var(--f-display);font-size:1.15rem;margin:0;color:var(--ink)">Tax Year 2026 Document Checklist</h3>
+                  <div style="font-size:.76rem;color:var(--ink-2)">Status ledger and Circular 230 practitioner review updates</div>
+                </div>
+                <div class="doc-filters-bar" style="margin-bottom:0">
+                  <button type="button" class="doc-filter-btn active" id="btn-filter-all" data-filter="all">
+                    All Documents <span class="doc-filter-badge" id="count-filter-all">0</span>
+                  </button>
+                  <button type="button" class="doc-filter-btn" id="btn-filter-needed" data-filter="needed">
+                    Missing / Needed <span class="doc-filter-badge" id="count-filter-needed">0</span>
+                  </button>
+                  <button type="button" class="doc-filter-btn" id="btn-filter-review" data-filter="review">
+                    In CPA Review <span class="doc-filter-badge" id="count-filter-review">0</span>
+                  </button>
+                  <button type="button" class="doc-filter-btn" id="btn-filter-accepted" data-filter="accepted">
+                    Accepted <span class="doc-filter-badge" id="count-filter-accepted">0</span>
+                  </button>
+                  <button type="button" class="doc-filter-btn" id="btn-filter-rejected" data-filter="rejected">
+                    Resubmission Needed <span class="doc-filter-badge" id="count-filter-rejected">0</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Documents List Container (Rendered by documents.js) -->
+              <div id="docs-list-container" aria-live="polite">
+                <!-- Injected dynamically by ClientDocuments.render() -->
+              </div>
+
+              <!-- Statutory Disclosures & Tenant Isolation Ledger Footer -->
+              <div class="card" style="margin-top:24px;padding:16px 20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md)">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+                  <div>
+                    <b style="font-size:.85rem;color:var(--ink)">Need assistance gathering tax forms?</b>
+                    <div style="font-size:.78rem;color:var(--ink-2);margin-top:2px">
+                      Missing a 1099 or K-1? Contact your issuer or message your lead CPA directly for an extension consultation.
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:8px">
+                    <a href="messages.html" class="btn sm btn-o">Message Preparer</a>
+                    <a href="tax-return.html" class="btn sm btn-b">View Draft Return &rarr;</a>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /documents-content-area -->
+
+          </main>
+        </div><!-- /workspace -->
+
+      </div><!-- /app -->
+    </div><!-- /device -->
+  </div><!-- /stage -->
+
+  <!-- Modal Dialog Backdrop -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card modal-wide" id="modal-container"></div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/formspree.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js"></script>
+  <script src="js/client/document-delivery-client.js"></script>
+  <script src="js/client/documents.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // 1. Initialize Shared Layout Shell
+      FileRoomLayout.init({
+        portal: 'client',
+        activePage: 'documents',
+        breadcrumbs: [
+          { title: 'The File Room', href: 'index.html' },
+          { title: 'Client Portal', href: 'dashboard.html' },
+          { title: 'Tax Documents' }
+        ]
+      });
+
+      // 2. Initialize Live Client Documents Controller
+      if (window.ClientDocuments) {
+        window.ClientDocuments.init();
+      }
+
+      // 2b. Initialize Durable Delivery Queue polling
+      if (window.DocumentDeliveryQueue && typeof window.DocumentDeliveryQueue.init === 'function') {
+        window.DocumentDeliveryQueue.init();
+      }
+
+      // 3. Header Action Shortcut
+      var hdrUploadBtn = document.getElementById('hdr-btn-upload');
+      var hiddenInput = document.getElementById('file-input-hidden');
+      if (hdrUploadBtn && hiddenInput) {
+        hdrUploadBtn.addEventListener('click', function () {
+          hiddenInput.click();
+        });
+      }
+
+      // 4. Interactive States Verification Controls
+      var contentArea = document.getElementById('docs-list-container');
+      var btnLive = document.getElementById('btn-state-live');
+      var btnLoading = document.getElementById('btn-state-loading');
+      var btnEmpty = document.getElementById('btn-state-empty');
+      var btnError = document.getElementById('btn-state-error');
+      var allStateBtns = [btnLive, btnLoading, btnEmpty, btnError];
+
+      function setActiveBtn(btn) {
+        allStateBtns.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+      }
+
+      btnLive.addEventListener('click', function () {
+        setActiveBtn(btnLive);
+        if (window.ClientDocuments) {
+          window.ClientDocuments.render();
+        }
+        FileRoomLayout.showToast('Displaying Live Tax Year 2026 Checklist', 'info');
+      });
+
+      btnLoading.addEventListener('click', function () {
+        setActiveBtn(btnLoading);
+        FileRoomLayout.renderLoading(contentArea, 'Verifying 25MB encrypted storage vault credentials...');
+      });
+
+      btnEmpty.addEventListener('click', function () {
+        setActiveBtn(btnEmpty);
+        FileRoomLayout.renderEmpty(contentArea, {
+          icon: '🎉',
+          title: 'All Required Tax Documents Received',
+          desc: 'Zero missing documents for Tax Year 2026. All required W-2s, 1099s, and K-1 schedules have been approved by Denise R., CPA.',
+          actionText: 'View Filing Progress',
+          actionHref: 'dashboard.html'
+        });
+      });
+
+      btnError.addEventListener('click', function () {
+        setActiveBtn(btnError);
+        FileRoomLayout.renderError(contentArea, {
+          icon: '⚠️',
+          title: 'Secure Cloud Vault Synchronization Error',
+          desc: 'Failed to synchronize with Google Cloud Storage path clients/usr_whitfield_4417/tax-years/2026/documents. Please verify internet connectivity.',
+          onRetry: function () {
+            btnLive.click();
+          }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
+

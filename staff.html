@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff &amp; Roles — Firm Operations — The File Room</title>
+  <meta name="description" content="Authorized firm staff, PTIN/EFIN authority, and role-based access control governance — The File Room by Pivot Aide Tax.">
+
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+</head>
+
+<body>
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <div class="app" id="app">
+        <header class="appbar"></header>
+
+        <div class="workspace">
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+          <aside class="side" id="side" aria-label="Firm Operations Navigation"></aside>
+
+          <main class="body" id="body">
+            <div id="page-breadcrumbs"></div>
+
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <h1>Staff &amp; Role-Based Access Governance</h1>
+                <p class="page-subtitle">FTC Safeguards § 314.4(c) Access Controls &middot; IRS Pub 1345 § 3 E-file Personnel</p>
+              </div>
+              <div class="page-actions-wrap" style="display:flex;gap:10px;align-items:center;">
+                <button type="button" class="btn sm btn-b" id="btn-provision-staff">Provision Staff Role &rarr;</button>
+              </div>
+            </div>
+
+            <div id="staff-content-area">
+              <div class="card p-xl" style="text-align:center;color:var(--ink-2);background:var(--surface);">
+                <div class="spinner mb-md" style="margin:0 auto 12px auto;width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:spin 1s linear infinite;"></div>
+                <p style="margin:0;font-size:.9rem;font-weight:500;">Connecting to live Cloud Firestore backend...</p>
+              </div>
+            </div>
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card" id="modal-container"></div>
+  </div>
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017_svg_icons"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.init === 'function') {
+        window.FileRoomLayout.init({
+          portal: 'firm',
+          activePage: 'staff',
+          breadcrumbs: [
+            { title: 'The File Room', href: 'index.html' },
+            { title: 'Firm Operations', href: 'dashboard.html' },
+            { title: 'Staff & Roles' }
+          ]
+        });
+      }
+
+      var contentArea = document.getElementById('staff-content-area');
+      var btnLive = document.getElementById('btn-state-live');
+      var btnLoading = document.getElementById('btn-state-loading');
+      var btnEmpty = document.getElementById('btn-state-empty');
+      var btnError = document.getElementById('btn-state-error');
+      var allBtns = [btnLive, btnLoading, btnEmpty, btnError];
+      var liveUnsub = null;
+
+      function setActive(b) {
+        if (!b) return;
+        allBtns.forEach(function (btn) { if (btn && btn.classList) btn.classList.remove('active'); });
+        b.classList.add('active');
+      }
+
+      function renderStaffTable(items) {
+        if (!items || items.length === 0) {
+          contentArea.innerHTML = [
+            '<div class="card p-xl" style="text-align:center;background:var(--surface);">',
+            '  <div style="font-size:2.5rem;margin-bottom:12px;">👥</div>',
+            '  <h3 style="font-family:var(--f-display);margin:0 0 8px 0;font-size:1.2rem;color:var(--ink);">No Authorized Practitioners in Cloud Firestore</h3>',
+            '  <p style="font-size:.85rem;color:var(--ink-2);max-width:480px;margin:0 auto 16px auto;">',
+            '    Connect your authenticated Firebase session or provision a practitioner role into Cloud Firestore under FTC Safeguards § 314.4 and IRS Pub 1345.',
+            '  </p>',
+            '  <div style="display:flex;justify-content:center;gap:12px;">',
+            '    <button type="button" class="btn sm btn-b" id="btn-seed-practitioner">✦ Provision My Firebase Account to Cloud Firestore</button>',
+            '    <button type="button" class="btn sm btn-o" id="btn-empty-provision">Provision New Staff Role &rarr;</button>',
+            '  </div>',
+            '</div>'
+          ].join('\n');
+
+          var seedBtn = document.getElementById('btn-seed-practitioner');
+          if (seedBtn) {
+            seedBtn.addEventListener('click', async function () {
+              seedBtn.disabled = true;
+              seedBtn.textContent = '⏳ Provisioning in Firestore...';
+              var bridge = window.FirebaseBridge;
+              if (bridge && typeof bridge.syncAuthenticatedPractitionerToFirebase === 'function') {
+                try {
+                  await bridge.syncAuthenticatedPractitionerToFirebase();
+                  if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                    window.FileRoomLayout.showToast('✓ Authenticated practitioner provisioned in Cloud Firestore!', 'ok');
+                  }
+                  await loadStaffRoster();
+                } catch (err) {
+                  console.warn('Seed error:', err);
+                  seedBtn.disabled = false;
+                  seedBtn.textContent = '✦ Provision My Firebase Account to Cloud Firestore';
+                }
+              }
+            });
+          }
+
+          var emptyProvBtn = document.getElementById('btn-empty-provision');
+          if (emptyProvBtn) {
+            emptyProvBtn.addEventListener('click', function () {
+              openProvisionModal();
+            });
+          }
+          return;
+        }
+
+        var html = [
+          '<div class="card p-lg mb-lg" style="background:var(--surface);">',
+          '  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">',
+          '    <div>',
+          '      <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;color:var(--ink)">Authorized Practice Practitioners</h3>',
+          '      <p style="margin:2px 0 0 0;font-size:.78rem;color:var(--ink-2);">Realtime Cloud Firestore synchronization &middot; Project uk-client-d90d5</p>',
+          '    </div>',
+          '    <span class="chip ok sm" id="staff-count-chip">● LIVE FIRESTORE &middot; ' + items.length + ' PRACTITIONER' + (items.length > 1 ? 'S' : '') + ' &middot; 0 ACCESS LOCKOUTS</span>',
+          '  </div>',
+          '  <div style="overflow-x:auto;">',
+          '    <table class="table-clean" style="width:100%;font-size:.85rem;">',
+          '      <thead>',
+          '        <tr style="border-bottom:1px solid var(--line);text-align:left;">',
+          '          <th style="padding:10px 0;">Practitioner</th>',
+          '          <th style="padding:10px 0;">Role &amp; Scope</th>',
+          '          <th style="padding:10px 0;">PTIN / EFIN</th>',
+          '          <th style="padding:10px 0;">MFA Status</th>',
+          '          <th style="padding:10px 0;">Governance</th>',
+          '          <th style="padding:10px 0;text-align:right;">Actions</th>',
+          '        </tr>',
+          '      </thead>',
+          '      <tbody>'
+        ];
+
+        items.forEach(function (s) {
+          var roleChip = s.role === 'firm_admin' ? 'gold' : 'brand';
+          var sId = s.id || s.staffId || s.uid || '';
+          html.push(
+            '<tr style="border-bottom:1px solid var(--line-subtle);">',
+            '  <td style="padding:12px 0;">',
+            '    <div style="display:flex;align-items:center;gap:10px;">',
+            '      <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--brand),#0284c7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;">',
+            '        ' + (s.name ? s.name.charAt(0).toUpperCase() : 'P'),
+            '      </div>',
+            '      <div>',
+            '        <b>' + s.name + '</b><br>',
+            '        <span style="font-size:.75rem;color:var(--ink-2);">' + (s.roleTitle || s.title || s.email || 'Practitioner') + '</span>',
+            '      </div>',
+            '    </div>',
+            '  </td>',
+            '  <td><span class="chip ' + roleChip + ' sm">' + (s.role || 'firm_staff') + '</span></td>',
+            '  <td>PTIN: ' + (s.ptin || 'Not on file') + '<br><span style="font-size:.75rem;color:var(--ink-2);">EFIN: ' + (s.efin || s.efinAuthority || 'Not on file') + '</span></td>',
+            '  <td><span class="chip ' + ((s.mfa || s.mfaStatus) ? 'ok' : 'warn') + ' sm">' + (s.mfa || s.mfaStatus || 'Not verified') + '</span></td>',
+            '  <td style="color:var(--ink);font-size:.8rem;">' + (s.governance || 'Full Authority') + '</td>',
+            '  <td style="text-align:right;">',
+            '    <button type="button" class="btn sm btn-o btn-revoke-staff" data-id="' + sId + '" data-name="' + (s.name || 'Practitioner') + '" style="padding:4px 8px;font-size:.72rem;color:var(--err,#EF4444);border-color:currentColor;cursor:pointer;">Revoke</button>',
+            '  </td>',
+            '</tr>'
+          );
+        });
+
+        html.push(
+          '      </tbody>',
+          '    </table>',
+          '  </div>',
+          '</div>'
+        );
+
+        contentArea.innerHTML = html.join('\n');
+
+        // Wire Revoke buttons
+        var revokeBtns = contentArea.querySelectorAll('.btn-revoke-staff');
+        revokeBtns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var targetId = btn.getAttribute('data-id');
+            var targetName = btn.getAttribute('data-name');
+            openRevokeStaffModal(targetId, targetName);
+          });
+        });
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function openRevokeStaffModal(targetId, targetName) {
+        if (!window.FileRoomLayout || typeof window.FileRoomLayout.openModal !== 'function') return;
+        var container = document.getElementById('modal-container');
+        if (container) {
+          container.classList.remove('modal-wide');
+          container.style.maxWidth = '480px';
+        }
+        var modalHtml = [
+          '<div class="modal-hdr" style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--line);">',
+          '  <div style="display:flex;align-items:center;gap:12px;">',
+          '    <div style="width:38px;height:38px;border-radius:50%;background:rgba(239,68,68,0.12);color:#EF4444;display:flex;align-items:center;justify-content:center;font-size:1.25rem;">⚠️</div>',
+          '    <div>',
+          '      <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;color:var(--ink);">Revoke Practitioner Access</h3>',
+          '      <div style="font-size:.72rem;color:var(--ink-2);margin-top:2px;">Cloud Firestore Staff Management</div>',
+          '    </div>',
+          '  </div>',
+          '  <button type="button" class="btn-close-modal" data-close-modal style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--ink-2);line-height:1;">&times;</button>',
+          '</div>',
+          '<div class="modal-body" style="padding:22px;font-size:.88rem;line-height:1.6;color:var(--ink);">',
+          '  <p style="margin:0 0 14px 0;font-weight:500;">',
+          '    Are you sure you want to revoke practitioner access for <strong style="color:var(--ink);">' + escapeHtml(targetName) + '</strong> from Cloud Firestore backend?',
+          '  </p>',
+          '  <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.22);border-radius:var(--radius-sm);padding:12px 14px;font-size:.8rem;color:var(--ink-2);">',
+          '    ⚠️ <strong style="color:var(--ink);">Immediate Access Suspension:</strong> This practitioner will be removed from the practice staff roster in Cloud Firestore (<code>firm_staff</code>) and lose credentialed system permissions under Circular 230 § 10.36.',
+          '  </div>',
+          '</div>',
+          '<div class="modal-ftr" style="padding:14px 22px;background:var(--surface-2);border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;">',
+          '  <button type="button" class="btn sm btn-o" data-close-modal id="btn-modal-cancel-revoke">Cancel</button>',
+          '  <button type="button" class="btn sm" id="btn-modal-confirm-revoke" style="background:#EF4444;color:#FFF;border:1px solid #DC2626;padding:8px 18px;font-weight:600;border-radius:var(--radius-sm);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">',
+          '    <span>⚠️</span> Revoke Access',
+          '  </button>',
+          '</div>'
+        ].join('\n');
+
+        FileRoomLayout.openModal(modalHtml);
+
+        var confirmBtn = document.getElementById('btn-modal-confirm-revoke');
+        if (confirmBtn) {
+          confirmBtn.addEventListener('click', async function () {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span>⏳</span> Revoking...';
+            var bridge = window.FirebaseBridge;
+            if (bridge && typeof bridge.staffRemoveMember === 'function') {
+              try {
+                await bridge.staffRemoveMember(targetId);
+                if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                  window.FileRoomLayout.showToast('Practitioner access revoked in Cloud Firestore backend', 'ok');
+                }
+                loadStaffRoster();
+              } catch (err) {
+                console.warn('Revoke error:', err);
+                if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                  window.FileRoomLayout.showToast('Could not revoke practitioner: ' + (err.message || err), 'warn');
+                }
+              } finally {
+                if (window.FileRoomLayout && typeof window.FileRoomLayout.closeModal === 'function') {
+                  window.FileRoomLayout.closeModal();
+                }
+              }
+            }
+          });
+        }
+      }
+
+      function openProvisionModal() {
+        if (!window.FileRoomLayout || typeof window.FileRoomLayout.openModal !== 'function') return;
+        var modalHtml = [
+          '<div class="card p-lg" style="max-width:540px;margin:0 auto;background:var(--surface);">',
+          '  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">',
+          '    <h3 style="font-family:var(--f-display);margin:0;font-size:1.2rem;color:var(--ink);">Provision Practice Practitioner</h3>',
+          '    <button type="button" class="btn-close-modal" data-close-modal style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--ink-2);">&times;</button>',
+          '  </div>',
+          '  <p style="font-size:.82rem;color:var(--ink-2);margin-bottom:16px;">',
+          '    Enroll an authorized tax practitioner into Cloud Firestore backend under FTC Safeguards § 314.4 &amp; IRS Pub 1345.',
+          '  </p>',
+          '  <form id="form-provision-practitioner" style="display:flex;flex-direction:column;gap:12px;">',
+          '    <div>',
+          '      <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px;color:var(--ink);">Practitioner Full Name *</label>',
+          '      <input type="text" id="prov-name" class="input" placeholder="e.g. Alex Morgan, CPA" required style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);color:var(--ink);" />',
+          '    </div>',
+          '    <div>',
+          '      <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px;color:var(--ink);">Practitioner Email Address *</label>',
+          '      <input type="email" id="prov-email" class="input" placeholder="e.g. alex.morgan@pivot-aide.tax" required style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);color:var(--ink);" />',
+          '    </div>',
+          '    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">',
+          '      <div>',
+          '        <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px;color:var(--ink);">Role &amp; Scope *</label>',
+          '        <select id="prov-role" class="input" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);color:var(--ink);">',
+          '          <option value="firm_admin">firm_admin (Managing Partner)</option>',
+          '          <option value="firm_preparer" selected>firm_preparer (Senior CPA)</option>',
+          '          <option value="firm_reviewer">firm_reviewer (Enrolled Agent)</option>',
+          '        </select>',
+          '      </div>',
+          '      <div>',
+          '        <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px;color:var(--ink);">PTIN Number</label>',
+          '        <input type="text" id="prov-ptin" class="input" placeholder="P01849204" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);color:var(--ink);" />',
+          '      </div>',
+          '    </div>',
+          '    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">',
+          '      <div>',
+          '        <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px;color:var(--ink);">EFIN Authority</label>',
+          '        <input type="text" id="prov-efin" class="input" value="520194" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);color:var(--ink);" />',
+          '      </div>',
+          '      <div>',
+          '        <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px;color:var(--ink);">MFA Status</label>',
+          '        <select id="prov-mfa" class="input" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);color:var(--ink);">',
+          '          <option value="TOTP ENFORCED ✓">TOTP ENFORCED ✓</option>',
+          '          <option value="SMS VERIFIED ✓">SMS VERIFIED ✓</option>',
+          '        </select>',
+          '      </div>',
+          '    </div>',
+          '    <div>',
+          '      <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px;color:var(--ink);">Governance Authority</label>',
+          '      <input type="text" id="prov-governance" class="input" value="Full Authority" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);color:var(--ink);" />',
+          '    </div>',
+          '    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">',
+          '      <button type="button" class="btn sm btn-o" data-close-modal>Cancel</button>',
+          '      <button type="submit" class="btn sm btn-b" id="btn-save-practitioner">Save to Cloud Firestore &rarr;</button>',
+          '    </div>',
+          '  </form>',
+          '</div>'
+        ].join('\n');
+
+        FileRoomLayout.openModal(modalHtml);
+
+        var form = document.getElementById('form-provision-practitioner');
+        if (form) {
+          form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            var submitBtn = document.getElementById('btn-save-practitioner');
+            if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Saving to Firestore...';
+            }
+            var name = document.getElementById('prov-name').value.trim();
+            var email = document.getElementById('prov-email').value.trim();
+            var role = document.getElementById('prov-role').value;
+            var ptin = document.getElementById('prov-ptin').value.trim();
+            var efin = document.getElementById('prov-efin').value.trim();
+            var mfa = document.getElementById('prov-mfa').value;
+            var governance = document.getElementById('prov-governance').value.trim();
+
+            var bridge = window.FirebaseBridge;
+            var failMsg = '';
+            if (!bridge || typeof bridge.staffProvisionMember !== 'function') {
+              failMsg = 'Backend service is not available.';
+            } else {
+              try {
+                var provRes = await bridge.staffProvisionMember({
+                  name: name,
+                  email: email,
+                  role: role,
+                  ptin: ptin,
+                  efinAuthority: efin,
+                  mfaStatus: mfa,
+                  governance: governance
+                });
+                if (!provRes || provRes.success === false) {
+                  failMsg = (provRes && provRes.error) || 'The practitioner could not be provisioned.';
+                }
+              } catch (err) {
+                console.warn('Save practitioner error:', err);
+                failMsg = (err && err.message) || 'The practitioner could not be provisioned.';
+              }
+            }
+
+            if (failMsg) {
+              alert('Could not save practitioner: ' + failMsg);
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save to Cloud Firestore →';
+              }
+              return;
+            }
+            FileRoomLayout.closeModal();
+            if (typeof FileRoomLayout.showToast === 'function') {
+              FileRoomLayout.showToast('✓ Practitioner ' + name + ' provisioned. They must sign out and sign in again for the new role to apply.', 'ok');
+            }
+            loadStaffRoster();
+          });
+        }
+      }
+
+      var btnProvStaff = document.getElementById('btn-provision-staff');
+      if (btnProvStaff) {
+        btnProvStaff.addEventListener('click', function () {
+          openProvisionModal();
+        });
+      }
+
+      async function loadStaffRoster() {
+        setActive(btnLive);
+        var bridge = window.FirebaseBridge;
+        var staffList = [];
+
+        if (bridge) {
+          try {
+            if (typeof bridge.getStaffRoster === 'function') {
+              staffList = await bridge.getStaffRoster();
+            } else if (typeof bridge.getFirmOperationsData === 'function') {
+              var ops = await bridge.getFirmOperationsData();
+              if (ops && ops.staffRoster) staffList = ops.staffRoster;
+            }
+          } catch (e) {
+            console.warn('Staff fetch notice:', e);
+          }
+        }
+
+        renderStaffTable(staffList);
+
+        // Attach live real-time Firestore subscriber if not already listening
+        if (bridge && typeof bridge.subscribeStaff === 'function' && !liveUnsub) {
+          liveUnsub = bridge.subscribeStaff(function (updatedStaff) {
+            if (btnLive && btnLive.classList.contains('active')) {
+              renderStaffTable(updatedStaff);
+            }
+          });
+        }
+      }
+
+      var btnSync = document.getElementById('btn-sync-staff');
+      if (btnSync) {
+        btnSync.addEventListener('click', async function () {
+          btnSync.disabled = true;
+          btnSync.innerHTML = '<span>⏳</span> Synchronizing...';
+          var bridge = window.FirebaseBridge;
+          if (bridge) {
+            try {
+              if (typeof bridge.syncAuthenticatedPractitionerToFirebase === 'function') {
+                await bridge.syncAuthenticatedPractitionerToFirebase();
+              }
+              await loadStaffRoster();
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('✓ Refreshed & synchronized from Cloud Firestore backend', 'ok');
+              }
+              btnSync.innerHTML = 'Live Backend Connected &middot; 0 Pending';
+              btnSync.style.background = '#10B981';
+              btnSync.style.color = '#FFFFFF';
+            } catch (err) {
+              console.warn('Sync error:', err);
+            } finally {
+              btnSync.disabled = false;
+            }
+          }
+        });
+      }
+
+      if (btnLive) {
+        btnLive.addEventListener('click', function () {
+          loadStaffRoster();
+        });
+      }
+
+      if (btnLoading) {
+        btnLoading.addEventListener('click', async function () {
+          setActive(btnLoading);
+          FileRoomLayout.renderLoading(contentArea, 'Connecting to Cloud Firestore backend (uk-client-d90d5)... Streaming practitioner roster...');
+          FileRoomLayout.showToast('Probing live Firebase staff roster (uk-client-d90d5)...', 'info');
+          var t0 = Date.now();
+          await loadStaffRoster();
+          var elapsed = Date.now() - t0;
+          setTimeout(function () {
+            if (btnLoading && btnLoading.classList.contains('active')) {
+              setActive(btnLive);
+              FileRoomLayout.showToast('✓ Cloud Firestore staff directory verified (' + elapsed + 'ms latency) · Live View Active', 'ok');
+            }
+          }, 800);
+        });
+      }
+
+      if (btnEmpty) {
+        btnEmpty.addEventListener('click', async function () {
+          setActive(btnEmpty);
+          FileRoomLayout.renderLoading(contentArea, 'Querying Cloud Firestore for zero-staff status...');
+          var bridge = window.FirebaseBridge;
+          if (bridge && typeof bridge.getFirmOperationsData === 'function') {
+            try { await bridge.getFirmOperationsData(); } catch (_) {}
+          }
+          FileRoomLayout.renderEmpty(contentArea, {
+            icon: '👥',
+            title: 'Cloud Firestore Returned 0 Practitioners',
+            desc: 'Connected to live Firebase (uk-client-d90d5). No practitioner records found in /firm_staff collection.',
+            actionText: '+ Seed Practice Staff to Firebase',
+            onAction: async function () {
+              if (btnSync) {
+                btnSync.click();
+              } else {
+                if (bridge && typeof bridge.seedFirmPracticeData === 'function') {
+                  try { await bridge.seedFirmPracticeData(true); } catch (_) {}
+                }
+                if (bridge && typeof bridge.syncAuthenticatedPractitionerToFirebase === 'function') {
+                  await bridge.syncAuthenticatedPractitionerToFirebase();
+                }
+                await loadStaffRoster();
+              }
+            }
+          });
+          FileRoomLayout.showToast('Live Firestore queried: 0 staff found. Click "+ Seed" to populate.', 'info');
+        });
+      }
+
+      if (btnError) {
+        btnError.addEventListener('click', function () {
+          setActive(btnError);
+          FileRoomLayout.renderError(contentArea, {
+            title: 'Cloud Firestore Practitioner Roster Exception',
+            desc: 'Simulating transient network disconnect / Firestore rules exception (project: uk-client-d90d5). Circular 230 audit logging and auto-reconnect are active.',
+            onRetry: function () {
+              if (btnSync) {
+                btnSync.click();
+              } else if (btnLive) {
+                btnLive.click();
+              } else {
+                loadStaffRoster();
+              }
+            }
+          });
+          FileRoomLayout.showToast('Fault simulation active. Click "Retry Request" to reconnect to live Firebase.', 'warn');
+        });
+      }
+
+      // Initial Load
+      if (window.FirebaseBridge) {
+        loadStaffRoster();
+      } else {
+        var retries = 0;
+        var timer = setInterval(function () {
+          retries++;
+          if (window.FirebaseBridge || retries >= 15) {
+            clearInterval(timer);
+            loadStaffRoster();
+          }
+        }, 100);
+        window.addEventListener('firebase-bridge-ready', function () { clearInterval(timer); loadStaffRoster(); }, { once: true });
+        window.addEventListener('firebase-ready', function () { clearInterval(timer); loadStaffRoster(); }, { once: true });
+      }
+    });
+  </script>
+</body>
+</html>

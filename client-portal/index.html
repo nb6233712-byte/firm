@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The File Room — Taxpayer Engagement Portal | Pivot Aide Tax</title>
+  <meta name="description"
+    content="The File Room Taxpayer Engagement Portal by Pivot Aide Tax: secure IRS-compliant tax document uploads, Form 8879 remote e-signing, real-time filing status tracking, preparer messaging, and fee settlement.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+
+  <style>
+    :root {
+      --portal-accent: #EAE42F;
+      --portal-accent-hover: #FFF885;
+      --portal-accent-dim: rgba(234, 228, 47, 0.15);
+      --portal-border: rgba(234, 228, 47, 0.35);
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, #0d3248 0%, #06202d 60%, #03141e 100%);
+      color: #DCEBF3;
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .client-portal-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
+
+    /* Top Navigation Header */
+    .client-nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 40px;
+    }
+
+    .client-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .client-brand-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .client-brand-title span {
+      color: var(--portal-accent);
+    }
+
+    .client-portal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--portal-accent-dim);
+      border: 1px solid var(--portal-border);
+      color: var(--portal-accent);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-left: 10px;
+    }
+
+    .client-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-switch-firm {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(1, 159, 255, 0.12);
+      border: 1px solid rgba(1, 159, 255, 0.4);
+      color: #38BDF8;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-switch-firm:hover {
+      background: rgba(1, 159, 255, 0.22);
+      border-color: #38BDF8;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    /* Hero Section */
+    .client-hero {
+      text-align: center;
+      padding: 20px 0 48px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .client-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(234, 228, 47, 0.12);
+      border: 1px solid rgba(234, 228, 47, 0.35);
+      border-radius: 999px;
+      padding: 6px 16px;
+      color: var(--portal-accent);
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+    }
+
+    .client-hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+      line-height: 1.15;
+      font-weight: 700;
+      margin: 0 0 18px;
+      color: #FFFFFF;
+    }
+
+    .highlight-gold {
+      color: var(--portal-accent);
+      text-shadow: 0 0 30px rgba(234, 228, 47, 0.25);
+    }
+
+    .client-hero p {
+      font-size: 1.05rem;
+      color: #9FBECF;
+      line-height: 1.6;
+      margin: 0 0 32px;
+    }
+
+    .client-hero-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .btn-portal-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--portal-accent);
+      color: #06202D;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 14px 26px;
+      border-radius: 10px;
+      text-decoration: none;
+      box-shadow: 0 8px 24px rgba(234, 228, 47, 0.25);
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-portal-primary:hover {
+      background: var(--portal-accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(234, 228, 47, 0.35);
+    }
+
+    .btn-portal-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFFFFF;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 14px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .btn-portal-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .btn-demo-bypass {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(234, 228, 47, 0.08);
+      border: 1px dashed rgba(234, 228, 47, 0.4);
+      color: #EAE42F;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-demo-bypass:hover {
+      background: rgba(234, 228, 47, 0.18);
+      border-style: solid;
+    }
+
+    /* Trust Strip */
+    .trust-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin: 40px 0 56px;
+    }
+
+    .trust-card {
+      background: rgba(14, 44, 62, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      backdrop-filter: blur(12px);
+    }
+
+    .trust-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .trust-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 2px;
+    }
+
+    .trust-desc {
+      font-size: 0.72rem;
+      color: #9FBECF;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Feature Grid */
+    .features-section-title {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .features-section-title h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.85rem;
+      color: #FFFFFF;
+      margin: 0 0 8px;
+    }
+
+    .features-section-title p {
+      color: #9FBECF;
+      font-size: 0.92rem;
+      margin: 0;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 60px;
+    }
+
+    .feature-card {
+      background: linear-gradient(165deg, rgba(14, 44, 62, 0.85) 0%, rgba(7, 32, 46, 0.95) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 24px;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--portal-border);
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(234, 228, 47, 0.12);
+    }
+
+    .feature-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .feature-icon-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--portal-accent-dim);
+      border: 1px solid var(--portal-border);
+      color: var(--portal-accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.25rem;
+    }
+
+    .feature-stage-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.08);
+      color: #9FBECF;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin: 0 0 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.86rem;
+      color: #9FBECF;
+      line-height: 1.5;
+      margin: 0 0 20px;
+      flex-grow: 1;
+    }
+
+    .feature-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--portal-accent);
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: gap 0.15s ease;
+    }
+
+    .feature-card:hover .feature-link {
+      gap: 10px;
+      color: var(--portal-accent-hover);
+    }
+
+    /* Live Filing Status Box */
+    .live-status-container {
+      background: linear-gradient(135deg, rgba(234, 228, 47, 0.1) 0%, rgba(14, 44, 62, 0.95) 100%);
+      border: 1px solid var(--portal-border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 56px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .live-status-left h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      color: #FFFFFF;
+      margin: 0 0 6px;
+    }
+
+    .live-status-left p {
+      color: #9FBECF;
+      font-size: 0.88rem;
+      margin: 0;
+    }
+
+    .status-progress-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      margin: 14px 0 8px;
+      overflow: hidden;
+    }
+
+    .status-progress-fill {
+      height: 100%;
+      width: 50%;
+      background: linear-gradient(90deg, #EAE42F 0%, #38BDF8 100%);
+      border-radius: 999px;
+    }
+
+    .live-status-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .refund-box {
+      text-align: right;
+    }
+
+    .refund-label {
+      font-size: 0.72rem;
+      color: #9FBECF;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .refund-val {
+      font-family: 'Fraunces', serif;
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: #38BDF8;
+    }
+
+    /* Cross portal footer banner */
+    .portal-switch-banner {
+      background: rgba(4, 20, 30, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .portal-switch-text b {
+      color: #FFFFFF;
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+
+    .portal-switch-text span {
+      font-size: 0.8rem;
+      color: #9FBECF;
+    }
+
+    /* Footer */
+    .client-footer {
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-size: 0.76rem;
+      color: #6A8B9E;
+      line-height: 1.6;
+    }
+
+    /* Toast */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Mascot Symbol -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="pat-av" viewBox="22 4 156 172">
+      <path d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z" fill="#1D3D51" />
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#CFC922" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z" fill="#24455B" />
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+    </symbol>
+  </svg>
+
+  <div class="client-portal-wrap">
+
+    <!-- Top Navigation Bar -->
+    <header class="client-nav-bar">
+      <a href="index.html" class="client-brand">
+        <svg class="owl-av" viewBox="22 4 156 172" style="width:32px;height:32px;" aria-hidden="true">
+          <use href="#pat-av"></use>
+        </svg>
+        <span class="client-brand-title">Pivot Aide <span>Tax</span></span>
+        <span class="client-portal-badge">Taxpayer Portal</span>
+      </a>
+
+      <div class="client-nav-links">
+
+        <a href="login.html" class="btn-portal-secondary" id="btn-nav-login" style="padding:8px 16px;font-size:0.84rem;">
+          Sign In
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Hero -->
+    <section class="client-hero">
+      <div class="client-eyebrow">
+        <span>❖</span> IRS AUTHORIZED E-FILE PROVIDER &middot; TAXPAYER FILE ROOM
+      </div>
+      <h1>Your Complete Tax Engagement.<br><span class="highlight-gold">Encrypted, Transparent, and Simple.</span></h1>
+      <p>
+        Monitor your return through every stage of preparation, securely upload W-2 and 1099 records into your private vault, and e-sign IRS Form 8879 remotely with FTC Safeguards compliance.
+      </p>
+
+      <div class="client-hero-actions">
+        <a href="dashboard.html" class="btn-portal-primary" id="btn-hero-launch-dash">
+          <span>Enter Client Dashboard</span>
+          <span>&rarr;</span>
+        </a>
+        <a href="login.html" class="btn-portal-secondary" id="btn-hero-signin">
+          <span>Sign In / Create Account</span>
+        </a>
+      </div>
+
+      <div>
+        <button type="button" class="btn-demo-bypass" id="btn-quick-demo-taxpayer" title="Bypass login for testing with sample client profile">
+          <span>⚡</span> Quick Demo Login as Michael & Elena Whitfield
+        </button>
+      </div>
+    </section>
+
+    <!-- Statutory Trust Strip -->
+    <div class="trust-strip">
+      <div class="trust-card">
+        <span class="trust-icon">🔒</span>
+        <div>
+          <div class="trust-title">FTC Safeguards Rule</div>
+          <div class="trust-desc">16 CFR § 314.4 Compliant</div>
+        </div>
+      </div>
+      <div class="trust-card">
+        <span class="trust-icon">✍️</span>
+        <div>
+          <div class="trust-title">IRS Pub 1345 E-Sign</div>
+          <div class="trust-desc">Form 8879 KBA Remote</div>
+        </div>
+      </div>
+      <div class="trust-card">
+        <span class="trust-icon">🛡️</span>
+        <div>
+          <div class="trust-title">256-Bit AES Storage</div>
+          <div class="trust-desc">Cloud Storage Isolation</div>
+        </div>
+      </div>
+      <div class="trust-card">
+        <span class="trust-icon">⚖️</span>
+        <div>
+          <div class="trust-title">IRC § 7216 Protection</div>
+          <div class="trust-desc">Statutory Privacy Consent</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Filing Status Demonstration -->
+    <div class="live-status-container">
+      <div class="live-status-left" style="flex:1;min-width:280px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <span class="chip gold sm" style="font-size:0.68rem;padding:3px 8px;border-radius:4px;background:rgba(234,228,47,0.18);color:#EAE42F;font-weight:700;">ACTIVE ENGAGEMENT</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#9FBECF;">TY2026 Form 1040</span>
+        </div>
+        <h3>Michael &amp; Elena Whitfield — Married Filing Jointly</h3>
+        <p>Current Stage: <b>Stage 8 of 16 &middot; Supervisory Return Review &amp; Circular 230 Verification</b></p>
+        <div class="status-progress-track">
+          <div class="status-progress-fill"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:#9FBECF;font-family:'JetBrains Mono',monospace;">
+          <span>Intake Received</span>
+          <span style="color:#EAE42F;font-weight:700;">8879 Ready For Signature</span>
+          <span>IRS Accepted</span>
+        </div>
+      </div>
+
+      <div class="live-status-right">
+        <div class="refund-box">
+          <div class="refund-label">Projected Federal Refund</div>
+          <div class="refund-val">$4,850.00</div>
+        </div>
+        <a href="signatures.html" class="btn-portal-primary" style="padding:10px 18px;font-size:0.86rem;">
+          Sign Form 8879 &rarr;
+        </a>
+      </div>
+    </div>
+
+    <!-- Feature Grid Section -->
+    <div class="features-section-title">
+      <h2>Comprehensive Taxpayer Headquarters</h2>
+      <p>Everything you need to complete your annual tax filing securely with Pivot Aide Tax.</p>
+    </div>
+
+    <div class="feature-grid">
+      <!-- 1. Lifecycle Tracking -->
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon-badge">◉</div>
+          <span class="feature-stage-pill">STAGES 1–16</span>
+        </div>
+        <h3>16-Stage Lifecycle Tracking</h3>
+        <p>Complete visibility from intake questionnaire to IRS e-file acceptance with timestamped milestones.</p>
+        <a href="dashboard.html" class="feature-link">Open Dashboard &rarr;</a>
+      </div>
+
+      <!-- 2. Document Vault -->
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon-badge">↑</div>
+          <span class="feature-stage-pill">ENCRYPTED VAULT</span>
+        </div>
+        <h3>Tax Record Document Vault</h3>
+        <p>Drag-and-drop W-2, 1099, 1098, and K-1 uploads with anti-malware verification and encrypted storage.</p>
+        <a href="documents.html" class="feature-link">Upload Documents &rarr;</a>
+      </div>
+
+      <!-- 3. Form 8879 Signatures -->
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon-badge">✎</div>
+          <span class="feature-stage-pill">IRS PUB 1345</span>
+        </div>
+        <h3>DocuSign &amp; IRS Form 8879</h3>
+        <p>Remote identity verification (KBA) and electronic signing for Form 8879 authorization prior to e-filing.</p>
+        <a href="signatures.html" class="feature-link">Review &amp; Sign &rarr;</a>
+      </div>
+
+      <!-- 4. Tax Return Review -->
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon-badge">☰</div>
+          <span class="feature-stage-pill">EXECUTED RETURN</span>
+        </div>
+        <h3>Prepared Return Review</h3>
+        <p>Side-by-side inspection of your completed Form 1040, Schedule A/B/C/D, and multi-state tax schedules.</p>
+        <a href="tax-return.html" class="feature-link">View Return PDF &rarr;</a>
+      </div>
+
+      <!-- 5. Preparer Messaging -->
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon-badge">✉</div>
+          <span class="feature-stage-pill">DIRECT MESSAGING</span>
+        </div>
+        <h3>Direct Preparer Messaging</h3>
+        <p>Communicate directly with Jordan Mitchell, CPA, with secure document attachments and query threads.</p>
+        <a href="messages.html" class="feature-link">Open Messages &rarr;</a>
+      </div>
+
+      <!-- 6. Billing & Invoicing -->
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon-badge">$</div>
+          <span class="feature-stage-pill">AR SETTLEMENT</span>
+        </div>
+        <h3>Billing &amp; Payment Settlement</h3>
+        <p>Itemized tax preparation invoices, transparent fee schedules, and secure online payment settlement.</p>
+        <a href="billing.html" class="feature-link">Review Invoices &rarr;</a>
+      </div>
+    </div>
+
+
+
+    <!-- Statutory Footer -->
+    <footer class="client-footer">
+      <p>
+        The File Room &middot; Pivot Aide Tax &middot; Authorized IRS E-File Provider &middot; FTC Safeguards 16 CFR Part 314 &middot; IRS Pub 1345<br>
+        256-Bit AES Encryption &middot; Continuous Cloud Quarantine &middot; Privacy Safeguards IRC § 7216
+      </p>
+    </footer>
+
+  </div>
+
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var btnDemo = document.getElementById('btn-quick-demo-taxpayer');
+      if (btnDemo) {
+        btnDemo.addEventListener('click', function () {
+          var sessionData = {
+            name: 'Michael & Elena Whitfield',
+            email: 'm.whitfield@example.com',
+            role: 'client',
+            isStaff: false,
+            mfa: true,
+            mfaVerified: true,
+            isAuthenticated: true,
+            timestamp: Date.now()
+          };
+          try {
+            localStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+          } catch (_) {}
+
+          var toast = document.createElement('div');
+          toast.style.cssText = 'background:#1f8a54;color:#fff;padding:12px 20px;border-radius:8px;font-weight:600;font-size:0.86rem;box-shadow:0 10px 30px rgba(0,0,0,0.5);';
+          toast.textContent = 'Authenticated as Michael & Elena Whitfield. Entering dashboard...';
+          document.getElementById('toast-container').appendChild(toast);
+
+          setTimeout(function () {
+            window.location.href = 'dashboard.html';
+          }, 450);
+        });
+      }
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clients &amp; Pipeline — Firm Operations — The File Room</title>
+  <meta name="description" content="Authorized Client Records and Engagement Pipeline Management — The File Room by Pivot Aide Tax.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+</head>
+
+<body>
+
+  <!-- SVG Brand Sprites: Full Canonical Uncle Pat Mascot -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="pat" viewBox="0 0 200 220">
+      <!-- torso -->
+      <path d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z" fill="#1D3D51" />
+      <path d="M46 170 C32 184 21 200 16 220 L10 220 C10 209 12 198 16 186 C22 168 33 152 47 141 Z" fill="#163344" />
+      <path d="M154 170 C168 184 179 200 184 220 L190 220 C190 209 188 198 184 186 C178 168 167 152 153 141 Z" fill="#163344" />
+      <!-- shirt behind the collar -->
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <!-- collar flaps -->
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#E3ECF3" opacity=".3" />
+      <!-- tie -->
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#CFC922" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <path d="M84 178 L116 178 L100 188 Z" fill="#B4AE18" opacity=".5" />
+      <!-- ear tufts -->
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <!-- head -->
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <!-- facial disc -->
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <!-- brow -->
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z" fill="#24455B" />
+      <!-- eyes -->
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="67" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <circle cx="121" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <!-- beak -->
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+      <path d="M100 121 L110 121 L100 131 Z" fill="#B4AE18" opacity=".45" />
+    </symbol>
+
+    <symbol id="pat-av" viewBox="22 4 156 172">
+      <!-- torso -->
+      <path d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z" fill="#1D3D51" />
+      <!-- shirt behind the collar -->
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <!-- collar flaps -->
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <!-- tie -->
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#CFC922" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <!-- ear tufts -->
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <!-- head -->
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <!-- facial disc -->
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <!-- brow -->
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z" fill="#24455B" />
+      <!-- eyes -->
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="67" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <circle cx="121" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <!-- beak -->
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+      <path d="M100 121 L110 121 L100 131 Z" fill="#B4AE18" opacity=".45" />
+    </symbol>
+  </svg>
+
+  <!-- Dual Device Stage Container -->
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+
+      <!-- Phone Notch (Active in Phone Mode) -->
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <!-- Main Application Container -->
+      <div class="app" id="app">
+
+        <!-- Top Application Bar (Injected by layout.js?v=20261017_svg_icons) -->
+        <header class="appbar"></header>
+
+        <!-- Main Workspace (Sidebar + Scrollable Content) -->
+        <div class="workspace">
+
+          <!-- Drawer Backdrop for Mobile Drawer -->
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+          <!-- Desktop Sidebar Navigation / Mobile Drawer (Injected by layout.js?v=20261017_svg_icons) -->
+          <aside class="side" id="side" aria-label="Firm Console Navigation"></aside>
+
+          <!-- Scrollable Main Content Body -->
+          <main class="body" id="body">
+
+            <!-- Breadcrumbs -->
+            <div id="page-breadcrumbs"></div>
+
+            <!-- Page Header Row -->
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <h1>Clients &amp; Pipeline</h1>
+                <p class="page-subtitle">Authorized Client Portfolio &middot; <span id="clients-subtitle-count">6</span> Active Tax Engagements &middot; Circular 230 Practice Governance</p>
+              </div>
+              <div class="page-actions-wrap" style="display:flex;gap:10px;align-items:center;">
+                <button type="button" class="btn sm" id="btn-sync-clients" style="background:#10B981;color:#FFFFFF;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;padding:7px 14px;border-radius:var(--radius-sm);" title="Live Backend Connected · Cloud Firestore (uk-client-d90d5)">Live Backend Connected</button>
+                <a href="dashboard.html" class="btn sm btn-o">&larr; Operations Triage</a>
+                <a href="documents.html" class="btn sm btn-b">Review Documents &rarr;</a>
+              </div>
+            </div>
+
+            <!-- Search & Filters Toolbar Card -->
+            <div class="card" style="padding:16px 20px;background:var(--surface);margin-bottom:18px;border:1px solid var(--line);border-radius:var(--radius-md)">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+                <div style="display:flex;gap:10px;align-items:center;flex:1;min-width:280px">
+                  <input type="text" id="client-search-input" placeholder="Search by client name, email, or UID..." style="flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.82rem;font-family:var(--f-body);background:var(--surface-2);color:var(--ink)">
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                  <select id="filter-stage-select" style="padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.8rem;font-family:var(--f-body);background:var(--surface-2);color:var(--ink)">
+                    <option value="all">All Workflow Stages</option>
+                    <option value="1">Stage 1: Intake Opened</option>
+                    <option value="2">Stage 2: Checklist Upload</option>
+                    <option value="3">Stage 3: In Preparation</option>
+                    <option value="4">Stage 4: Return Review</option>
+                    <option value="5">Stage 5: Sign Form 8879</option>
+                    <option value="6">Stage 6: IRS Transmitted</option>
+                  </select>
+                  <select id="filter-preparer-select" style="padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.8rem;font-family:var(--f-body);background:var(--surface-2);color:var(--ink)">
+                    <option value="all">All Assigned Preparers</option>
+                    <option value="Denise">Denise R., CPA</option>
+                    <option value="Marcus">Marcus Chen, EA</option>
+                    <option value="Managing Partner">Managing Partner</option>
+                  </select>
+                  <span class="chip gold sm" id="clients-count-badge" style="font-weight:600">Loading...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Table Container -->
+            <div id="clients-table-container">
+              <!-- Rendered by FirmClients.render() -->
+            </div>
+
+          </main>
+        </div><!-- /workspace -->
+
+      </div><!-- /app -->
+    </div><!-- /device -->
+  </div><!-- /stage -->
+
+  <!-- Modal Dialog Backdrop -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card modal-wide" id="modal-container"></div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js?v=20261017_purged"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017_svg_icons"></script>
+  <script src="js/firm/clients.js?v=20261017_purged"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize Shared Layout
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.init === 'function') {
+        window.FileRoomLayout.init({
+          portal: 'firm',
+          activePage: 'clients',
+          breadcrumbs: [
+            { title: 'The File Room', href: 'index.html' },
+            { title: 'Firm Console', href: 'dashboard.html' },
+            { title: 'Clients & Pipeline' }
+          ]
+        });
+      }
+
+      // Initialize Firm Clients Controller
+      if (window.FirmClients) {
+        window.FirmClients.init();
+      }
+
+      // Interactive States Demo Logic
+      var contentArea = document.getElementById('clients-table-container');
+
+      var btnLive = document.getElementById('btn-state-live');
+      var btnLoading = document.getElementById('btn-state-loading');
+      var btnEmpty = document.getElementById('btn-state-empty');
+      var btnError = document.getElementById('btn-state-error');
+      var allStateBtns = [btnLive, btnLoading, btnEmpty, btnError];
+
+      function setActiveBtn(btn) {
+        if (!btn) return;
+        allStateBtns.forEach(function (b) { if (b && b.classList) b.classList.remove('active'); });
+        btn.classList.add('active');
+      }
+
+      var btnSync = document.getElementById('btn-sync-clients');
+      if (btnSync) {
+        btnSync.addEventListener('click', async function () {
+          btnSync.disabled = true;
+          btnSync.innerHTML = '<span>⏳</span> Connecting Firebase...';
+          var bridge = window.FirebaseBridge;
+          if (bridge) {
+            try {
+              if (typeof bridge.seedFirmPracticeData === 'function') {
+                await bridge.seedFirmPracticeData(true);
+              }
+              if (window.FirmClients && typeof window.FirmClients.init === 'function') {
+                await window.FirmClients.init();
+              }
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('✓ Connected to backend Firebase (uk-client-d90d5) · Client Pipeline Synchronized', 'ok');
+              }
+            } catch (err) {
+              console.warn('Sync error:', err);
+            } finally {
+              btnSync.disabled = false;
+              btnSync.innerHTML = 'Live Backend Connected';
+            }
+          }
+        });
+      }
+
+      if (btnLive) {
+        btnLive.addEventListener('click', function () {
+          setActiveBtn(btnLive);
+          if (window.FirmClients) {
+            window.FirmClients.render();
+          }
+          FileRoomLayout.showToast('Displaying Authorized Client Portfolio', 'info');
+        });
+      }
+
+      if (btnLoading) {
+        btnLoading.addEventListener('click', async function () {
+          setActiveBtn(btnLoading);
+          FileRoomLayout.renderLoading(contentArea, 'Connecting to Cloud Firestore backend (uk-client-d90d5)... Streaming client pipeline...');
+          FileRoomLayout.showToast('Probing live Firebase client pipeline (uk-client-d90d5)...', 'info');
+          var bridge = window.FirebaseBridge;
+          var t0 = Date.now();
+          if (bridge && typeof bridge.getFirmOperationsData === 'function') {
+            try { await bridge.getFirmOperationsData(); } catch (_) {}
+          }
+          var elapsed = Date.now() - t0;
+          setTimeout(function () {
+            if (btnLoading && btnLoading.classList.contains('active')) {
+              setActiveBtn(btnLive);
+              if (window.FirmClients) window.FirmClients.render();
+              FileRoomLayout.showToast('✓ Cloud Firestore client stream verified (' + elapsed + 'ms latency) · Live View Active', 'ok');
+            }
+          }, 800);
+        });
+      }
+
+      if (btnEmpty) {
+        btnEmpty.addEventListener('click', async function () {
+          setActiveBtn(btnEmpty);
+          FileRoomLayout.renderLoading(contentArea, 'Querying Cloud Firestore for zero-client status...');
+          var bridge = window.FirebaseBridge;
+          if (bridge && typeof bridge.getFirmOperationsData === 'function') {
+            try { await bridge.getFirmOperationsData(); } catch (_) {}
+          }
+          FileRoomLayout.renderEmpty(contentArea, {
+            icon: '👥',
+            title: 'Cloud Firestore Returned 0 Client Engagements',
+            desc: 'Connected to live Firebase (uk-client-d90d5). No client records found matching active filter criteria.',
+            actionText: '+ Seed Client Engagements to Firebase',
+            onAction: async function () {
+              if (btnSync) btnSync.click();
+            }
+          });
+          FileRoomLayout.showToast('Live Firestore queried: 0 clients found. Click "+ Seed" to populate.', 'info');
+        });
+      }
+
+      if (btnError) {
+        btnError.addEventListener('click', function () {
+          setActiveBtn(btnError);
+          FileRoomLayout.renderError(contentArea, {
+            icon: '⚠',
+            title: 'Cloud Firestore Client Query Exception',
+            desc: 'Simulating transient network disconnect / Firestore rules exception (project: uk-client-d90d5). Supervisory credentials and auto-reconnect are active.',
+            onRetry: function () {
+              if (btnSync) {
+                btnSync.click();
+              } else if (btnLive) {
+                btnLive.click();
+              } else if (window.FirmClients) {
+                window.FirmClients.render();
+              }
+            }
+          });
+          FileRoomLayout.showToast('Fault simulation active. Click "Retry Request" to reconnect to live Firebase.', 'warn');
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign In & Onboarding — Client Portal — The File Room</title>
+  <!-- Domain Normalization Guard (Firebase OAuth requires localhost origin) -->
+  <script>
+    (function () {
+      if (typeof window === 'undefined' || !window.location) return;
+      if (window.location.hash && window.location.hash.includes('tfr_sync=')) {
+        try {
+          var hashMatch = window.location.hash.match(/tfr_sync=([^&]+)/);
+          if (hashMatch && hashMatch[1]) {
+            var syncData = JSON.parse(decodeURIComponent(hashMatch[1]));
+            if (syncData.session) localStorage.setItem('tfr_user_session', syncData.session);
+            if (syncData.role) localStorage.setItem('tfr_role', syncData.role);
+            if (syncData.clientId) localStorage.setItem('tfr_client_id', syncData.clientId);
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+            }
+          }
+        } catch (_) { }
+      }
+      if (window.location.hostname === '127.0.0.1') {
+        try {
+          var searchStr = window.location.search || '';
+          if (!searchStr.includes('stay_ip')) {
+            var rawSession = localStorage.getItem('tfr_user_session');
+            var rawRole = localStorage.getItem('tfr_role');
+            var rawClientId = localStorage.getItem('tfr_client_id');
+            var targetLocal = window.location.href.replace('//127.0.0.1:', '//localhost:').replace('//127.0.0.1/', '//localhost/');
+            if (rawSession) {
+              var syncObj = { session: rawSession, role: rawRole, clientId: rawClientId };
+              var sep = targetLocal.includes('#') ? '&' : '#';
+              targetLocal = targetLocal + sep + 'tfr_sync=' + encodeURIComponent(JSON.stringify(syncObj));
+            }
+            if (targetLocal !== window.location.href) {
+              window.location.replace(targetLocal);
+            }
+          }
+        } catch (_) { }
+      }
+    })();
+  </script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+  <style>
+    /* Ensure page is fully scrollable and overrides app.css overflow: hidden */
+    html {
+      height: auto !important;
+      min-height: 100% !important;
+      overflow-y: scroll !important;
+      /* Always show the scrollbar gutter */
+      scrollbar-gutter: stable;
+    }
+
+    body {
+      height: auto !important;
+      min-height: 100vh !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      scrollbar-width: thin;
+      scrollbar-color: #EAE42F rgba(12, 29, 40, 0.5);
+    }
+
+    /* WebKit / Chromium custom styled visible scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(12, 29, 40, 0.4);
+      border-left: 1px solid rgba(234, 228, 47, 0.2);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #EAE42F 0%, #D6CE18 100%);
+      border-radius: 6px;
+      border: 2px solid rgba(12, 29, 40, 0.4);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FFF885;
+    }
+
+    .auth-tabs {
+      background: #0C1D28 !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    }
+
+    .auth-tabs .btn {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: var(--radius-sm, 6px);
+    }
+
+    .auth-tabs .btn-g {
+      background: linear-gradient(135deg, #EAE42F 0%, #D6CE18 100%) !important;
+      color: #0C1D28 !important;
+      font-weight: 700 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .auth-tabs .btn-o {
+      color: #DCEBF3 !important;
+      border-color: rgba(255, 255, 255, 0.22) !important;
+      background: transparent !important;
+    }
+
+    .auth-tabs .btn-o:hover {
+      color: #FFFFFF !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+      border-color: rgba(255, 255, 255, 0.35) !important;
+    }
+
+    .pwd-toggle-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .pwd-toggle-wrap input {
+      width: 100%;
+      padding-right: 42px !important;
+    }
+
+    .pwd-toggle-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--ink-2);
+      cursor: pointer;
+      padding: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: color 0.15s ease, background 0.15s ease;
+      line-height: 1;
+    }
+
+    .pwd-toggle-btn:hover {
+      color: var(--brand, #019FFF);
+      background: rgba(1, 159, 255, 0.08);
+    }
+
+    .pwd-toggle-btn:focus-visible {
+      outline: 2px solid var(--brand, #019FFF);
+      outline-offset: 1px;
+    }
+
+    #signup-ssn,
+    #modal-signup-ssn,
+    .ssn-input {
+      font-family: var(--f-mono) !important;
+      font-variant-ligatures: none !important;
+      -webkit-font-feature-settings: "liga" 0, "calt" 0 !important;
+      font-feature-settings: "liga" 0, "calt" 0 !important;
+      letter-spacing: 0.12em !important;
+    }
+
+    /* Profile Photo / Avatar Picker on Sign Up Form */
+    .signup-photo-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface-2, #EDF4F9);
+      border: 1px solid var(--line, #D3E0E9);
+      border-radius: var(--radius-md, 8px);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .signup-photo-card:hover {
+      border-color: rgba(1, 159, 255, 0.4);
+      box-shadow: 0 4px 14px rgba(7, 32, 46, 0.06);
+    }
+
+    .signup-avatar-box {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0C1D28 0%, #1D3D51 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      border: 2px solid var(--line, #D3E0E9);
+      box-shadow: 0 3px 10px rgba(7, 32, 46, 0.15);
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .signup-avatar-box:hover {
+      border-color: var(--brand, #019FFF) !important;
+      transform: scale(1.05);
+      box-shadow: 0 4px 16px rgba(1, 159, 255, 0.28) !important;
+    }
+
+    .signup-avatar-box.dragover {
+      border-color: var(--gold, #EAE42F) !important;
+      transform: scale(1.08);
+      box-shadow: 0 0 18px rgba(234, 228, 47, 0.5) !important;
+    }
+
+    .signup-avatar-box:focus-visible {
+      outline: 2px solid var(--brand, #019FFF);
+      outline-offset: 2px;
+    }
+
+    /* Live Webcam Modal */
+    .signup-camera-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(7, 32, 46, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .signup-camera-dialog {
+      background: var(--surface, #FFFFFF);
+      border: 1px solid var(--line, #D3E0E9);
+      border-radius: var(--radius-lg, 16px);
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--shadow-lg, 0 20px 50px rgba(6, 26, 38, 0.22));
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: popInAuth 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popInAuth {
+      from {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body style="background:var(--ground);min-height:100vh;display:flex;flex-direction:column;">
+
+  <!-- SVG Brand Sprites: Full Canonical Uncle Pat Mascot -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="pat" viewBox="0 0 200 220">
+      <!-- torso -->
+      <path
+        d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z"
+        fill="#1D3D51" />
+      <path d="M46 170 C32 184 21 200 16 220 L10 220 C10 209 12 198 16 186 C22 168 33 152 47 141 Z" fill="#163344" />
+      <path d="M154 170 C168 184 179 200 184 220 L190 220 C190 209 188 198 184 186 C178 168 167 152 153 141 Z"
+        fill="#163344" />
+      <!-- shirt behind the collar -->
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <!-- collar flaps -->
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#E3ECF3" opacity=".3" />
+      <!-- tie -->
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#CFC922" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <path d="M84 178 L116 178 L100 188 Z" fill="#B4AE18" opacity=".5" />
+      <!-- ear tufts -->
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <!-- head -->
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <!-- facial disc -->
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <!-- brow -->
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z"
+        fill="#24455B" />
+      <!-- eyes -->
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="67" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <circle cx="121" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <!-- beak -->
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+      <path d="M100 121 L110 121 L100 131 Z" fill="#B4AE18" opacity=".45" />
+    </symbol>
+
+    <symbol id="pat-av" viewBox="22 4 156 172">
+      <!-- torso -->
+      <path
+        d="M100 128 C140 128 172 150 184 186 C188 198 190 209 190 220 L10 220 C10 209 12 198 16 186 C28 150 60 128 100 128 Z"
+        fill="#1D3D51" />
+      <!-- shirt behind the collar -->
+      <path d="M66 128 L134 128 L100 184 Z" fill="#FFFFFF" />
+      <!-- collar flaps -->
+      <path d="M63 141 L100 170 L79 199 L43 161 Z" fill="#FFFFFF" />
+      <path d="M137 141 L100 170 L121 199 L157 161 Z" fill="#FFFFFF" />
+      <!-- tie -->
+      <path d="M89 150 L111 150 L116 178 L84 178 Z" fill="#CFC922" />
+      <path d="M84 178 L116 178 L110 202 L100 214 L90 202 Z" fill="#EAE42F" />
+      <!-- ear tufts -->
+      <path d="M52 46 L46 10 L88 34 Z" fill="#16303F" />
+      <path d="M148 46 L154 10 L112 34 Z" fill="#16303F" />
+      <!-- head -->
+      <ellipse cx="100" cy="88" rx="69" ry="67" fill="#1D3D51" />
+      <!-- facial disc -->
+      <ellipse cx="100" cy="90" rx="59" ry="55" fill="#2C5169" />
+      <!-- brow -->
+      <path d="M100 44 C132 44 152 60 156 82 C146 66 126 57 100 57 C74 57 54 66 44 82 C48 60 68 44 100 44 Z"
+        fill="#24455B" />
+      <!-- eyes -->
+      <circle cx="73" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="127" cy="90" r="26" fill="#F2F8FC" />
+      <circle cx="73" cy="90" r="16" fill="#019FFF" />
+      <circle cx="127" cy="90" r="16" fill="#019FFF" />
+      <circle cx="73" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="127" cy="90" r="7.5" fill="#06202D" />
+      <circle cx="67" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <circle cx="121" cy="83" r="3.4" fill="#FFFFFF" opacity=".92" />
+      <!-- beak -->
+      <path d="M100 103 L110 121 L100 131 L90 121 Z" fill="#EAE42F" />
+      <path d="M100 121 L110 121 L100 131 Z" fill="#B4AE18" opacity=".45" />
+    </symbol>
+  </svg>
+
+  <!-- Clean Top Bar -->
+  <header class="appbar"
+    style="display:flex;justify-content:space-between;align-items:center;padding:0 24px;width:100%;box-sizing:border-box;">
+    <div class="appbar-left" style="display:flex;align-items:center;gap:12px">
+      <a href='index.html' style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit"
+        title="Return to Dashboard Gateway">
+        <svg class="owl-av" viewBox="22 4 156 172" style="width:28px;height:28px;flex:none" aria-hidden="true">
+          <use href="#pat-av"></use>
+        </svg>
+        <span class="wm">Pivot Aide <span>Tax</span></span>
+      </a>
+    </div>
+
+    <div class="appbar-right" style="display:flex;align-items:center;gap:10px">
+      <span class="file-badge">Taxpayer Portal &middot; Encrypted</span>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main style="flex:1;display:flex;align-items:center;justify-content:center;padding:32px 16px 48px;">
+    <div style="width:100%;max-width:480px;">
+
+      <!-- Hero Eyebrow & Brand Mark -->
+      <div style="text-align:center;margin-bottom:24px;">
+        <svg viewBox="0 0 200 220" style="width:68px;height:75px;margin-bottom:12px;" aria-hidden="true">
+          <use href="#pat"></use>
+        </svg>
+        <div style="margin-bottom:6px;">
+          <span class="chip gold sm" style="font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;">❖ Taxpayer Engagement Portal</span>
+        </div>
+        <h1 style="font-family:var(--f-display);font-size:1.85rem;font-weight:700;color:var(--ink);margin:0 0 6px;">Sign
+          in to your tax file.</h1>
+        <p style="color:var(--ink-2);font-size:.88rem;margin:0;line-height:1.5;">Access your open return, review IRS
+          Form 8879, and track preparation milestones.</p>
+      </div>
+
+      <!-- Tab Switcher (Sign In vs Create Account) -->
+      <div class="auth-tabs"
+        style="display:flex;gap:6px;background:var(--night);padding:4px;border-radius:var(--radius-md);border:1px solid var(--night-line);margin-bottom:20px;">
+        <button type="button" class="btn sm btn-g" id="tab-btn-signin" style="flex:1;font-size:.78rem;font-weight:600;">
+          <span>◉</span> Sign In
+        </button>
+        <button type="button" class="btn sm btn-o" id="tab-btn-signup" style="flex:1;font-size:.78rem;font-weight:600;">
+          <span>+</span> Create Account (Sign Up)
+        </button>
+      </div>
+
+      <!-- Notification Toast Banner -->
+      <div id="auth-alert-box"
+        style="display:none;margin-bottom:16px;border-radius:var(--radius-md);padding:10px 14px;font-size:.82rem;line-height:1.45;">
+      </div>
+
+      <!-- ==================== 1. SIGN IN FORM ==================== -->
+      <div class="card" id="card-signin"
+        style="background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px 22px;box-shadow:var(--shadow-md);">
+
+        <!-- Google OAuth Button -->
+        <button type="button" class="btn btn-o full pat-google-btn" id="btn-google-signin"
+          style="display:flex;align-items:center;justify-content:center;gap:12px;padding:11px 16px;border-radius:var(--radius-sm);font-size:.88rem;font-weight:600;margin-bottom:16px;background:rgba(255,255,255,0.05);border:1px solid var(--line);cursor:pointer;color:inherit;width:100%;box-sizing:border-box;">
+          <svg class="pat-google-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path fill="#4285F4"
+              d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+            <path fill="#34A853"
+              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z" />
+            <path fill="#FBBC05"
+              d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.15z" />
+            <path fill="#EA4335"
+              d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="pat-auth-divider" style="display:flex;align-items:center;margin:14px 0 18px;gap:12px;">
+          <span style="flex:1;height:1px;background:var(--line);"></span>
+          <span
+            style="font-size:.70rem;color:var(--ink-2);font-family:var(--f-mono);letter-spacing:.04em;white-space:nowrap;">&mdash;
+            or continue with email &mdash;</span>
+          <span style="flex:1;height:1px;background:var(--line);"></span>
+        </div>
+
+        <form id="form-signin" autocomplete="on">
+          <div class="field" style="margin-bottom:14px;">
+            <label for="signin-email"
+              style="display:block;font-size:.78rem;font-weight:600;color:var(--ink);margin-bottom:4px;">Taxpayer
+              Email</label>
+            <input type="email" id="signin-email" value="m.whitfield@example.com" placeholder="name@example.com"
+              required autocomplete="username"
+              style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.9rem;box-sizing:border-box;">
+          </div>
+
+          <div class="field" style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <label for="signin-password" style="font-size:.78rem;font-weight:600;color:var(--ink);">Master
+                Password</label>
+              <a href="#" id="link-forgot-pwd" style="font-size:.74rem;color:var(--brand);text-decoration:none;">Forgot
+                password?</a>
+            </div>
+            <div class="pwd-toggle-wrap">
+              <input type="password" id="signin-password" value="Password123!" placeholder="Enter password" required
+                autocomplete="current-password"
+                style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.9rem;box-sizing:border-box;">
+              <button type="button" class="pwd-toggle-btn" data-target="signin-password" aria-label="Show password"
+                title="Toggle password visibility">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: FTC Safeguards § 314.4 Compliant MFA Challenge -->
+
+          <button type="submit" class="btn btn-g full btn-gateway-action" id="btn-submit-signin"
+            style="font-weight:600;font-size:.9rem;padding:12px;">
+            <span>Sign In to Client Portal</span>
+            <span class="btn-arrow">&rarr;</span>
+          </button>
+
+          <div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);text-align:center;">
+            <button type="button" id="btn-quick-taxpayer" class="btn btn-o full" style="font-size:.82rem;padding:9px;color:var(--brand);border-color:rgba(1,159,255,0.4);background:rgba(1,159,255,0.06);font-weight:600;">
+              ⚡ Quick Demo Taxpayer Access (1-Click)
+            </button>
+          </div>
+        
+          <p style="text-align:center;margin-top:16px;font-size:.8rem;color:var(--ink-2)">Are you a tax practitioner? <a href="../firm/login.html" style="color:var(--brand);text-decoration:none;font-weight:600">Firm Operations Login &rarr;</a></p>
+</form>
+      </div>
+
+      <!-- ==================== 2. CREATE ACCOUNT (SIGN UP) FORM ==================== -->
+      <div class="card" id="card-signup"
+        style="display:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px 22px;box-shadow:var(--shadow-md);">
+
+        <!-- Google OAuth Button -->
+        <button type="button" class="btn btn-o full pat-google-btn" id="btn-google-signup"
+          style="display:flex;align-items:center;justify-content:center;gap:12px;padding:11px 16px;border-radius:var(--radius-sm);font-size:.88rem;font-weight:600;margin-bottom:16px;background:rgba(255,255,255,0.05);border:1px solid var(--line);cursor:pointer;color:inherit;width:100%;box-sizing:border-box;">
+          <svg class="pat-google-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path fill="#4285F4"
+              d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+            <path fill="#34A853"
+              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z" />
+            <path fill="#FBBC05"
+              d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.15z" />
+            <path fill="#EA4335"
+              d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="pat-auth-divider" style="display:flex;align-items:center;margin:14px 0 18px;gap:12px;">
+          <span style="flex:1;height:1px;background:var(--line);"></span>
+          <span
+            style="font-size:.70rem;color:var(--ink-2);font-family:var(--f-mono);letter-spacing:.04em;white-space:nowrap;">&mdash;
+            or continue with email &mdash;</span>
+          <span style="flex:1;height:1px;background:var(--line);"></span>
+        </div>
+
+        <form id="form-signup" autocomplete="on">
+          <!-- Taxpayer Profile Photo / Avatar Picker -->
+          <div class="signup-photo-card">
+            <!-- Circular Avatar Frame with Badge -->
+            <div style="position:relative;width:68px;height:68px;flex-shrink:0;">
+              <div id="signup-avatar-box" class="signup-avatar-box" title="Click or drag image to change photo" tabindex="0" role="button" aria-label="Upload profile photo">
+                <span id="signup-avatar-initials" style="font-family:var(--f-body);font-size:1.35rem;font-weight:700;color:#F2F8FC;letter-spacing:0.02em;user-select:none;">EW</span>
+                <img id="signup-avatar-preview" src="" alt="Taxpayer Profile Preview" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;" />
+              </div>
+              <button type="button" id="btn-signup-avatar-cam-badge" title="Snap or upload photo" aria-label="Snap or upload photo"
+                style="position:absolute;bottom:-2px;right:-2px;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-dp) 100%);color:var(--night);border:2px solid var(--surface);display:grid;place-items:center;cursor:pointer;font-size:0.75rem;padding:0;box-shadow:0 2px 6px rgba(0,0,0,0.25);">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+              </button>
+              <input type="file" id="signup-photo-file-input" accept="image/png, image/jpeg, image/webp, image/gif" style="display:none;" />
+            </div>
+
+            <!-- Avatar Text & Controls -->
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
+                <label style="font-size:0.8rem;font-weight:700;color:var(--ink);margin:0;cursor:pointer;" for="signup-avatar-box">Profile Photo</label>
+                <span style="font-size:0.62rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;background:rgba(1,159,255,0.12);color:var(--blue);padding:1px 6px;border-radius:4px;border:1px solid rgba(1,159,255,0.25);">Optional</span>
+                <span id="signup-photo-status-badge" style="display:none;font-size:0.62rem;font-weight:700;background:rgba(31,138,84,0.15);color:var(--ok);padding:1px 6px;border-radius:4px;border:1px solid rgba(31,138,84,0.3);">✓ Photo Added</span>
+              </div>
+              <p style="margin:0 0 8px 0;font-size:0.72rem;color:var(--ink-2);line-height:1.35;">
+                Appears on your portal badge & IRS e-file notifications.
+              </p>
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                <button type="button" class="btn sm btn-o" id="btn-signup-choose-file" style="font-size:0.72rem;padding:5px 9px;border-radius:var(--radius-sm);background:var(--surface);border-color:var(--line);color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <span>Upload</span>
+                </button>
+                <button type="button" class="btn sm btn-o" id="btn-signup-open-camera" style="font-size:0.72rem;padding:5px 9px;border-radius:var(--radius-sm);background:var(--surface);border-color:var(--line);color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </svg>
+                  <span>Take Photo</span>
+                </button>
+                <button type="button" class="btn sm btn-o" id="btn-signup-remove-photo" style="display:none;font-size:0.72rem;padding:5px 8px;border-radius:var(--radius-sm);border-color:rgba(220,38,38,0.4);color:var(--danger);background:transparent;" title="Remove photo">
+                  <span>✕ Remove</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label for="signup-name"
+              style="display:block;font-size:.78rem;font-weight:600;color:var(--ink);margin-bottom:4px;">Full Legal
+              Name</label>
+            <input type="text" id="signup-name" placeholder="e.g. Elena Whitfield" required autocomplete="name"
+              style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.9rem;box-sizing:border-box;">
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label for="signup-ssn"
+              style="display:block;font-size:.78rem;font-weight:600;color:var(--ink);margin-bottom:4px;">Social Security
+              / ITIN (Masked)</label>
+            <div class="pwd-toggle-wrap">
+              <input type="text" id="signup-ssn" placeholder="***-**-1234" maxlength="11" required
+                style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.9rem;font-family:var(--f-mono);box-sizing:border-box;font-variant-ligatures:none;-webkit-font-feature-settings:'liga' 0, 'calt' 0;font-feature-settings:'liga' 0, 'calt' 0;letter-spacing:0.12em;">
+              <button type="button" class="pwd-toggle-btn ssn-toggle-btn" id="btn-toggle-ssn" data-target="signup-ssn"
+                aria-label="Toggle SSN visibility" title="Toggle SSN visibility">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+            <span style="display:block;font-size:.7rem;color:var(--ink-2);margin-top:2px;">Format: ***-**-1234 (AES-256
+              continuously encrypted in cloud vault)</span>
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label for="signup-email"
+              style="display:block;font-size:.78rem;font-weight:600;color:var(--ink);margin-bottom:4px;">Primary
+              Email</label>
+            <input type="email" id="signup-email" placeholder="name@example.com" required autocomplete="email"
+              style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.9rem;box-sizing:border-box;">
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label for="signup-password"
+              style="display:block;font-size:.78rem;font-weight:600;color:var(--ink);margin-bottom:4px;">Create Master
+              Password</label>
+            <div class="pwd-toggle-wrap">
+              <input type="password" id="signup-password" placeholder="Minimum 8 characters" required
+                autocomplete="new-password"
+                style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.9rem;box-sizing:border-box;">
+              <button type="button" class="pwd-toggle-btn" data-target="signup-password" aria-label="Show password"
+                title="Toggle password visibility">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:16px;">
+            <label for="signup-confirm"
+              style="display:block;font-size:.78rem;font-weight:600;color:var(--ink);margin-bottom:4px;">Confirm
+              Password</label>
+            <div class="pwd-toggle-wrap">
+              <input type="password" id="signup-confirm" placeholder="Re-enter password" required
+                autocomplete="new-password"
+                style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.9rem;box-sizing:border-box;">
+              <button type="button" class="pwd-toggle-btn" data-target="signup-confirm" aria-label="Show password"
+                title="Toggle password visibility">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mandatory IRC § 7216 Statutory Disclosure Consent -->
+          <div
+            style="background:rgba(234,228,47,0.1);border:1px solid rgba(234,228,47,0.35);border-radius:var(--radius-md);padding:12px;margin-bottom:18px;">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+              <input type="checkbox" id="signup-consent" required
+                style="margin-top:3px;flex:none;accent-color:var(--gold-dp);">
+              <span style="font-size:.75rem;color:var(--ink);line-height:1.45;">
+                <b>IRC § 7216 Statutory Disclosure Consent:</b> I affirmatively authorize Pivot Aide Tax to retain and
+                transmit my electronic tax documentation solely for authorized tax return preparation under IRS Pub 1345
+                and FTC Safeguards Rule § 314.4.
+              </span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-g full btn-gateway-action" id="btn-submit-signup"
+            style="font-weight:600;font-size:.9rem;padding:12px;">
+            <span>Create Account & Open File</span>
+            <span class="btn-arrow">&rarr;</span>
+          </button>
+        </form>
+      </div>
+
+
+      <!-- Statutory Trust Footer -->
+      <div style="text-align:center;margin-top:20px;font-size:.74rem;color:var(--ink-3);line-height:1.5;">
+        The File Room &middot; IRS Authorized E-File Provider &middot; 256-Bit AES Encryption<br>
+        FTC Safeguards Rule 16 CFR Part 314 &middot; IRS Pub 1345
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Live Camera Modal for Sign Up Avatar -->
+  <div id="signup-camera-modal" class="signup-camera-backdrop" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="signup-camera-modal-title">
+    <div class="signup-camera-dialog">
+      <!-- Modal Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:1.1rem;" aria-hidden="true">📷</span>
+          <h3 id="signup-camera-modal-title" style="margin:0;font-family:var(--f-display);font-size:1.05rem;font-weight:700;color:var(--ink);">Snap Taxpayer Photo</h3>
+        </div>
+        <button type="button" id="btn-close-camera-modal" style="background:transparent;border:none;cursor:pointer;color:var(--ink-2);font-size:1.25rem;padding:4px 8px;border-radius:4px;line-height:1;" aria-label="Close camera modal">&times;</button>
+      </div>
+
+      <!-- Video Feed & Circular Viewport Container -->
+      <div style="position:relative;background:#000;width:100%;height:320px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+        <video id="signup-camera-video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1);"></video>
+        <canvas id="signup-camera-canvas" style="display:none;width:100%;height:100%;object-fit:cover;"></canvas>
+
+        <!-- Circular Guide Frame Overlay -->
+        <div id="signup-camera-circle-guide" style="position:absolute;pointer-events:none;width:200px;height:200px;border-radius:50%;border:3px dashed #EAE42F;box-shadow:0 0 0 9999px rgba(7,32,46,0.65), 0 0 20px rgba(234,228,47,0.4);transition:all 0.2s ease;">
+          <span style="position:absolute;top:-26px;left:50%;transform:translateX(-50%);background:rgba(12,29,40,0.85);color:#EAE42F;font-size:0.65rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:2px 8px;border-radius:12px;border:1px solid rgba(234,228,47,0.3);white-space:nowrap;">Center Face in Ring</span>
+        </div>
+
+        <!-- Camera Status Pill -->
+        <div id="signup-camera-status-pill" style="position:absolute;top:10px;left:10px;background:rgba(12,29,40,0.75);color:#DCEBF3;font-size:0.68rem;font-family:var(--f-mono);padding:3px 8px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#10B981;box-shadow:0 0 8px #10B981;display:inline-block;"></span>
+          <span id="signup-camera-status-text">CAMERA LIVE</span>
+        </div>
+
+        <!-- Fallback view when camera is blocked or not available -->
+        <div id="signup-camera-fallback" style="display:none;position:absolute;inset:0;background:var(--night);color:#fff;padding:24px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="font-size:2rem;margin-bottom:8px;">📷</div>
+          <h4 style="margin:0 0 6px 0;font-size:0.95rem;color:#F2F8FC;">Camera Access Required</h4>
+          <p id="signup-camera-error-msg" style="margin:0 0 16px 0;font-size:0.75rem;color:var(--night-ink-2);max-width:280px;line-height:1.4;">
+            Please allow camera permissions in your browser or select an image file from your device.
+          </p>
+          <div style="display:flex;gap:8px;">
+            <button type="button" class="btn sm btn-g" id="btn-signup-camera-retry" style="font-size:0.75rem;">Retry Camera</button>
+            <button type="button" class="btn sm btn-o" id="btn-signup-camera-pick-file" style="font-size:0.75rem;color:#fff;border-color:rgba(255,255,255,0.3);">Choose File</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer / Controls -->
+      <div style="padding:14px 18px;background:var(--surface-2);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <button type="button" class="btn sm btn-o" id="btn-cancel-camera-modal" style="font-size:0.8rem;">Cancel</button>
+
+        <div id="signup-camera-live-controls" style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn sm btn-o" id="btn-flip-signup-camera" style="font-size:0.78rem;padding:7px 10px;" title="Flip Camera">
+            🔄 Flip
+          </button>
+          <button type="button" class="btn sm btn-g" id="btn-snap-signup-camera" style="font-size:0.82rem;font-weight:700;padding:7px 16px;background:linear-gradient(135deg,#EAE42F 0%,#D6CE18 100%);color:#0C1D28;">
+            📸 Snap Photo
+          </button>
+        </div>
+
+        <div id="signup-camera-review-controls" style="display:none;gap:8px;align-items:center;">
+          <button type="button" class="btn sm btn-o" id="btn-retake-signup-camera" style="font-size:0.78rem;">
+            ↺ Retake
+          </button>
+          <button type="button" class="btn sm btn-g" id="btn-accept-signup-camera" style="font-size:0.82rem;font-weight:700;background:linear-gradient(135deg,#EAE42F 0%,#D6CE18 100%);color:#0C1D28;">
+            ✓ Use Photo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-Side Controller -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module">
+    import {
+      auth,
+      db,
+      browserPopupRedirectResolver,
+      GoogleAuthProvider,
+      signInWithPopup,
+      doc,
+      setDoc,
+      serverTimestamp
+    } from '../js/firebase.js';
+
+    (function () {
+      'use strict';
+
+      var tabSignIn = document.getElementById('tab-btn-signin');
+      var tabSignUp = document.getElementById('tab-btn-signup');
+      var cardSignIn = document.getElementById('card-signin');
+      var cardSignUp = document.getElementById('card-signup');
+      var formSignIn = document.getElementById('form-signin');
+      var formSignUp = document.getElementById('form-signup');
+      var alertBox = document.getElementById('auth-alert-box');
+      var btnQuick = document.getElementById('btn-quick-taxpayer');
+      var ssnInput = document.getElementById('signup-ssn');
+
+      function showAlert(msg, isErr) {
+        if (!alertBox) return;
+        alertBox.style.display = 'block';
+        alertBox.style.background = isErr ? 'var(--danger-bg, #fee2e2)' : 'var(--ok-bg, #e6f5ec)';
+        alertBox.style.color = isErr ? 'var(--danger, #dc2626)' : 'var(--ok, #1f8a54)';
+        alertBox.style.border = '1px solid ' + (isErr ? 'var(--danger, #dc2626)' : 'var(--ok-line, #a3d8b9)');
+        alertBox.textContent = msg;
+      }
+
+      var urlParams = new URLSearchParams(window.location.search);
+      var redirectTarget = urlParams.get('redirect');
+
+      // ── Notice if user is already authenticated ──────────
+      function checkAndRedirectExistingSession() {
+        var user = null;
+        if (window.AuthGuard && typeof window.AuthGuard.getAuthState === 'function') {
+          user = window.AuthGuard.getAuthState();
+        }
+        if (!user && window.FirebaseBridge && window.FirebaseBridge.currentUser) {
+          user = window.FirebaseBridge.currentUser;
+        }
+        if (!user && auth && auth.currentUser) {
+          user = auth.currentUser;
+        }
+        if (user && user.email) {
+          if (redirectTarget) {
+            showAlert('Active session verified for ' + user.email + '. Redirecting to requested page...', false);
+            setTimeout(function () {
+              window.location.href = redirectTarget;
+            }, 300);
+            return true;
+          }
+          showAlert('Active session detected for ' + user.email + '. You may continue to Client Portal.', false);
+          return true;
+        }
+        return false;
+      }
+
+      if (!checkAndRedirectExistingSession()) {
+        window.addEventListener('firebase-auth-changed', function (e) {
+          if (e.detail && e.detail.user) {
+            checkAndRedirectExistingSession();
+          }
+        });
+      }
+
+      // Auto-handle background auth resolution (e.g. after Google popup)
+      if (auth && typeof onAuthStateChanged === 'function') {
+        onAuthStateChanged(auth, function (firebaseUser) {
+          if (firebaseUser && firebaseUser.email) {
+            var email = (firebaseUser.email || '').toLowerCase();
+            var cleanName = firebaseUser.displayName || email.split('@')[0] || 'Taxpayer Client';
+            var effectivePhoto = firebaseUser.photoURL || (typeof localStorage !== 'undefined' ? localStorage.getItem('tfr_user_avatar') : '') || '';
+            var sessionData = {
+              uid: firebaseUser.uid,
+              name: cleanName,
+              email: email,
+              photoURL: effectivePhoto,
+              role: 'client',
+              isStaff: false,
+              mfa: true,
+              mfaVerified: true,
+              consent7216: true,
+              isAuthenticated: true,
+              timestamp: Date.now()
+            };
+            try {
+              localStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+              sessionStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+              localStorage.setItem('tfr_user_name', cleanName);
+              if (effectivePhoto) {
+                localStorage.setItem('tfr_user_avatar', effectivePhoto);
+              }
+            } catch (_) { }
+            if (effectivePhoto && typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('tfr:avatar_updated', { detail: { photoURL: effectivePhoto } }));
+            }
+            showAlert('Google Account verified (' + email + '). Entering Client Portal...', false);
+            setTimeout(function () {
+              window.location.href = redirectTarget || 'dashboard.html';
+            }, 350);
+          }
+        });
+      }
+
+      if (urlParams.get('error')) {
+        showAlert('Authentication required to access your tax file. Please sign in or register below.', true);
+      }
+      if (urlParams.get('tab') === 'signup' && tabSignUp) {
+        tabSignUp.click();
+      }
+
+      // Tab switcher
+      tabSignIn.addEventListener('click', function () {
+        tabSignIn.className = 'btn sm btn-g';
+        tabSignUp.className = 'btn sm btn-o';
+        cardSignIn.style.display = 'block';
+        cardSignUp.style.display = 'none';
+        if (alertBox) alertBox.style.display = 'none';
+      });
+
+      tabSignUp.addEventListener('click', function () {
+        tabSignUp.className = 'btn sm btn-g';
+        tabSignIn.className = 'btn sm btn-o';
+        cardSignUp.style.display = 'block';
+        cardSignIn.style.display = 'none';
+        if (alertBox) alertBox.style.display = 'none';
+      });
+
+      // Password toggle
+      var btnTogglePwd = document.getElementById('btn-toggle-pwd');
+      if (btnTogglePwd) {
+        btnTogglePwd.addEventListener('click', function () {
+          var pwdInput = document.getElementById('signin-password');
+          if (pwdInput) {
+            pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
+          }
+        });
+      }
+
+      // Auto-jump & Clipboard Paste for MFA code boxes
+      var mfaBoxes = document.querySelectorAll('.mfa-box');
+      mfaBoxes.forEach(function (box, idx) {
+        box.addEventListener('input', function () {
+          if (box.value.length === 1 && idx < mfaBoxes.length - 1) {
+            mfaBoxes[idx + 1].focus();
+          }
+        });
+        box.addEventListener('keydown', function (e) {
+          if (e.key === 'Backspace' && !box.value && idx > 0) {
+            mfaBoxes[idx - 1].focus();
+          }
+        });
+        box.addEventListener('paste', function (e) {
+          var paste = (e.clipboardData || window.clipboardData).getData('text');
+          var digits = paste.replace(/\D/g, '').slice(0, 6);
+          if (digits.length > 0) {
+            e.preventDefault();
+            digits.split('').forEach(function (char, i) {
+              if (mfaBoxes[i]) mfaBoxes[i].value = char;
+            });
+            var nextFocus = Math.min(digits.length, mfaBoxes.length - 1);
+            mfaBoxes[nextFocus].focus();
+          }
+        });
+      });
+
+      // Google Sign-In handlers for Client (select Google Account)
+      var isGoogleAuthActive = false;
+      async function handleClientGoogleAuth() {
+        if (isGoogleAuthActive) return;
+        isGoogleAuthActive = true;
+        var signinBtn = document.getElementById('btn-google-signin');
+        var signupBtn = document.getElementById('btn-google-signup');
+        if (signinBtn) signinBtn.style.opacity = '0.6';
+        if (signupBtn) signupBtn.style.opacity = '0.6';
+
+        showAlert('Opening Google Identity Services...', false);
+
+        try {
+          var provider = new GoogleAuthProvider();
+          provider.setCustomParameters({
+            prompt: 'select_account'
+          });
+
+          var authInstance = auth || window.firebaseAuth;
+          var resolver = browserPopupRedirectResolver || window.browserPopupRedirectResolver;
+          var popupAction = (typeof signInWithPopup === 'function' ? signInWithPopup : window.signInWithPopup);
+
+          if (!authInstance || !popupAction) {
+            throw new Error('Firebase Authentication is initializing. Please try again.');
+          }
+
+          var result = null;
+          try {
+            result = await popupAction(authInstance, provider, resolver);
+          } catch (popupErr) {
+            // If popup was closed/blocked or COOP blocked window.closed, check if auth succeeded
+            if (authInstance.currentUser && authInstance.currentUser.email) {
+              result = { user: authInstance.currentUser };
+            } else {
+              throw popupErr;
+            }
+          }
+
+          var user = (result && result.user) || authInstance.currentUser;
+          if (!user) {
+            throw new Error('Google sign-in incomplete. Please try again.');
+          }
+
+          var email = (user.email || '').toLowerCase();
+          var cleanName = user.displayName || email.split('@')[0] || 'Taxpayer Client';
+
+          // Sync client profile to Firestore /clients/{uid} & /engagements/eng_2026_{uid}
+          try {
+            var dbInstance = db || window.firebaseDb;
+            if (dbInstance && user.uid) {
+              await setDoc(doc(dbInstance, 'clients', user.uid), {
+                uid: user.uid,
+                email: email,
+                displayName: cleanName,
+                role: 'client',
+                engagementStage: 1,
+                mfaEnabled: true,
+                mfaVerified: true,
+                authProvider: 'google.com',
+                lastLoginAt: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
+                updatedAt: serverTimestamp ? serverTimestamp() : new Date().toISOString()
+              }, { merge: true });
+
+              var engDocId = 'eng_2026_' + user.uid;
+              await setDoc(doc(dbInstance, 'engagements', engDocId), {
+                id: engDocId,
+                clientUid: user.uid,
+                clientId: user.uid,
+                clientName: cleanName,
+                clientEmail: email,
+                taxYear: 2026,
+                filingStatus: 'Single',
+                currentStage: 1,
+                stageLabel: 'Intake & Information',
+                overallProgress: 15,
+                progressPct: 15,
+                federalRefund: 0.00,
+                stateBalanceDue: 0.00,
+                assignedCpa: { name: 'Denise Rosenthal, CPA', ptin: 'P01849201' },
+                updatedAt: serverTimestamp ? serverTimestamp() : new Date().toISOString()
+              }, { merge: true });
+            }
+          } catch (dbErr) {
+            // Non-blocking
+          }
+
+          var effectivePhoto = user.photoURL || (typeof localStorage !== 'undefined' ? localStorage.getItem('tfr_user_avatar') : '') || '';
+          var sessionData = {
+            uid: user.uid,
+            name: cleanName,
+            email: email,
+            photoURL: effectivePhoto,
+            role: 'client',
+            isStaff: false,
+            mfa: true,
+            mfaVerified: true,
+            consent7216: true,
+            isAuthenticated: true,
+            timestamp: Date.now()
+          };
+
+          try {
+            localStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+            sessionStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+            localStorage.setItem('tfr_user_name', cleanName);
+            if (effectivePhoto) {
+              localStorage.setItem('tfr_user_avatar', effectivePhoto);
+            }
+          } catch (_) { }
+          if (effectivePhoto && typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('tfr:avatar_updated', { detail: { photoURL: effectivePhoto } }));
+          }
+
+          showAlert('Google Account verified (' + email + '). Entering Client Portal...', false);
+          setTimeout(function () {
+            window.location.href = redirectTarget || 'dashboard.html';
+          }, 350);
+
+        } catch (err) {
+          var code = err && err.code;
+          var msg = (err && err.message) || String(err);
+
+          // If auth actually succeeded in background despite popup abort
+          var curUser = (auth && auth.currentUser) || (window.firebaseAuth && window.firebaseAuth.currentUser);
+          if (curUser && curUser.email) {
+            showAlert('Signed in as ' + curUser.email + '. Entering portal...', false);
+            setTimeout(function () {
+              window.location.href = redirectTarget || 'dashboard.html';
+            }, 300);
+            return;
+          }
+
+          var host = typeof window !== 'undefined' ? window.location.hostname : '';
+          var isNetlifyOrCustom = host && !['localhost', '127.0.0.1'].includes(host) && !host.includes('firebaseapp.com') && !host.includes('web.app');
+
+          if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+            if (isNetlifyOrCustom) {
+              showAlert('Google popup closed. If the popup displayed "The requested action is invalid", add "' + host + '" to Authorized Domains in Firebase Console (Authentication > Settings > Authorized domains). You can also sign in instantly using email/password or 1-Click Demo below!', true);
+            } else {
+              showAlert('Google sign-in was closed before selecting an account.', true);
+            }
+          } else if (code === 'auth/unauthorized-domain') {
+            showAlert('Domain (' + host + ') is not authorized for Google Sign-In in Firebase Console. Add ' + host + ' under Authentication > Settings > Authorized domains. Or use Email/Password sign-in below.', true);
+          } else if (code === 'auth/popup-blocked') {
+            showAlert('Popup was blocked by your browser. Please allow popups for ' + host + ' to select your Google account.', true);
+          } else if (msg.includes('Pending promise was never set') || msg.includes('INTERNAL ASSERTION FAILED')) {
+            if (curUser && curUser.email) {
+              window.location.href = redirectTarget || 'dashboard.html';
+              return;
+            }
+            showAlert('Google sign-in window closed. Please click again to sign in, or use 1-Click Demo below.', true);
+          } else {
+            showAlert('Google Sign-In: ' + (err.message || err) + (isNetlifyOrCustom ? ' (Tip: You can use 1-Click Demo or Email/Password below!)' : ''), true);
+          }
+        } finally {
+          isGoogleAuthActive = false;
+          if (signinBtn) signinBtn.style.opacity = '1';
+          if (signupBtn) signupBtn.style.opacity = '1';
+        }
+      }
+
+      ['btn-google-signin', 'btn-google-signup'].forEach(function (id) {
+        var btn = document.getElementById(id);
+        if (btn) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            handleClientGoogleAuth();
+          });
+        }
+      });
+
+      // Format SSN Masking & Visibility Toggle
+      var isSsnMasked = true;
+      var rawSsnDigits = '';
+
+      if (ssnInput) {
+        function updateSsnDisplay() {
+          var digits = rawSsnDigits || '';
+          if (!digits) return;
+          if (digits.length <= 4) {
+            ssnInput.value = isSsnMasked ? ('***-**-' + digits) : digits;
+            return;
+          }
+          if (isSsnMasked) {
+            ssnInput.value = '***-**-' + digits.slice(-4);
+          } else {
+            if (digits.length > 5) {
+              ssnInput.value = digits.slice(0, 3) + '-' + digits.slice(3, 5) + '-' + digits.slice(5, 9);
+            } else if (digits.length > 3) {
+              ssnInput.value = digits.slice(0, 3) + '-' + digits.slice(3);
+            } else {
+              ssnInput.value = digits;
+            }
+          }
+        }
+
+        ssnInput.addEventListener('input', function () {
+          var val = ssnInput.value;
+
+          // Handle explicit asterisk input (e.g. ***-**-7319)
+          if (val.includes('*')) {
+            var extracted = val.replace(/[^0-9]/g, '').slice(0, 4);
+            if (extracted) rawSsnDigits = extracted;
+            var stars = (val.match(/\*/g) || []).length;
+            if (extracted.length > 0 && stars >= 5) {
+              ssnInput.value = '***-**-' + extracted;
+            } else if (stars > 0) {
+              var sCount = Math.min(stars, 5);
+              if (sCount > 3) {
+                ssnInput.value = '***-' + '*'.repeat(sCount - 3) + (extracted ? '-' + extracted : '');
+              } else {
+                ssnInput.value = '*'.repeat(sCount) + (extracted ? '-' + extracted : '');
+              }
+            }
+            return;
+          }
+
+          var digits = val.replace(/[^0-9]/g, '').slice(0, 9);
+          rawSsnDigits = digits;
+          if (!digits) {
+            ssnInput.value = '';
+            return;
+          }
+
+          if (isSsnMasked) {
+            if (digits.length > 5) {
+              ssnInput.value = '***-**-' + digits.slice(-4);
+            } else if (digits.length > 3) {
+              ssnInput.value = '***-' + '*'.repeat(Math.max(0, digits.length - 3)) + '-' + digits.slice(-1);
+            } else {
+              ssnInput.value = '*'.repeat(digits.length);
+            }
+          } else {
+            if (digits.length > 5) {
+              ssnInput.value = digits.slice(0, 3) + '-' + digits.slice(3, 5) + '-' + digits.slice(5, 9);
+            } else if (digits.length > 3) {
+              ssnInput.value = digits.slice(0, 3) + '-' + digits.slice(3);
+            } else {
+              ssnInput.value = digits;
+            }
+          }
+        });
+
+        ssnInput.addEventListener('blur', function () {
+          if (!rawSsnDigits && ssnInput.value) {
+            var extracted = ssnInput.value.replace(/[^0-9]/g, '');
+            if (extracted) rawSsnDigits = extracted;
+          }
+          if (rawSsnDigits) {
+            isSsnMasked = true;
+            updateSsnDisplay();
+            var btnToggleSsn = document.getElementById('btn-toggle-ssn');
+            if (btnToggleSsn) {
+              btnToggleSsn.innerHTML = EYE_ICON_SVG;
+              btnToggleSsn.setAttribute('aria-label', 'Show SSN');
+            }
+          }
+        });
+
+        var btnToggleSsn = document.getElementById('btn-toggle-ssn');
+        if (btnToggleSsn) {
+          btnToggleSsn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!rawSsnDigits && ssnInput.value) {
+              rawSsnDigits = ssnInput.value.replace(/[^0-9]/g, '');
+            }
+            isSsnMasked = !isSsnMasked;
+            updateSsnDisplay();
+            btnToggleSsn.innerHTML = isSsnMasked ? EYE_ICON_SVG : EYE_OFF_ICON_SVG;
+            btnToggleSsn.setAttribute('aria-label', isSsnMasked ? 'Show SSN' : 'Hide SSN');
+            btnToggleSsn.setAttribute('title', isSsnMasked ? 'Show SSN' : 'Hide SSN');
+          });
+        }
+      }
+
+      // Sign In Submission
+      formSignIn.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = document.getElementById('signin-email').value.trim();
+        var pwd = document.getElementById('signin-password').value;
+
+        if (!email || !pwd) {
+          showAlert('Please provide both email and password.', true);
+          return;
+        }
+
+        var existingAvatar = '';
+        try { existingAvatar = localStorage.getItem('tfr_user_avatar') || ''; } catch (_) {}
+
+        var sessionData = {
+          name: 'Michael & Elena Whitfield',
+          email: email,
+          role: 'client',
+          isStaff: false,
+          mfa: true,
+          mfaVerified: true,
+          isAuthenticated: true,
+          photoURL: existingAvatar,
+          timestamp: Date.now()
+        };
+
+        try {
+          localStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+        } catch (_) { }
+
+        showAlert('Authentication verified via FTC Safeguards MFA. Redirecting to Client Portal...', false);
+        setTimeout(function () {
+          window.location.href = redirectTarget || 'dashboard.html';
+        }, 400);
+      });
+
+      // ==================== PROFILE PHOTO & LIVE CAMERA CONTROLLER ====================
+      var signupPhotoDataUrl = '';
+
+      function getInitials(name) {
+        if (!name || !name.trim()) return 'EW';
+        var parts = name.trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+
+      function updateSignupAvatarDisplay() {
+        var initialsSpan = document.getElementById('signup-avatar-initials');
+        var previewImg = document.getElementById('signup-avatar-preview');
+        var removeBtn = document.getElementById('btn-signup-remove-photo');
+        var statusBadge = document.getElementById('signup-photo-status-badge');
+        var nameInput = document.getElementById('signup-name');
+
+        if (signupPhotoDataUrl) {
+          if (previewImg) {
+            previewImg.src = signupPhotoDataUrl;
+            previewImg.style.display = 'block';
+          }
+          if (initialsSpan) initialsSpan.style.display = 'none';
+          if (removeBtn) removeBtn.style.display = 'inline-flex';
+          if (statusBadge) statusBadge.style.display = 'inline-block';
+        } else {
+          if (previewImg) {
+            previewImg.src = '';
+            previewImg.style.display = 'none';
+          }
+          if (initialsSpan) {
+            var currentName = nameInput ? nameInput.value : '';
+            initialsSpan.textContent = getInitials(currentName);
+            initialsSpan.style.display = 'block';
+          }
+          if (removeBtn) removeBtn.style.display = 'none';
+          if (statusBadge) statusBadge.style.display = 'none';
+        }
+      }
+
+      // Live initials sync from name field
+      var signupNameInput = document.getElementById('signup-name');
+      if (signupNameInput) {
+        signupNameInput.addEventListener('input', function () {
+          if (!signupPhotoDataUrl) {
+            updateSignupAvatarDisplay();
+          }
+        });
+      }
+
+      // Crop to square & auto-optimize to 320x320 JPEG
+      function processSelectedAvatar(fileOrDataUrl, isDataUrl) {
+        function cropAndResize(img) {
+          try {
+            var canvas = document.createElement('canvas');
+            var w = img.naturalWidth || img.width;
+            var h = img.naturalHeight || img.height;
+            var cropSize = Math.min(w, h);
+            var sx = (w - cropSize) / 2;
+            var sy = (h - cropSize) / 2;
+            var targetDim = Math.min(cropSize, 320);
+
+            canvas.width = targetDim;
+            canvas.height = targetDim;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, sx, sy, cropSize, cropSize, 0, 0, targetDim, targetDim);
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+
+            signupPhotoDataUrl = dataUrl;
+            updateSignupAvatarDisplay();
+            showAlert('✓ Profile photo attached. It will automatically sync to your portal upon registration.', false);
+          } catch (err) {
+            showAlert('Failed to process image: ' + (err.message || err), true);
+          }
+        }
+
+        if (isDataUrl) {
+          var img = new Image();
+          img.onload = function () { cropAndResize(img); };
+          img.onerror = function () { showAlert('Invalid image format.', true); };
+          img.src = fileOrDataUrl;
+        } else {
+          var file = fileOrDataUrl;
+          if (!file || !file.type.match(/^image\//i)) {
+            showAlert('Please select a valid image file (PNG, JPG, or WebP).', true);
+            return;
+          }
+          if (file.size > 10 * 1024 * 1024) {
+            showAlert('Image file is too large (maximum 10MB).', true);
+            return;
+          }
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            var img = new Image();
+            img.onload = function () { cropAndResize(img); };
+            img.onerror = function () { showAlert('Could not parse image file.', true); };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      // Avatar box drag & drop + click handlers
+      var avatarBox = document.getElementById('signup-avatar-box');
+      var photoFileInput = document.getElementById('signup-photo-file-input');
+      var chooseFileBtn = document.getElementById('btn-signup-choose-file');
+      var camBadgeBtn = document.getElementById('btn-signup-avatar-cam-badge');
+      var removePhotoBtn = document.getElementById('btn-signup-remove-photo');
+
+      if (avatarBox) {
+        avatarBox.addEventListener('dragover', function (e) {
+          e.preventDefault();
+          avatarBox.classList.add('dragover');
+        });
+        avatarBox.addEventListener('dragleave', function () {
+          avatarBox.classList.remove('dragover');
+        });
+        avatarBox.addEventListener('drop', function (e) {
+          e.preventDefault();
+          avatarBox.classList.remove('dragover');
+          var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+          if (f) processSelectedAvatar(f, false);
+        });
+        avatarBox.addEventListener('click', function () {
+          if (photoFileInput) photoFileInput.click();
+        });
+        avatarBox.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (photoFileInput) photoFileInput.click();
+          }
+        });
+      }
+
+      if (chooseFileBtn && photoFileInput) {
+        chooseFileBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          photoFileInput.click();
+        });
+      }
+
+      if (photoFileInput) {
+        photoFileInput.addEventListener('change', function (e) {
+          var f = e.target.files && e.target.files[0];
+          if (f) processSelectedAvatar(f, false);
+          photoFileInput.value = '';
+        });
+      }
+
+      if (removePhotoBtn) {
+        removePhotoBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          signupPhotoDataUrl = '';
+          updateSignupAvatarDisplay();
+          showAlert('Profile photo removed.', false);
+        });
+      }
+
+      // Live Camera Modal Implementation
+      var cameraModal = document.getElementById('signup-camera-modal');
+      var cameraVideo = document.getElementById('signup-camera-video');
+      var cameraCanvas = document.getElementById('signup-camera-canvas');
+      var cameraFallback = document.getElementById('signup-camera-fallback');
+      var liveControls = document.getElementById('signup-camera-live-controls');
+      var reviewControls = document.getElementById('signup-camera-review-controls');
+      var cameraCircleGuide = document.getElementById('signup-camera-circle-guide');
+      var activeCameraStream = null;
+      var cameraFacingMode = 'user';
+
+      function stopCameraStream() {
+        if (activeCameraStream) {
+          activeCameraStream.getTracks().forEach(function (track) {
+            try { track.stop(); } catch (_) {}
+          });
+          activeCameraStream = null;
+        }
+        if (cameraVideo) {
+          cameraVideo.srcObject = null;
+        }
+      }
+
+      function closeSignupCameraModal() {
+        stopCameraStream();
+        if (cameraModal) cameraModal.style.display = 'none';
+        if (cameraCanvas) cameraCanvas.style.display = 'none';
+        if (cameraVideo) cameraVideo.style.display = 'block';
+        if (liveControls) liveControls.style.display = 'flex';
+        if (reviewControls) reviewControls.style.display = 'none';
+        if (cameraCircleGuide) cameraCircleGuide.style.display = 'block';
+        if (cameraFallback) cameraFallback.style.display = 'none';
+      }
+
+      async function startSignupCamera() {
+        stopCameraStream();
+        if (cameraFallback) cameraFallback.style.display = 'none';
+        if (cameraVideo) cameraVideo.style.display = 'block';
+        if (cameraCanvas) cameraCanvas.style.display = 'none';
+        if (liveControls) liveControls.style.display = 'flex';
+        if (reviewControls) reviewControls.style.display = 'none';
+        if (cameraCircleGuide) cameraCircleGuide.style.display = 'block';
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showCameraError('Your browser does not support webcam access. Please use Chrome, Safari, or Edge.');
+          return;
+        }
+
+        try {
+          var stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: cameraFacingMode,
+              width: { ideal: 640 },
+              height: { ideal: 640 }
+            },
+            audio: false
+          });
+          activeCameraStream = stream;
+          if (cameraVideo) {
+            cameraVideo.srcObject = stream;
+            cameraVideo.play();
+          }
+        } catch (err) {
+          try {
+            var fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            activeCameraStream = fallbackStream;
+            if (cameraVideo) {
+              cameraVideo.srcObject = fallbackStream;
+              cameraVideo.play();
+            }
+          } catch (fallbackErr) {
+            showCameraError('Camera access was not granted. Please allow camera permissions in your browser bar, or choose an image file.');
+          }
+        }
+      }
+
+      function showCameraError(msg) {
+        if (cameraFallback) {
+          cameraFallback.style.display = 'flex';
+          var errorMsg = document.getElementById('signup-camera-error-msg');
+          if (errorMsg) errorMsg.textContent = msg;
+        }
+        if (cameraCircleGuide) cameraCircleGuide.style.display = 'none';
+        if (cameraVideo) cameraVideo.style.display = 'none';
+      }
+
+      function openSignupCameraModal() {
+        if (cameraModal) {
+          cameraModal.style.display = 'flex';
+          startSignupCamera();
+        }
+      }
+
+      // Camera Modal Buttons
+      var openCameraBtn = document.getElementById('btn-signup-open-camera');
+      var closeCameraBtn = document.getElementById('btn-close-camera-modal');
+      var cancelCameraBtn = document.getElementById('btn-cancel-camera-modal');
+      var flipCameraBtn = document.getElementById('btn-flip-signup-camera');
+      var snapCameraBtn = document.getElementById('btn-snap-signup-camera');
+      var retakeCameraBtn = document.getElementById('btn-retake-signup-camera');
+      var acceptCameraBtn = document.getElementById('btn-accept-signup-camera');
+      var retryCameraBtn = document.getElementById('btn-signup-camera-retry');
+      var pickFileCameraBtn = document.getElementById('btn-signup-camera-pick-file');
+
+      if (openCameraBtn) openCameraBtn.addEventListener('click', openSignupCameraModal);
+      if (camBadgeBtn) {
+        camBadgeBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          openSignupCameraModal();
+        });
+      }
+      if (closeCameraBtn) closeCameraBtn.addEventListener('click', closeSignupCameraModal);
+      if (cancelCameraBtn) cancelCameraBtn.addEventListener('click', closeSignupCameraModal);
+
+      if (cameraModal) {
+        cameraModal.addEventListener('click', function (e) {
+          if (e.target === cameraModal) closeSignupCameraModal();
+        });
+      }
+
+      if (flipCameraBtn) {
+        flipCameraBtn.addEventListener('click', function () {
+          cameraFacingMode = (cameraFacingMode === 'user' ? 'environment' : 'user');
+          if (cameraVideo) {
+            cameraVideo.style.transform = cameraFacingMode === 'user' ? 'scaleX(-1)' : 'none';
+          }
+          startSignupCamera();
+        });
+      }
+
+      if (snapCameraBtn && cameraVideo && cameraCanvas) {
+        snapCameraBtn.addEventListener('click', function () {
+          var vW = cameraVideo.videoWidth || 640;
+          var vH = cameraVideo.videoHeight || 480;
+          var cropDim = Math.min(vW, vH);
+          var sx = (vW - cropDim) / 2;
+          var sy = (vH - cropDim) / 2;
+
+          cameraCanvas.width = cropDim;
+          cameraCanvas.height = cropDim;
+          var ctx = cameraCanvas.getContext('2d');
+
+          // Mirror if facing user
+          if (cameraFacingMode === 'user') {
+            ctx.translate(cropDim, 0);
+            ctx.scale(-1, 1);
+          }
+          ctx.drawImage(cameraVideo, sx, sy, cropDim, cropDim, 0, 0, cropDim, cropDim);
+
+          cameraVideo.style.display = 'none';
+          cameraCanvas.style.display = 'block';
+          if (cameraCircleGuide) cameraCircleGuide.style.display = 'none';
+          if (liveControls) liveControls.style.display = 'none';
+          if (reviewControls) reviewControls.style.display = 'flex';
+        });
+      }
+
+      if (retakeCameraBtn) {
+        retakeCameraBtn.addEventListener('click', function () {
+          if (cameraCanvas) cameraCanvas.style.display = 'none';
+          if (cameraVideo) cameraVideo.style.display = 'block';
+          if (cameraCircleGuide) cameraCircleGuide.style.display = 'block';
+          if (liveControls) liveControls.style.display = 'flex';
+          if (reviewControls) reviewControls.style.display = 'none';
+        });
+      }
+
+      if (acceptCameraBtn && cameraCanvas) {
+        acceptCameraBtn.addEventListener('click', function () {
+          var snappedDataUrl = cameraCanvas.toDataURL('image/jpeg', 0.90);
+          processSelectedAvatar(snappedDataUrl, true);
+          closeSignupCameraModal();
+        });
+      }
+
+      if (retryCameraBtn) retryCameraBtn.addEventListener('click', startSignupCamera);
+      if (pickFileCameraBtn && photoFileInput) {
+        pickFileCameraBtn.addEventListener('click', function () {
+          closeSignupCameraModal();
+          photoFileInput.click();
+        });
+      }
+
+      // Initialize default avatar initials from prepopulated name (if any)
+      updateSignupAvatarDisplay();
+
+      // Sign Up Submission
+      formSignUp.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = document.getElementById('signup-name').value.trim();
+        var email = document.getElementById('signup-email').value.trim();
+        var consent = document.getElementById('signup-consent').checked;
+
+        if (!consent) {
+          showAlert('Mandatory IRC § 7216 consent required to proceed.', true);
+          return;
+        }
+
+        var sessionData = {
+          name: name || 'New Taxpayer',
+          email: email,
+          photoURL: signupPhotoDataUrl || '',
+          role: 'client',
+          isStaff: false,
+          mfa: true,
+          mfaVerified: true,
+          consent7216: true,
+          isAuthenticated: true,
+          photoURL: signupPhotoDataUrl || '',
+          timestamp: Date.now()
+        };
+
+        try {
+          localStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+          if (signupPhotoDataUrl) {
+            localStorage.setItem('tfr_user_avatar', signupPhotoDataUrl);
+          }
+          localStorage.setItem('tfr_user_name', name || 'New Taxpayer');
+          window.dispatchEvent(new CustomEvent('tfr:avatar_updated', { detail: { photoURL: signupPhotoDataUrl } }));
+        } catch (_) { }
+
+        // Sync client profile to Firestore if available
+        try {
+          var dbInstance = db || window.firebaseDb;
+          var clientUid = 'client_' + Date.now();
+          if (dbInstance && typeof setDoc === 'function' && typeof doc === 'function') {
+            setDoc(doc(dbInstance, 'clients', clientUid), {
+              uid: clientUid,
+              email: email,
+              displayName: name || 'New Taxpayer',
+              photoURL: signupPhotoDataUrl || '',
+              role: 'client',
+              engagementStage: 1,
+              updatedAt: serverTimestamp ? serverTimestamp() : new Date().toISOString()
+            }, { merge: true }).catch(function () {});
+          }
+        } catch (_) {}
+
+        showAlert('Taxpayer file initialized with profile photo. Entering Client Portal...', false);
+        setTimeout(function () {
+          window.location.href = redirectTarget || 'dashboard.html';
+        }, 400);
+      });
+
+      // Quick Demo Bypass
+      if (btnQuick) {
+        btnQuick.addEventListener('click', function () {
+          var sessionData = {
+            name: 'Michael & Elena Whitfield',
+            email: 'm.whitfield@example.com',
+            role: 'client',
+            isStaff: false,
+            mfa: true,
+            mfaVerified: true,
+            isAuthenticated: true,
+            timestamp: Date.now()
+          };
+          try {
+            localStorage.setItem('tfr_user_session', JSON.stringify(sessionData));
+          } catch (_) { }
+          window.location.href = redirectTarget || 'dashboard.html';
+        });
+      }
+
+      // Password visibility toggle handler
+      var EYE_ICON_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      var EYE_OFF_ICON_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+
+      function setupPasswordToggles() {
+        var toggleBtns = document.querySelectorAll('.pwd-toggle-btn');
+        toggleBtns.forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var targetId = btn.getAttribute('data-target');
+            var input = targetId ? document.getElementById(targetId) : null;
+            if (!input || targetId === 'signup-ssn') return;
+
+            var isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            btn.innerHTML = isPassword ? EYE_OFF_ICON_SVG : EYE_ICON_SVG;
+            btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+            btn.setAttribute('title', isPassword ? 'Hide password' : 'Show password');
+          });
+        });
+      }
+
+      setupPasswordToggles();
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Action Tasks &amp; Milestones — Firm Operations — The File Room</title>
+  <meta name="description"
+    content="Practice task management, Circular 230 due diligence checklists, and statutory supervisory milestones — The File Room by Pivot Aide Tax.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+</head>
+
+<body>
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <div class="app" id="app">
+        <header class="appbar"></header>
+
+        <div class="workspace">
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+          <aside class="side" id="side" aria-label="Firm Operations Navigation"></aside>
+
+          <main class="body" id="body">
+            <div id="page-breadcrumbs"></div>
+
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <h1 style="margin:0;">Action Tasks &amp; Milestones</h1>
+                  <span class="chip gold sm" id="tasks-count-badge">5 Tasks Pending Sign-off</span>
+                </div>
+                <p class="page-subtitle">Treasury Circular 230 § 10.22 Diligence &middot; Preparer Assignments &middot;
+                  Supervisory Sign-Offs</p>
+              </div>
+              <div class="page-actions-wrap" style="display:flex;gap:8px;align-items:center;">
+                <button type="button" class="btn sm btn-b" id="btn-create-task">
+                  <span>+</span> New Task
+                </button>
+                <a href="dashboard.html" class="btn sm btn-o">&larr; Operations Triage</a>
+              </div>
+            </div>
+
+            <!-- Tasks Main Table Card -->
+            <div id="tasks-main-container">
+              <div class="card p-lg" style="background:var(--surface);">
+                <div
+                  style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+                  <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;">Practice Supervisory Task Queue
+                  </h3>
+                  <div style="display:flex;gap:10px;align-items:center;">
+                    <select id="tasks-filter-status"
+                      style="padding:6px 10px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.8rem;background:var(--surface-2);color:var(--ink);">
+                      <option value="all">All Task Priorities</option>
+                      <option value="urgent">Immediate / Urgent</option>
+                      <option value="high">High Priority</option>
+                      <option value="normal">Routine / Scheduled</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="overflow-x:auto;">
+                  <table class="table-clean" style="width:100%;font-size:.84rem;">
+                    <thead>
+                      <tr style="border-bottom:1px solid var(--line);text-align:left;color:var(--ink-3);">
+                        <th style="padding:10px 12px;">Task Description</th>
+                        <th style="padding:10px 12px;">Related Engagement</th>
+                        <th style="padding:10px 12px;">Assigned Preparer</th>
+                        <th style="padding:10px 12px;">Statutory Due Date</th>
+                        <th style="padding:10px 12px;">Urgency</th>
+                        <th style="padding:10px 12px;text-align:right;">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tasks-tbody">
+                      <!-- Rendered by TasksController -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card modal-wide" id="modal-container"></div>
+  </div>
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017_svg_icons"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.init === 'function') {
+        window.FileRoomLayout.init({
+          portal: 'firm',
+          activePage: 'tasks',
+          breadcrumbs: [
+            { title: 'The File Room', href: 'index.html' },
+            { title: 'Firm Operations', href: 'dashboard.html' },
+            { title: 'Action Tasks' }
+          ]
+        });
+      }
+
+      var TasksController = {
+        tasks: [
+          {
+            id: 'tsk_001',
+            title: 'Circular 230 § 10.22 Technical Review & Sign-Off',
+            client: 'Michael & Elena Whitfield (1040)',
+            clientUid: 'usr_whitfield_4417',
+            assignee: 'Denise R., CPA',
+            dueDate: 'Sep 15, 2026',
+            priority: 'urgent',
+            priorityLabel: 'Immediate'
+          },
+          {
+            id: 'tsk_002',
+            title: 'Batch Release Form 8879 E-Signature Envelope',
+            client: 'Ada Okonjo (Form 1040 + Sched C)',
+            clientUid: 'usr_okonjo_3120',
+            assignee: 'Marcus Chen, EA',
+            dueDate: 'Immediate',
+            priority: 'urgent',
+            priorityLabel: 'Immediate'
+          },
+          {
+            id: 'tsk_003',
+            title: 'Verify 1099-NEC Source Record Anti-Malware Scan',
+            client: 'Sarah Jenkins (Form 1040)',
+            clientUid: 'usr_jenkins_8819',
+            assignee: 'Denise R., CPA',
+            dueDate: 'Sep 15, 2026',
+            priority: 'high',
+            priorityLabel: 'High'
+          },
+          {
+            id: 'tsk_004',
+            title: 'Partnership K-1 Distribution Reconciliation',
+            client: 'Brennan Holdings LLC (1065)',
+            clientUid: 'usr_brennan_llc',
+            assignee: 'Denise R., CPA',
+            dueDate: 'Sep 15, 2026',
+            priority: 'high',
+            priorityLabel: 'High'
+          },
+          {
+            id: 'tsk_005',
+            title: 'Schedule C Gross Receipts Cross-Check with 1099-K',
+            client: 'Nandan (Form 1040)',
+            clientUid: 'j11ZvNVZf7Q2FeTrCVNStRM8',
+            assignee: 'Jordan Mitchell, CPA',
+            dueDate: 'Oct 15, 2026',
+            priority: 'normal',
+            priorityLabel: 'Normal'
+          }
+        ],
+
+        init() {
+          this.renderTable();
+          this.bindEvents();
+        },
+
+        renderTable(statusFilter) {
+          var tbody = document.getElementById('tasks-tbody');
+          if (!tbody) return;
+
+          statusFilter = statusFilter || 'all';
+          var filtered = this.tasks.filter(function (t) {
+            if (statusFilter === 'all') return true;
+            return t.priority === statusFilter;
+          });
+
+          var badge = document.getElementById('tasks-count-badge');
+          if (badge) badge.textContent = filtered.length + ' Tasks Pending Sign-off';
+
+          if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="padding:28px;text-align:center;color:var(--ink-2)">Zero tasks in this priority category.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = filtered.map(function (t) {
+            var chipClass = t.priority === 'urgent' ? 'warn' : (t.priority === 'high' ? 'gold' : 'ok');
+
+            return [
+              '<tr style="border-bottom:1px solid var(--line-subtle, rgba(0,0,0,0.05));">',
+              '  <td style="padding:12px;">',
+              '    <div style="font-weight:600;color:var(--ink);">' + t.title + '</div>',
+              '    <div style="font-size:.7rem;color:var(--ink-3);font-family:var(--f-mono);">ID: ' + t.id + '</div>',
+              '  </td>',
+              '  <td style="padding:12px;">',
+              '    <div style="color:var(--ink);">' + t.client + '</div>',
+              '    <div style="font-size:.7rem;color:var(--ink-3);font-family:var(--f-mono);">' + t.clientUid + '</div>',
+              '  </td>',
+              '  <td style="padding:12px;color:var(--ink);">' + t.assignee + '</td>',
+              '  <td style="padding:12px;font-family:var(--f-mono);font-size:.76rem;">' + t.dueDate + '</td>',
+              '  <td style="padding:12px;"><span class="chip ' + chipClass + ' sm">' + t.priorityLabel + '</span></td>',
+              '  <td style="padding:12px;text-align:right;">',
+              '    <div style="display:flex;justify-content:flex-end;gap:6px;">',
+              '      <button type="button" class="btn xs btn-b btn-complete-task" data-id="' + t.id + '">Sign Off ✓</button>',
+              '    </div>',
+              '  </td>',
+              '</tr>'
+            ].join('');
+          }).join('');
+
+          tbody.querySelectorAll('.btn-complete-task').forEach(function (btn) {
+            btn.addEventListener('click', async function () {
+              var id = btn.getAttribute('data-id');
+              var origLabel = btn.textContent;
+              btn.disabled = true;
+              btn.textContent = 'Recording...';
+              var signErr = '';
+              try {
+                var br = window.FirebaseBridge;
+                if (!br || typeof br.recordAuditLog !== 'function') throw new Error('Audit service is not available.');
+                var signRes = await br.recordAuditLog('Supervisory Sign-Off', 'Supervisory sign-off recorded for task ' + id, 'Supervision', { isStaff: true, recordRef: id });
+                if (!signRes || signRes.success === false) {
+                  throw new Error(signRes && signRes.permissionDenied ? 'Permission denied: this account is not authorized to record sign-offs.' : ((signRes && signRes.error) || 'The sign-off could not be recorded.'));
+                }
+              } catch (e) {
+                signErr = (e && e.message) || 'The sign-off could not be recorded.';
+              }
+              if (signErr) {
+                btn.disabled = false;
+                btn.textContent = origLabel;
+                if (window.FileRoomLayout) window.FileRoomLayout.showToast('Sign-off NOT recorded: ' + signErr, 'err');
+                return;
+              }
+              btn.textContent = 'Completed \u2713';
+              btn.style.background = '#10B981';
+              btn.style.borderColor = '#10B981';
+              if (window.FileRoomLayout) window.FileRoomLayout.showToast('Sign-off recorded in the audit ledger (' + id + ')', 'ok');
+            });
+          });
+        },
+
+        bindEvents() {
+          var self = this;
+          var statusSelect = document.getElementById('tasks-filter-status');
+          if (statusSelect) {
+            statusSelect.addEventListener('change', function () {
+              self.renderTable(this.value);
+            });
+          }
+
+          var btnCreate = document.getElementById('btn-create-task');
+          if (btnCreate) {
+            btnCreate.addEventListener('click', function () {
+              if (window.FileRoomLayout) {
+                window.FileRoomLayout.showToast('Task creation dialog active.', 'info');
+              }
+            });
+          }
+        }
+      };
+
+      TasksController.init();
+
+      // States Demo Bar
+      var contentArea = document.getElementById('tasks-main-container');
+      var originalHtml = contentArea.innerHTML;
+      var btnLive = document.getElementById('btn-state-live');
+      var btnLoading = document.getElementById('btn-state-loading');
+      var btnEmpty = document.getElementById('btn-state-empty');
+      var btnError = document.getElementById('btn-state-error');
+      var allStateBtns = [btnLive, btnLoading, btnEmpty, btnError];
+
+      function setActiveBtn(btn) {
+        if (!btn) return;
+        allStateBtns.forEach(function (b) { if (b && b.classList) b.classList.remove('active'); });
+        btn.classList.add('active');
+      }
+
+      if (btnLive) {
+        btnLive.addEventListener('click', function () {
+          setActiveBtn(btnLive);
+          contentArea.innerHTML = originalHtml;
+          TasksController.init();
+        });
+      }
+
+      if (btnLoading) {
+        btnLoading.addEventListener('click', function () {
+          setActiveBtn(btnLoading);
+          if (window.FileRoomLayout) {
+            window.FileRoomLayout.renderLoading(contentArea, 'Loading Circular 230 task queue and assigned milestones...');
+          }
+        });
+      }
+
+      if (btnEmpty) {
+        btnEmpty.addEventListener('click', function () {
+          setActiveBtn(btnEmpty);
+          if (window.FileRoomLayout) {
+            window.FileRoomLayout.renderEmptyState(contentArea, {
+              title: 'No Pending Action Tasks',
+              message: 'Zero supervisory approvals pending across all client engagements.',
+              icon: '📋',
+              actionBtnText: 'Return to Live Tasks',
+              onAction: function () { btnLive.click(); }
+            });
+          }
+        });
+      }
+
+      if (btnError) {
+        btnError.addEventListener('click', function () {
+          setActiveBtn(btnError);
+          if (window.FileRoomLayout) {
+            window.FileRoomLayout.renderErrorState(contentArea, {
+              title: 'Task Management Engine Offline',
+              message: 'Failed to query task status from practice database.',
+              onRetry: function () { btnLive.click(); }
+            });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

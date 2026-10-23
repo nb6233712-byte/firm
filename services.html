@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Service Catalog &amp; Fees — Firm Operations — The File Room</title>
+  <meta name="description"
+    content="Practice service catalog, Circular 230 engagement scopes, and transparent fee schedule — The File Room by Pivot Aide Tax.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+</head>
+
+<body>
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <div class="app" id="app">
+        <header class="appbar"></header>
+
+        <div class="workspace">
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+          <aside class="side" id="side" aria-label="Firm Operations Navigation"></aside>
+
+          <main class="body" id="body">
+            <div id="page-breadcrumbs"></div>
+
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <h1 style="margin:0;">Service Catalog &amp; Fees</h1>
+                  <span class="chip ok sm">6 Standardized Scopes Active</span>
+                </div>
+                <p class="page-subtitle">Circular 230 Practice Governance &middot; Transparent Upfront Pricing &middot;
+                  Electronic Scope Engagement Letters</p>
+              </div>
+              <div class="page-actions-wrap" style="display:flex;gap:8px;align-items:center;">
+                <button type="button" class="btn sm btn-b" id="btn-add-service">
+                  <span>+</span> Add Offering
+                </button>
+                <a href="billing.html" class="btn sm btn-o">&larr; AR &amp; Billing</a>
+                <a href="dashboard.html" class="btn sm btn-o">Operations Triage &rarr;</a>
+              </div>
+            </div>
+
+            <!-- Services Grid Container -->
+            <div id="services-main-container">
+              <div
+                style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:16px;margin-bottom:24px;"
+                id="services-grid">
+                <!-- Rendered by ServicesController -->
+              </div>
+
+              <!-- Scope Requests Queue -->
+              <div class="card p-lg mb-lg" style="background:var(--surface);margin-top:24px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                  <div>
+                    <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;color:var(--ink);">Add-On Scope Request Queue</h3>
+                    <p style="font-size:.76rem;color:var(--ink-2);margin:2px 0 0 0;">Treasury Circular 230 § 10.33 &middot; Client Scope Requests &amp; Authorized Add-Ons</p>
+                  </div>
+                  <span class="chip ok sm" id="scope-requests-count">LIVE FIRESTORE (0)</span>
+                </div>
+                <div style="overflow-x:auto;">
+                  <table class="table-clean" style="width:100%;font-size:.85rem;border-collapse:collapse;">
+                    <thead>
+                      <tr style="border-bottom:1px solid var(--line);text-align:left;">
+                        <th style="padding:10px 8px;">Client / Engagement</th>
+                        <th style="padding:10px 8px;">Scope Offering</th>
+                        <th style="padding:10px 8px;">Authorized Fee</th>
+                        <th style="padding:10px 8px;">Requested Date</th>
+                        <th style="padding:10px 8px;">Status</th>
+                        <th style="padding:10px 8px;text-align:right;">Practitioner Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="scope-requests-tbody">
+                      <tr><td colspan="6" style="padding:24px;text-align:center;color:var(--ink-2);">Loading scope request queue from Cloud Firestore...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card modal-wide" id="modal-container"></div>
+  </div>
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017_svg_icons"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.init === 'function') {
+        window.FileRoomLayout.init({
+          portal: 'firm',
+          activePage: 'services',
+          breadcrumbs: [
+            { title: 'The File Room', href: 'index.html' },
+            { title: 'Firm Operations', href: 'dashboard.html' },
+            { title: 'Service Catalog' }
+          ]
+        });
+      }
+
+      var ServicesController = {
+        services: [
+          {
+            id: 'svc_1040_comp',
+            name: 'Individual Comprehensive (Form 1040)',
+            scope: 'Fed + Resident State + Schedules A, B, D. Upfront fixed price, zero mystery invoicing.',
+            fee: '$690.00',
+            billingType: 'Fixed Engagement',
+            category: 'Tax Preparation',
+            badge: 'High Volume'
+          },
+          {
+            id: 'svc_state_multi',
+            name: 'Non-Resident State Filing Add-on',
+            scope: 'Per additional non-resident state jurisdiction (e.g. MD resident with VA, PA non-resident allocations).',
+            fee: '$150.00',
+            billingType: 'Per Jurisdiction',
+            category: 'Multi-State',
+            badge: 'Standard'
+          },
+          {
+            id: 'svc_sched_ce',
+            name: 'Schedule C / Schedule E Complex Tier',
+            scope: 'Sole proprietorship or residential rental schedule (up to 4 doors), including QBI deduction analysis.',
+            fee: '$250.00',
+            billingType: 'Schedule Add-on',
+            category: 'Business Tier',
+            badge: 'Standard'
+          },
+          {
+            id: 'svc_entity_1065',
+            name: 'Partnership Return (Form 1065)',
+            scope: 'Multi-member LLC or partnership tax return, includes general balance sheet review and up to 4 Partner K-1s.',
+            fee: '$1,450.00',
+            billingType: 'Entity Return',
+            category: 'Entity Filing',
+            badge: 'Corporate'
+          },
+          {
+            id: 'svc_entity_1120s',
+            name: 'S-Corporation Return (Form 1120-S)',
+            scope: 'Small business corporate filing, reasonable compensation review, basis calculations, and Shareholder K-1s.',
+            fee: '$1,650.00',
+            billingType: 'Entity Return',
+            category: 'Entity Filing',
+            badge: 'Corporate'
+          },
+          {
+            id: 'svc_standing_file',
+            name: 'The Standing File (Year-Round Advisory)',
+            scope: 'Year-long quarterly tax planning, dedicated licensed advisor, priority file status, and IRS notice response shield.',
+            fee: '$3,800.00 / yr',
+            billingType: 'Annual Retainer',
+            category: 'Advisory Retainer',
+            badge: 'Flagship Tier'
+          }
+        ],
+
+        scopeRequests: [],
+        unsubscribeRequests: null,
+
+        init() {
+          this.renderGrid();
+          this.loadScopeRequests();
+          this.bindEvents();
+        },
+
+        renderGrid() {
+          var self = this;
+          var container = document.getElementById('services-grid');
+          if (!container) return;
+
+          container.innerHTML = this.services.map(function (s) {
+            return [
+              '<div class="card p-lg" style="background:var(--surface);display:flex;flex-direction:column;justify-content:space-between;border:1px solid var(--line);border-radius:var(--radius-md);">',
+              '  <div>',
+              '    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">',
+              '      <span class="chip gold sm">' + s.category + '</span>',
+              '      <span class="chip ok sm" style="font-size:.65rem;">' + s.badge + '</span>',
+              '    </div>',
+              '    <h3 style="font-family:var(--f-display);margin:0 0 6px 0;font-size:1.1rem;color:var(--ink);">' + s.name + '</h3>',
+              '    <p style="font-size:.82rem;color:var(--ink-2);line-height:1.5;margin:0 0 16px 0;">' + s.scope + '</p>',
+              '  </div>',
+              '  <div style="border-top:1px solid var(--line);padding-top:14px;display:flex;justify-content:space-between;align-items:center;">',
+              '    <div>',
+              '      <div style="font-family:var(--f-display);font-size:1.3rem;font-weight:700;color:var(--brand);">' + s.fee + '</div>',
+              '      <div style="font-size:.68rem;color:var(--ink-3);font-family:var(--f-mono);">' + s.billingType + '</div>',
+              '    </div>',
+              '    <div style="display:flex;gap:6px;">',
+              '      <button type="button" class="btn xs btn-o btn-edit-svc" data-name="' + s.name + '">Edit</button>',
+              '      <button type="button" class="btn xs btn-b btn-issue-scope" data-name="' + s.name + '" data-fee="' + s.fee + '" data-id="' + s.id + '">Issue Scope</button>',
+              '    </div>',
+              '  </div>',
+              '</div>'
+            ].join('');
+          }).join('');
+
+          container.querySelectorAll('.btn-issue-scope').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var name = btn.getAttribute('data-name');
+              var fee = btn.getAttribute('data-fee');
+              var id = btn.getAttribute('data-id');
+              self.openIssueScopeModal(id, name, fee);
+            });
+          });
+
+          container.querySelectorAll('.btn-edit-svc').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var name = btn.getAttribute('data-name');
+              if (window.FileRoomLayout) {
+                window.FileRoomLayout.showToast('Scope editor active for ' + name, 'info');
+              }
+            });
+          });
+        },
+
+        async loadScopeRequests() {
+          var self = this;
+          var tbody = document.getElementById('scope-requests-tbody');
+          var countChip = document.getElementById('scope-requests-count');
+          var bridge = window.FirebaseBridge;
+
+          if (!bridge || typeof bridge.getEngagementRequests !== 'function') {
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--ink-2)">Connecting to Cloud Firestore backend...</td></tr>';
+            return;
+          }
+
+          try {
+            var res = await bridge.getEngagementRequests();
+            self.scopeRequests = (res && res.data) || [];
+            self.renderScopeRequestsTable(self.scopeRequests);
+
+            if (typeof bridge.subscribeEngagementRequests === 'function' && !self.unsubscribeRequests) {
+              self.unsubscribeRequests = bridge.subscribeEngagementRequests(function (items) {
+                self.scopeRequests = items || [];
+                self.renderScopeRequestsTable(self.scopeRequests);
+              });
+            }
+          } catch (err) {
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--warn)">Failed to load scope requests: ' + err.message + '</td></tr>';
+          }
+        },
+
+        renderScopeRequestsTable(items) {
+          var tbody = document.getElementById('scope-requests-tbody');
+          var countChip = document.getElementById('scope-requests-count');
+          if (!tbody) return;
+
+          var list = items || [];
+          if (countChip) countChip.textContent = 'LIVE FIRESTORE (' + list.length + ')';
+
+          if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="padding:32px 16px;text-align:center;color:var(--ink-2);"><div style="font-weight:600;margin-bottom:4px">No Scope Add-On Requests Pending</div><div style="font-size:.78rem;color:var(--ink-3)">Taxpayer scope addition requests will appear here automatically in real time.</div></td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = list.map(function (req) {
+            var clientName = req.clientName || req.client || (req.clientId === 'usr_whitfield_4417' ? 'Michael Whitfield' : (req.clientId === 'usr_brennan_llc' ? 'Brennan Holdings LLC' : (req.clientId === 'usr_okonjo_a' ? 'Ada Okonjo' : req.clientId)));
+            var title = req.title || req.serviceName || req.serviceKey || 'Scope Add-on';
+            var fee = req.estimatedFee || ('$' + Number(req.trustedBasePrice || 0).toFixed(2));
+            var dateStr = req.createdAt ? new Date(req.createdAt).toLocaleDateString() : 'Today';
+            var status = req.status || 'pending_letter';
+
+            var statusHtml = '';
+            var actionHtml = '';
+
+            if (status === 'active_engagement' || req.scopeApproved) {
+              statusHtml = '<span class="chip ok sm">Active Engagement</span>';
+              actionHtml = '<span style="color:var(--ok);font-size:.75rem;font-weight:600">✓ In Engagement</span>';
+            } else if (status === 'declined') {
+              statusHtml = '<span class="chip danger sm">Declined</span>';
+              actionHtml = '<span style="color:var(--ink-3);font-size:.75rem">Declined</span>';
+            } else {
+              statusHtml = '<span class="chip warn sm">Pending Review</span>';
+              actionHtml = [
+                '<div style="display:flex;gap:6px;justify-content:flex-end;">',
+                '  <button type="button" class="btn xs btn-b btn-approve-scope" data-id="' + req.id + '">Approve Scope</button>',
+                '  <button type="button" class="btn xs btn-o btn-reject-scope" data-id="' + req.id + '">Decline</button>',
+                '</div>'
+              ].join('');
+            }
+
+            return [
+              '<tr style="border-bottom:1px solid var(--line-subtle);">',
+              '  <td style="padding:12px 8px;"><b>' + clientName + '</b><div style="font-size:.7rem;color:var(--ink-3);font-family:var(--f-mono)">' + req.clientId + '</div></td>',
+              '  <td style="padding:12px 8px;">' + title + '</td>',
+              '  <td style="padding:12px 8px;font-family:var(--f-mono);font-weight:600;color:var(--brand);">' + fee + '</td>',
+              '  <td style="padding:12px 8px;">' + dateStr + '</td>',
+              '  <td style="padding:12px 8px;">' + statusHtml + '</td>',
+              '  <td style="padding:12px 8px;text-align:right;">' + actionHtml + '</td>',
+              '</tr>'
+            ].join('');
+          }).join('');
+
+          // Bind Action handlers
+          tbody.querySelectorAll('.btn-approve-scope').forEach(function (btn) {
+            btn.addEventListener('click', async function () {
+              var id = btn.getAttribute('data-id');
+              btn.disabled = true;
+              btn.textContent = 'Approving...';
+              try {
+                var bridge = window.FirebaseBridge;
+                if (bridge && typeof bridge.staffReviewScopeRequest === 'function') {
+                  await bridge.staffReviewScopeRequest(id, 'approve', 'Approved by practitioner per Circular 230 review');
+                }
+                if (window.FileRoomLayout) {
+                  window.FileRoomLayout.showToast('✓ Scope request approved and added to active engagement', 'ok');
+                }
+                ServicesController.loadScopeRequests();
+              } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Approve Scope';
+                if (window.FileRoomLayout) {
+                  window.FileRoomLayout.showToast('Failed to approve scope: ' + err.message, 'err');
+                }
+              }
+            });
+          });
+
+          tbody.querySelectorAll('.btn-reject-scope').forEach(function (btn) {
+            btn.addEventListener('click', async function () {
+              var id = btn.getAttribute('data-id');
+              btn.disabled = true;
+              btn.textContent = 'Declining...';
+              try {
+                var bridge = window.FirebaseBridge;
+                if (bridge && typeof bridge.staffReviewScopeRequest === 'function') {
+                  await bridge.staffReviewScopeRequest(id, 'reject', 'Scope declined by practitioner');
+                }
+                if (window.FileRoomLayout) {
+                  window.FileRoomLayout.showToast('Scope request declined', 'info');
+                }
+                ServicesController.loadScopeRequests();
+              } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Decline';
+                if (window.FileRoomLayout) {
+                  window.FileRoomLayout.showToast('Failed to decline scope: ' + err.message, 'err');
+                }
+              }
+            });
+          });
+        },
+
+        openIssueScopeModal(svcId, svcName, svcFee) {
+          if (!window.FileRoomLayout || typeof window.FileRoomLayout.openModal !== 'function') return;
+          var modalHtml = [
+            '<div class="modal-hdr" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--surface)">',
+            '  <div style="display:flex;align-items:center;gap:10px">',
+            '    <span style="display:inline-flex;color:var(--brand)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>',
+            '    <div>',
+            '      <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;color:var(--ink)">Issue Scope Engagement Letter</h3>',
+            '      <div style="font-size:.74rem;color:var(--ink-2)">' + svcName + ' &middot; ' + svcFee + '</div>',
+            '    </div>',
+            '  </div>',
+            '  <button type="button" data-close-modal style="background:transparent;border:0;font-size:1.3rem;cursor:pointer;color:var(--ink-2)">&times;</button>',
+            '</div>',
+            '<div class="modal-body" style="padding:20px;font-size:.82rem;line-height:1.5;color:var(--ink)">',
+            '  <div style="margin-bottom:14px">',
+            '    <label style="display:block;font-weight:600;margin-bottom:6px;color:var(--ink)">Target Client Engagement File:</label>',
+            '    <select id="issue-scope-client-select" class="input" style="width:100%;padding:8px 10px;font-size:.82rem;border:1px solid var(--line);border-radius:4px;background:#fff">',
+            '      <option value="usr_whitfield_4417">Michael & Elena Whitfield (usr_whitfield_4417)</option>',
+            '      <option value="usr_brennan_llc">Brennan Holdings LLC (usr_brennan_llc)</option>',
+            '      <option value="usr_okonjo_a">Ada Okonjo (usr_okonjo_a)</option>',
+            '      <option value="usr_taylor_bennett_test_example_com">Taylor Bennett (usr_taylor_bennett)</option>',
+            '    </select>',
+            '  </div>',
+            '  <div style="margin-bottom:14px">',
+            '    <label style="display:block;font-weight:600;margin-bottom:6px;color:var(--ink)">Authorized Fee:</label>',
+            '    <input id="issue-scope-fee" class="input" style="width:100%;padding:8px 10px;font-size:.82rem;border:1px solid var(--line);border-radius:4px;background:#fff" value="' + svcFee + '">',
+            '  </div>',
+            '  <div style="margin-bottom:14px">',
+            '    <label style="display:block;font-weight:600;margin-bottom:6px;color:var(--ink)">Scope Terms &amp; Practitioner Notes:</label>',
+            '    <textarea id="issue-scope-notes" class="input" rows="3" style="width:100%;padding:8px 10px;font-size:.8rem;border:1px solid var(--line);border-radius:4px;background:#fff;font-family:inherit" placeholder="Add engagement scope details per Circular 230 § 10.33..."></textarea>',
+            '  </div>',
+            '</div>',
+            '<div class="modal-ftr" style="padding:14px 20px;background:var(--surface-2);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">',
+            '  <button type="button" class="btn sm btn-o" data-close-modal>Cancel</button>',
+            '  <button type="button" class="btn sm btn-b" id="btn-submit-issue-scope">Issue Scope Letter &rarr;</button>',
+            '</div>'
+          ].join('');
+
+          window.FileRoomLayout.openModal(modalHtml);
+
+          var submitBtn = document.getElementById('btn-submit-issue-scope');
+          if (submitBtn) {
+            submitBtn.addEventListener('click', async function () {
+              var clientSelect = document.getElementById('issue-scope-client-select');
+              var clientUid = clientSelect.value;
+              var clientName = clientSelect.options[clientSelect.selectedIndex].text.split('(')[0].trim();
+              var feeVal = (document.getElementById('issue-scope-fee').value || svcFee).trim();
+              var notesVal = (document.getElementById('issue-scope-notes').value || '').trim();
+
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Issuing to Cloud Firestore...';
+
+              try {
+                var bridge = window.FirebaseBridge;
+                if (bridge && typeof bridge.createEngagementRequest === 'function') {
+                  await bridge.createEngagementRequest({
+                    serviceId: svcId,
+                    serviceKey: svcId.replace(/^svc_/, ''),
+                    title: svcName,
+                    estimatedFee: feeVal,
+                    trustedBasePrice: parseFloat(feeVal.replace(/[^0-9.]/g, '')) || 0,
+                    scopeDetails: notesVal || (svcName + ' scope engagement letter'),
+                    clientId: clientUid,
+                    clientName: clientName,
+                    status: 'scope_accepted',
+                    scopeAccepted: true
+                  });
+                }
+                window.FileRoomLayout.closeModal();
+                window.FileRoomLayout.showToast('✓ Engagement scope letter issued to ' + clientName, 'ok');
+                ServicesController.loadScopeRequests();
+              } catch (err) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Issue Scope Letter &rarr;';
+                window.FileRoomLayout.showToast('Failed to issue scope: ' + err.message, 'err');
+              }
+            });
+          }
+        },
+
+        bindEvents() {
+          var self = this;
+          var btnAdd = document.getElementById('btn-add-service');
+          if (btnAdd) {
+            btnAdd.addEventListener('click', function () {
+              var bridge = window.FirebaseBridge;
+              var role = (bridge && typeof bridge.getRole === 'function') ? bridge.getRole() : 'firm_staff';
+              if (role !== 'firm_admin' && role !== 'firm_partner') {
+                if (window.FileRoomLayout) {
+                  window.FileRoomLayout.showToast('Permission Denied: Only Firm Admin or Partner can add service offerings under Circular 230.', 'warn');
+                }
+                return;
+              }
+              self.openAddOfferingModal();
+            });
+          }
+        },
+
+        openAddOfferingModal() {
+          var self = this;
+          if (!window.FileRoomLayout || typeof window.FileRoomLayout.openModal !== 'function') return;
+          var modalHtml = [
+            '<div class="modal-hdr" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--surface)">',
+            '  <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;color:var(--ink)">Add Practice Offering</h3>',
+            '  <button type="button" data-close-modal style="background:transparent;border:0;font-size:1.3rem;cursor:pointer;color:var(--ink-2)">&times;</button>',
+            '</div>',
+            '<div class="modal-body" style="padding:20px;font-size:.82rem;line-height:1.5;color:var(--ink)">',
+            '  <div style="margin-bottom:12px">',
+            '    <label style="display:block;font-weight:600;margin-bottom:4px">Offering Name:</label>',
+            '    <input id="add-svc-name" class="input" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:4px" placeholder="e.g., FBAR & Form 8938 Foreign Asset Reporting">',
+            '  </div>',
+            '  <div style="margin-bottom:12px">',
+            '    <label style="display:block;font-weight:600;margin-bottom:4px">Scope Description:</label>',
+            '    <textarea id="add-svc-scope" class="input" rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:4px" placeholder="Details of filing requirements and covered forms..."></textarea>',
+            '  </div>',
+            '  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">',
+            '    <div>',
+            '      <label style="display:block;font-weight:600;margin-bottom:4px">Standard Fee:</label>',
+            '      <input id="add-svc-fee" class="input" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:4px" placeholder="$450.00">',
+            '    </div>',
+            '    <div>',
+            '      <label style="display:block;font-weight:600;margin-bottom:4px">Category:</label>',
+            '      <input id="add-svc-category" class="input" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:4px" placeholder="International / Specialty">',
+            '    </div>',
+            '  </div>',
+            '</div>',
+            '<div class="modal-ftr" style="padding:14px 20px;background:var(--surface-2);border-top:1px solid var(--line);display:flex;justify-content:space-between">',
+            '  <button type="button" class="btn sm btn-o" data-close-modal>Cancel</button>',
+            '  <button type="button" class="btn sm btn-b" id="btn-submit-add-offering">Add to Catalog</button>',
+            '</div>'
+          ].join('');
+
+          window.FileRoomLayout.openModal(modalHtml);
+
+          var submitBtn = document.getElementById('btn-submit-add-offering');
+          if (submitBtn) {
+            submitBtn.addEventListener('click', function () {
+              var name = (document.getElementById('add-svc-name').value || '').trim();
+              var scope = (document.getElementById('add-svc-scope').value || '').trim();
+              var fee = (document.getElementById('add-svc-fee').value || '').trim();
+              var cat = (document.getElementById('add-svc-category').value || '').trim() || 'Specialty';
+
+              if (!name || !fee) {
+                alert('Offering name and fee are required.');
+                return;
+              }
+
+              self.services.push({
+                id: 'svc_' + Date.now(),
+                name: name,
+                scope: scope || 'Custom practice engagement offering.',
+                fee: fee.startsWith('$') ? fee : ('$' + fee),
+                billingType: 'Fixed Engagement',
+                category: cat,
+                badge: 'Custom Offering'
+              });
+
+              self.renderGrid();
+              window.FileRoomLayout.closeModal();
+              window.FileRoomLayout.showToast('✓ ' + name + ' added to practice service catalog', 'ok');
+            });
+          }
+        }
+      };
+
+      ServicesController.init();
+    });
+  </script>
+</body>
+
+</html>

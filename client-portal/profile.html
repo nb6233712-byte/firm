@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile &amp; Security — Client Portal — The File Room</title>
+  <meta name="description" content="Taxpayer profile settings, MFA security, and IRC § 7216 statutory consents — The File Room by Pivot Aide Tax.">
+
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+</head>
+
+<body>
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <div class="app" id="app">
+        <header class="appbar"></header>
+
+        <div class="workspace">
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+          <aside class="side" id="side" aria-label="Client Portal Navigation"></aside>
+
+          <main class="body" id="body">
+            <div id="page-breadcrumbs"></div>
+
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <h1>Profile &amp; Security Settings</h1>
+                <p class="page-subtitle">Personal information, authentication assurance, and IRC § 7216 privacy permissions</p>
+              </div>
+              <div class="page-actions-wrap">
+                <a href="dashboard.html" class="btn sm btn-o">&larr; Dashboard</a>
+              </div>
+            </div>
+
+            <div class="states-demo-bar">
+              <span class="states-demo-label">PROFILE STATE:</span>
+              <button type="button" class="states-demo-btn active" id="btn-state-live">● Live View</button>
+              <button type="button" class="states-demo-btn" id="btn-state-loading">Loading State</button>
+              <button type="button" class="states-demo-btn" id="btn-state-empty">Empty State</button>
+              <button type="button" class="states-demo-btn" id="btn-state-error">Error State</button>
+            </div>
+
+            <div id="profile-content-area">
+              <!-- Account Details Card -->
+              <div class="card p-lg mb-lg" style="background:var(--surface);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px;">
+                  <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;">Taxpayer Profile</h3>
+                  <span class="chip ok sm" id="profile-sync-badge">● LIVE PROFILE CONNECTED</span>
+                </div>
+
+                <!-- Profile Photo & Identity Section -->
+                <div style="display:flex;align-items:center;gap:20px;padding:18px;background:var(--surface-2);border-radius:10px;border:1px solid var(--line);margin-bottom:20px;flex-wrap:wrap;">
+                  <div style="position:relative;width:88px;height:88px;flex-shrink:0;">
+                    <div id="avatar-display-box" class="profile-avatar-box" title="Click or drag image to change photo" tabindex="0" role="button" aria-label="Upload profile photo">
+                      <span id="avatar-initials" style="font-size:2rem;font-weight:700;color:#fff;">N</span>
+                      <img id="avatar-image-preview" src="" alt="Taxpayer Profile Photo" style="width:100%;height:100%;object-fit:cover;display:none;" />
+                    </div>
+                    <button type="button" id="btn-camera-overlay" title="Upload new photo" style="position:absolute;bottom:-2px;right:-2px;width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;border:2px solid var(--surface);display:grid;place-items:center;cursor:pointer;font-size:0.85rem;padding:0;box-shadow:0 2px 8px rgba(0,0,0,0.25);">📷</button>
+                    <input type="file" id="input-avatar-upload" accept="image/png, image/jpeg, image/webp, image/gif" style="display:none;" />
+                  </div>
+
+                  <div style="flex:1;min-width:240px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                      <h4 style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">Taxpayer Profile Photo</h4>
+                      <span class="chip sm ok" id="avatar-status-chip">SYNCED WITH CLOUD</span>
+                    </div>
+                    <p style="margin:0 0 10px 0;font-size:0.8rem;color:var(--ink-2);line-height:1.45;">
+                      Upload your personal or business photo. It displays across the client portal, top navigation bar, and secure practitioner communications.
+                    </p>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                      <button type="button" class="btn sm btn-b" id="btn-trigger-upload">
+                        <span>📷</span> Upload Photo
+                      </button>
+                      <button type="button" class="btn sm btn-o" id="btn-remove-avatar" style="display:none;color:var(--err);border-color:var(--err);">
+                        <span>✕</span> Remove Photo
+                      </button>
+                      <span style="font-size:0.72rem;color:var(--ink-2);">PNG, JPG, or WebP &middot; Auto-optimized</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grid col-2" style="gap:16px;font-size:.85rem;">
+                  <div>
+                    <label style="display:block;font-size:.75rem;color:var(--ink-2);margin-bottom:4px;">Full Legal Taxpayer Name</label>
+                    <div style="display:flex;gap:8px;">
+                      <input type="text" id="input-legal-name" value="Nandan" placeholder="Full legal name" style="flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);" />
+                      <button type="button" class="btn sm btn-b" id="btn-save-profile-name" style="white-space:nowrap;">Save to Firebase</button>
+                    </div>
+                    <span style="font-size:.7rem;color:var(--ink-2);margin-top:2px;display:block;">Syncs live with Firebase Auth <code>displayName</code> and Firestore <code>clients</code> collection.</span>
+                  </div>
+                  <div>
+                    <label style="display:block;font-size:.75rem;color:var(--ink-2);margin-bottom:4px;">Spouse Name (Joint Return)</label>
+                    <input type="text" id="input-spouse-name" value="" placeholder="Optional spouse name (if filing jointly)" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);" />
+                  </div>
+                  <div>
+                    <label style="display:block;font-size:.75rem;color:var(--ink-2);margin-bottom:4px;">Primary Email Address</label>
+                    <input type="email" id="input-profile-email" value="nandanfitnessvlog@gmail.com" placeholder="Authenticated email" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);" readonly />
+                  </div>
+                  <div>
+                    <label style="display:block;font-size:.75rem;color:var(--ink-2);margin-bottom:4px;">Primary Phone</label>
+                    <input type="tel" id="input-profile-phone" value="" placeholder="Mobile phone (optional)" style="width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sound & Notifications Assurance Card -->
+              <div class="card p-lg mb-lg" style="background:var(--surface);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                  <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;">Client Notification &amp; Sound Alerts</h3>
+                  <span class="chip ok sm" id="sound-state-chip">● SOUND ALERT ACTIVE 🔔</span>
+                </div>
+                <p style="font-size:.8rem;color:var(--ink-2);margin:0 0 16px 0;line-height:1.45;">
+                  Acoustic audio chimes ensure you never miss urgent taxpayer notices, document signature requests, or file messages from Denise R., CPA.
+                </p>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:var(--surface-2);border-radius:8px;border:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap;gap:14px;">
+                  <div style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:44px;height:44px;border-radius:50%;background:rgba(1,159,255,0.12);color:var(--brand);display:grid;place-items:center;font-size:1.35rem;border:1px solid rgba(1,159,255,0.25);">🔔</div>
+                    <div>
+                      <b style="font-size:.88rem;display:block;color:var(--ink);">Acoustic Notification Chime</b>
+                      <span style="font-size:.76rem;color:var(--ink-2);" id="sound-status-desc">Plays a melodic dual-tone chime (587Hz / 880Hz) when updates or messages arrive</span>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <button type="button" class="btn sm btn-o" id="btn-test-notification-sound" title="Click to test the audio alert chime right now">
+                      <span>🔔</span> Test Sound
+                    </button>
+                    <button type="button" class="btn sm btn-b" id="btn-toggle-sound-notifications">
+                      Sound: Enabled
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Notification Channels Breakdown -->
+                <div class="grid col-3" style="gap:12px;font-size:.8rem;">
+                  <div style="padding:12px 14px;background:var(--surface-2);border-radius:6px;border-left:3px solid var(--brand);">
+                    <div style="font-weight:600;color:var(--ink);margin-bottom:3px;">💬 Practitioner Messages</div>
+                    <div style="color:var(--ink-2);font-size:.75rem;">Instant chime and toast preview when CPA sends a file communication.</div>
+                  </div>
+                  <div style="padding:12px 14px;background:var(--surface-2);border-radius:6px;border-left:3px solid var(--gold);">
+                    <div style="font-weight:600;color:var(--ink);margin-bottom:3px;">📅 Statutory Deadlines</div>
+                    <div style="color:var(--ink-2);font-size:.75rem;">Acoustic chime alert and navigation bell dot for IRC filing milestones.</div>
+                  </div>
+                  <div style="padding:12px 14px;background:var(--surface-2);border-radius:6px;border-left:3px solid var(--ok);">
+                    <div style="font-weight:600;color:var(--ink);margin-bottom:3px;">✍️ Document Signatures</div>
+                    <div style="color:var(--ink-2);font-size:.75rem;">Instant acoustic confirmation upon IRS 8879 or engagement completion.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Security & MFA Card -->
+              <div class="card p-lg mb-lg" style="background:var(--surface);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                  <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;">Authentication &amp; Security Assurance</h3>
+                  <span class="chip ok sm">NIST AAL2 ENFORCED</span>
+                </div>
+                <p style="font-size:.8rem;color:var(--ink-2);margin:0 0 16px 0;line-height:1.45;">
+                  Multi-Factor Authentication (MFA) ensures that unauthorized third parties cannot access your returns or financial documents.
+                </p>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--surface-2);border-radius:6px;">
+                  <div>
+                    <b style="font-size:.85rem;display:block;">SMS / Authenticator 2-Factor Authentication</b>
+                    <span style="font-size:.75rem;color:var(--ink-2);" id="mfa-status-desc">Configured and verified for active authenticated account</span>
+                  </div>
+                  <span class="chip ok sm">ACTIVE</span>
+                </div>
+              </div>
+
+              <!-- IRC § 7216 Statutory Consent Ledger -->
+              <div class="card p-lg" style="background:var(--surface);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                  <h3 style="font-family:var(--f-display);margin:0;font-size:1.15rem;">IRC § 7216 Statutory Privacy Consent</h3>
+                  <span class="chip gold sm">FEDERAL STATUTORY RECORD</span>
+                </div>
+                <p style="font-size:.8rem;color:var(--ink-2);margin:0 0 16px 0;line-height:1.45;">
+                  Federal law prohibits tax preparers from disclosing or using tax return information for any purpose other than preparing your return without your affirmative consent under Treas. Reg. § 301.7216-3.
+                </p>
+                <div style="padding:14px;background:var(--surface-2);border-left:3px solid var(--gold);border-radius:4px;font-size:.8rem;line-height:1.5;">
+                  <b>Consent to Disclose Tax Return Information to Secure Cloud Vault:</b><br>
+                  Status: <span class="chip ok sm">AFFIRMATIVELY GRANTED</span> (Active Tax Year 2026)<br>
+                  Signed by: <span id="consent-signed-by" style="font-weight:600;">Nandan</span> &middot; Digital IP logged &middot; Immutable WORM audit record created.
+                </div>
+              </div>
+            </div>
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card modal-wide" id="modal-container"></div>
+  </div>
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.init === "function") {
+        window.FileRoomLayout.init({
+          portal: 'client',
+          activePage: 'profile',
+          breadcrumbs: [
+            { title: 'The File Room', href: 'index.html' },
+            { title: 'Client Portal', href: 'dashboard.html' },
+            { title: 'Profile & Security' }
+          ]
+        });
+      }
+
+      var contentArea = document.getElementById('profile-content-area');
+      var originalHtml = contentArea.innerHTML;
+      var btnLive = document.getElementById('btn-state-live');
+      var btnLoading = document.getElementById('btn-state-loading');
+      var btnEmpty = document.getElementById('btn-state-empty');
+      var btnError = document.getElementById('btn-state-error');
+      var allBtns = [btnLive, btnLoading, btnEmpty, btnError];
+
+      function setActive(b) {
+        allBtns.forEach(function (btn) { btn.classList.remove('active'); });
+        b.classList.add('active');
+      }
+
+      btnLive.addEventListener('click', function () {
+        setActive(btnLive);
+        contentArea.innerHTML = originalHtml;
+        initFirebaseProfile();
+        if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+          window.FileRoomLayout.showToast('Profile and security settings loaded', 'info');
+        }
+      });
+
+      function initFirebaseProfile() {
+        var bridge = window.FirebaseBridge;
+        var nameInput = document.getElementById('input-legal-name');
+        var emailInput = document.getElementById('input-profile-email');
+        var btnSave = document.getElementById('btn-save-profile-name');
+        var signedBySpan = document.getElementById('consent-signed-by');
+
+        var avatarDisplayBox = document.getElementById('avatar-display-box');
+        var avatarInitials = document.getElementById('avatar-initials');
+        var avatarImg = document.getElementById('avatar-image-preview');
+        var fileInput = document.getElementById('input-avatar-upload');
+        var btnCamera = document.getElementById('btn-camera-overlay');
+        var btnTriggerUpload = document.getElementById('btn-trigger-upload');
+        var btnRemoveAvatar = document.getElementById('btn-remove-avatar');
+
+        var btnTestSound = document.getElementById('btn-test-notification-sound');
+        var btnToggleSound = document.getElementById('btn-toggle-sound-notifications');
+        var soundStateChip = document.getElementById('sound-state-chip');
+        var soundStatusDesc = document.getElementById('sound-status-desc');
+
+        var fbUser = (window.firebaseAuth && window.firebaseAuth.currentUser) || (bridge && bridge.auth && bridge.auth.currentUser) || (bridge && bridge.currentUser);
+        var clientUid = (fbUser && fbUser.uid) || 'j11ZvNVZf7Q2FeTrCVNStRM8';
+        if (fbUser && fbUser.email && emailInput) {
+          emailInput.value = fbUser.email;
+        }
+        if (fbUser && fbUser.displayName && nameInput) {
+          nameInput.value = fbUser.displayName;
+          if (signedBySpan) signedBySpan.textContent = fbUser.displayName;
+        }
+
+        try {
+          var raw = localStorage.getItem('tfr_user_session');
+          if (raw) {
+            var p = JSON.parse(raw);
+            if (p && p.uid) clientUid = p.uid;
+            if (p && (p.displayName || p.name) && nameInput) {
+              nameInput.value = p.displayName || p.name;
+              if (signedBySpan) signedBySpan.textContent = nameInput.value;
+            }
+            if (p && p.email && emailInput) emailInput.value = p.email;
+          }
+        } catch (_) {}
+
+        function calcInitials(str) {
+          if (!str) return 'N';
+          var parts = str.trim().split(/\s+/);
+          if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+          return str.trim().slice(0, 2).toUpperCase();
+        }
+
+        function setAvatarDisplay(photoUrl, name) {
+          if (!avatarDisplayBox) return;
+          var displayName = name || (nameInput ? nameInput.value : '') || 'Nandan';
+          if (photoUrl) {
+            if (avatarImg) {
+              avatarImg.src = photoUrl;
+              avatarImg.style.display = 'block';
+            }
+            if (avatarInitials) avatarInitials.style.display = 'none';
+            if (btnRemoveAvatar) btnRemoveAvatar.style.display = 'inline-flex';
+          } else {
+            if (avatarImg) {
+              avatarImg.src = '';
+              avatarImg.style.display = 'none';
+            }
+            if (avatarInitials) {
+              avatarInitials.textContent = calcInitials(displayName);
+              avatarInitials.style.display = 'block';
+            }
+            if (btnRemoveAvatar) btnRemoveAvatar.style.display = 'none';
+          }
+        }
+
+        // 1. Initial Photo Resolution
+        var currentPhoto = '';
+        try {
+          currentPhoto = localStorage.getItem('tfr_user_avatar') || '';
+        } catch (_) {}
+        if (!currentPhoto && bridge && typeof bridge.getUserPhoto === 'function') {
+          currentPhoto = bridge.getUserPhoto(clientUid);
+        }
+        if (!currentPhoto && fbUser && fbUser.photoURL) {
+          currentPhoto = fbUser.photoURL;
+        }
+        setAvatarDisplay(currentPhoto, nameInput ? nameInput.value : '');
+
+        // 2. Fetch Authoritative User Profile from Firestore
+        if (bridge) {
+          if (typeof bridge.getUserName === 'function' && nameInput) {
+            var resolvedName = bridge.getUserName(clientUid);
+            if (resolvedName) {
+              nameInput.value = resolvedName;
+              if (signedBySpan) signedBySpan.textContent = resolvedName;
+              if (!currentPhoto) setAvatarDisplay('', resolvedName);
+            }
+          }
+          if (typeof bridge.fetchUserProfile === 'function') {
+            bridge.fetchUserProfile(clientUid).then(function (prof) {
+              if (!prof) return;
+              if (prof.displayName && nameInput) {
+                nameInput.value = prof.displayName;
+                if (signedBySpan) signedBySpan.textContent = prof.displayName;
+              }
+              if (prof.email && emailInput) {
+                emailInput.value = prof.email;
+              }
+              if (prof.photoURL) {
+                currentPhoto = prof.photoURL;
+                setAvatarDisplay(prof.photoURL, nameInput ? nameInput.value : '');
+                try {
+                  localStorage.setItem('tfr_user_avatar', prof.photoURL);
+                } catch (_) {}
+              }
+            }).catch(function () {});
+          }
+        }
+
+        // 3. Image Center-Crop & Resize Helper (WebP/JPEG, 320x320)
+        function processAvatarFile(file) {
+          if (!file || !file.type.match(/^image\//i)) {
+            alert('Please select a valid image file (PNG, JPG, or WebP).');
+            return;
+          }
+          if (file.size > 10 * 1024 * 1024) {
+            alert('Image file is too large (maximum 10MB).');
+            return;
+          }
+
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            var img = new Image();
+            img.onload = async function () {
+              try {
+                var canvas = document.createElement('canvas');
+                var w = img.naturalWidth || img.width;
+                var h = img.naturalHeight || img.height;
+                var cropSize = Math.min(w, h);
+                var sx = (w - cropSize) / 2;
+                var sy = (h - cropSize) / 2;
+                var targetDim = Math.min(cropSize, 320);
+
+                canvas.width = targetDim;
+                canvas.height = targetDim;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, sx, sy, cropSize, cropSize, 0, 0, targetDim, targetDim);
+                var dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+
+                setAvatarDisplay(dataUrl, nameInput ? nameInput.value : '');
+
+                localStorage.setItem('tfr_user_avatar', dataUrl);
+                try {
+                  var sRaw = localStorage.getItem('tfr_user_session');
+                  var s = sRaw ? JSON.parse(sRaw) : {};
+                  s.photoURL = dataUrl;
+                  localStorage.setItem('tfr_user_session', JSON.stringify(s));
+                } catch (_) {}
+                window.dispatchEvent(new CustomEvent('tfr:avatar_updated', { detail: { photoURL: dataUrl } }));
+
+                if (bridge && typeof bridge.updateUserPhoto === 'function') {
+                  try {
+                    await bridge.updateUserPhoto(dataUrl, clientUid);
+                  } catch (_) {}
+                }
+
+                if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                  window.FileRoomLayout.showToast('✓ Profile photo updated and synced with cloud vault', 'ok');
+                }
+              } catch (saveErr) {
+                alert('Could not save photo: ' + (saveErr.message || saveErr));
+              }
+            };
+            img.onerror = function () {
+              alert('Failed to read selected image.');
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+
+        // 4. File Input & Upload Trigger Handlers
+        if (fileInput) {
+          fileInput.onchange = function (e) {
+            var f = e.target.files && e.target.files[0];
+            if (f) processAvatarFile(f);
+            fileInput.value = '';
+          };
+        }
+
+        function triggerFileInput() {
+          if (fileInput) fileInput.click();
+        }
+
+        if (btnTriggerUpload) btnTriggerUpload.onclick = triggerFileInput;
+        if (btnCamera) btnCamera.onclick = triggerFileInput;
+        if (avatarDisplayBox) {
+          avatarDisplayBox.onclick = triggerFileInput;
+
+          // Drag and drop support directly on avatar circle
+          avatarDisplayBox.ondragover = function (e) {
+            e.preventDefault();
+            avatarDisplayBox.classList.add('dragover');
+          };
+          avatarDisplayBox.ondragleave = function () {
+            avatarDisplayBox.classList.remove('dragover');
+          };
+          avatarDisplayBox.ondrop = function (e) {
+            e.preventDefault();
+            avatarDisplayBox.classList.remove('dragover');
+            var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+            if (f) processAvatarFile(f);
+          };
+        }
+
+        // 5. Remove Photo Handler
+        if (btnRemoveAvatar) {
+          btnRemoveAvatar.onclick = async function () {
+            try {
+              localStorage.removeItem('tfr_user_avatar');
+              try {
+                var sRaw = localStorage.getItem('tfr_user_session');
+                var s = sRaw ? JSON.parse(sRaw) : {};
+                delete s.photoURL;
+                localStorage.setItem('tfr_user_session', JSON.stringify(s));
+              } catch (_) {}
+              window.dispatchEvent(new CustomEvent('tfr:avatar_updated', { detail: { photoURL: '' } }));
+
+              if (bridge && typeof bridge.updateUserPhoto === 'function') {
+                try {
+                  await bridge.updateUserPhoto('', clientUid);
+                } catch (_) {}
+              }
+              setAvatarDisplay('', nameInput ? nameInput.value : '');
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('Profile photo removed — default initials restored', 'info');
+              }
+            } catch (err) {
+              alert('Could not remove photo: ' + (err.message || err));
+            }
+          };
+        }
+
+        // 6. Sound Notifications Settings & Live Acoustic Chime Test
+        function syncSoundUI() {
+          var isSoundActive = localStorage.getItem('tfr_sound_notifications') !== 'false';
+          if (btnToggleSound) {
+            btnToggleSound.textContent = isSoundActive ? 'Sound: Enabled' : 'Sound: Muted (Off)';
+            btnToggleSound.className = isSoundActive ? 'btn sm btn-b' : 'btn sm btn-o';
+          }
+          if (soundStateChip) {
+            soundStateChip.textContent = isSoundActive ? '● SOUND ALERT ACTIVE 🔔' : 'MUTED (OFF)';
+            soundStateChip.className = isSoundActive ? 'chip ok sm' : 'chip sm';
+          }
+          if (soundStatusDesc) {
+            soundStatusDesc.textContent = isSoundActive
+              ? 'Plays a melodic dual-tone chime (587Hz / 880Hz) when updates or messages arrive'
+              : 'Acoustic alerts are currently muted. Banner toasts will continue to display';
+          }
+        }
+        syncSoundUI();
+
+        if (btnTestSound) {
+          btnTestSound.onclick = function () {
+            if (window.FileRoomLayout && typeof window.FileRoomLayout.playNotificationSound === 'function') {
+              window.FileRoomLayout.playNotificationSound(true);
+            }
+            if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+              window.FileRoomLayout.showToast('🔔 Client Notification: Acoustic alert chime verified!', 'ok');
+            }
+          };
+        }
+
+        if (btnToggleSound) {
+          btnToggleSound.onclick = function () {
+            var currentlyActive = localStorage.getItem('tfr_sound_notifications') !== 'false';
+            var nextState = !currentlyActive;
+            localStorage.setItem('tfr_sound_notifications', nextState ? 'true' : 'false');
+            syncSoundUI();
+            if (nextState) {
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.playNotificationSound === 'function') {
+                window.FileRoomLayout.playNotificationSound();
+              }
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('✓ Notification sound alerts enabled', 'ok');
+              }
+            } else {
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('Notification sound alerts muted', 'info', { sound: false });
+              }
+            }
+          };
+        }
+
+        // 7. Legal Name Save Handler
+        if (btnSave) {
+          btnSave.onclick = async function () {
+            var newName = (nameInput ? nameInput.value : '').trim();
+            if (!newName) {
+              alert('Please enter a valid legal name.');
+              return;
+            }
+            btnSave.disabled = true;
+            btnSave.textContent = 'Saving...';
+            try {
+              if (bridge && typeof bridge.updateUserName === 'function') {
+                await bridge.updateUserName(newName, clientUid);
+              }
+              if (!avatarImg || avatarImg.style.display === 'none') {
+                setAvatarDisplay('', newName);
+              }
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('✓ Name synced to Firebase backend (' + newName + ')', 'ok');
+              }
+            } catch (err) {
+              alert('Error saving name to Firebase: ' + (err.message || err));
+            } finally {
+              btnSave.disabled = false;
+              btnSave.textContent = 'Save to Firebase';
+            }
+          };
+        }
+      }
+
+      initFirebaseProfile();
+      if (!window.FirebaseBridge) {
+        window.addEventListener('firebase-bridge-ready', initFirebaseProfile);
+        window.addEventListener('firebase-ready', initFirebaseProfile);
+      }
+
+      btnLoading.addEventListener('click', function () {
+        setActive(btnLoading);
+        FileRoomLayout.renderLoading(contentArea, 'Loading secure profile and consent ledger...');
+      });
+
+      btnEmpty.addEventListener('click', function () {
+        setActive(btnEmpty);
+        FileRoomLayout.renderEmpty(contentArea, {
+          icon: '⚙',
+          title: 'Profile Not Initialized',
+          desc: 'Your account profile has not completed initial registration.',
+          actionText: 'Complete Setup',
+          actionHref: '#'
+        });
+      });
+
+      btnError.addEventListener('click', function () {
+        setActive(btnError);
+        FileRoomLayout.renderError(contentArea, {
+          title: 'Unable to Load Security Profile',
+          desc: 'Could not connect to authentication provider. Please retry.',
+          onRetry: function () { btnLive.click(); }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

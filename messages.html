@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Client Messages — Firm Operations — The File Room</title>
+  <meta name="description"
+    content="Secure IRC § 7216 file-linked client messaging and communication console — The File Room by Pivot Aide Tax.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+
+  <style>
+    .msg-layout-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 16px;
+      height: 640px;
+      min-height: 520px;
+    }
+
+    @media (max-width: 900px) {
+      .msg-layout-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+    }
+
+    .clients-channel-list {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .channel-list-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-2);
+    }
+
+    .channel-list-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .channel-item {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line-subtle, rgba(0, 0, 0, 0.05));
+      cursor: pointer;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      transition: background 0.15s ease;
+      text-align: left;
+      background: transparent;
+      border-left: 3px solid transparent;
+      width: 100%;
+      border-radius: 0;
+    }
+
+    .channel-item:hover {
+      background: var(--surface-2);
+    }
+
+    .channel-item.active {
+      background: rgba(1, 159, 255, 0.08);
+      border-left-color: var(--brand);
+    }
+
+    .channel-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--brand-dim);
+      color: var(--brand);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .channel-item.active .channel-avatar {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .channel-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .channel-name {
+      font-weight: 600;
+      font-size: 0.84rem;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .channel-time {
+      font-size: 0.68rem;
+      color: var(--ink-3);
+      font-weight: normal;
+      font-family: var(--f-mono);
+    }
+
+    .channel-preview {
+      font-size: 0.76rem;
+      color: var(--ink-2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .channel-badge-unread {
+      background: var(--brand);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 999px;
+      margin-left: 4px;
+    }
+
+    /* Right Chat Thread */
+    .chat-thread-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .thread-header {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .thread-messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: var(--surface);
+    }
+
+    .thread-input-row {
+      padding: 14px 18px;
+      border-top: 1px solid var(--line);
+      background: var(--surface-2);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .msg-bubble-wrap {
+      display: flex;
+      flex-direction: column;
+      max-width: 75%;
+    }
+
+    .msg-bubble-wrap.client {
+      align-self: flex-start;
+    }
+
+    .msg-bubble-wrap.firm {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .msg-bubble-wrap.client .msg-bubble {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      border-bottom-left-radius: 2px;
+    }
+
+    .msg-bubble-wrap.firm .msg-bubble {
+      background: var(--brand);
+      color: #FFFFFF;
+      border-bottom-right-radius: 2px;
+    }
+
+    .msg-info {
+      font-size: 0.7rem;
+      color: var(--ink-3);
+      margin-top: 4px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <div class="app" id="app">
+        <header class="appbar"></header>
+
+        <div class="workspace">
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+          <aside class="side" id="side" aria-label="Firm Operations Navigation"></aside>
+
+          <main class="body" id="body">
+            <div id="page-breadcrumbs"></div>
+
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <h1 style="margin:0;">Client Messages</h1>
+                  <span class="chip ok sm" id="backend-status-chip">✓ Live Backend Connected (Firestore)</span>
+                  <span class="chip gold sm">IRC § 7216 Protected</span>
+                </div>
+                <p class="page-subtitle">Direct, cryptographically sealed client communications &middot; Audit trail
+                  logged &middot; Pivot Aide Tax</p>
+              </div>
+              <div class="page-actions-wrap" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <button type="button" class="btn sm" id="btn-sync-messages"
+                  style="background:#10B981;color:#FFFFFF;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;padding:7px 14px;border-radius:var(--radius-sm);"
+                  title="Live Backend Connected · Cloud Firestore (uk-client-d90d5)">Live Backend Connected</button>
+                <button type="button" class="btn sm btn-o" id="btn-refresh-msgs" title="Reload messages stream">
+                  <span>↻</span> Refresh
+                </button>
+                <a href="clients.html" class="btn sm btn-o">&larr; Clients &amp; Pipeline</a>
+                <a href="dashboard.html" class="btn sm btn-b">Operations Triage &rarr;</a>
+              </div>
+            </div>
+
+            <!-- Main Interactive Messages Container -->
+            <div id="messages-main-container">
+              <div class="msg-layout-grid">
+
+                <!-- Left Column: Client Channels -->
+                <div class="clients-channel-list">
+                  <div class="channel-list-header">
+                    <input type="text" id="channel-search-input" placeholder="Search client conversation..."
+                      style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.8rem;background:var(--surface);color:var(--ink)" />
+                  </div>
+                  <div class="channel-list-body" id="channel-list-body">
+                    <!-- Injected by FirmMessages.renderChannelList() -->
+                  </div>
+                </div>
+
+                <!-- Right Column: Conversation Thread -->
+                <div class="chat-thread-panel">
+                  <div class="thread-header">
+                    <div>
+                      <div style="font-weight:700;font-size:.92rem;color:var(--ink)" id="thread-client-name">Loading
+                        Client...</div>
+                      <div style="font-size:.72rem;color:var(--ink-2);font-family:var(--f-mono)" id="thread-client-uid">
+                        uid: -- &middot; Assigned: Denise R., CPA</div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center">
+                      <span class="chip ok sm" style="font-size:.68rem">WORM Sealed</span>
+                      <button type="button" class="btn xs btn-o" id="btn-clear-client-thread"
+                        style="color:var(--err);border-color:var(--err);font-size:.7rem"
+                        title="Clear local conversation cache for this client">Reset Thread</button>
+                    </div>
+                  </div>
+
+                  <div class="thread-messages-area" id="thread-messages-area">
+                    <!-- Injected messages -->
+                  </div>
+
+                  <div class="thread-input-row">
+                    <input type="text" id="firm-msg-input"
+                      placeholder="Type a secure practitioner message (IRC § 7216 protected)..."
+                      style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.85rem;background:var(--surface);color:var(--ink)" />
+                    <button type="button" class="btn btn-b" id="firm-msg-send-btn"
+                      style="display:inline-flex;align-items:center;gap:6px">
+                      <span>Send &rarr;</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card modal-wide" id="modal-container"></div>
+  </div>
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017_svg_icons"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // 1. Initialize Shared Layout
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.init === 'function') {
+        window.FileRoomLayout.init({
+          portal: 'firm',
+          activePage: 'messages',
+          breadcrumbs: [
+            { title: 'The File Room', href: 'index.html' },
+            { title: 'Firm Operations', href: 'dashboard.html' },
+            { title: 'Client Messages' }
+          ]
+        });
+      }
+
+      // HTML-escape for any untrusted text interpolated into innerHTML
+      function escapeHtml(str) {
+        return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+
+      // 2. Firm Messages Controller
+      var FirmMessages = {
+        clients: [
+          {
+            uid: 'WLvwIL2KC1h0yqo8XGTk88KzjNw1',
+            aliasUids: ['j11ZvNVZf7Q2FeTrCVNStRM8'],
+            name: 'Nandan .B',
+            email: 'nandanb449@gmail.com',
+            preparer: 'Denise R., CPA',
+            scope: 'TY2026 Form 1040 (Individual)',
+            unread: 0,
+            preview: 'Practice engagement file active...',
+            time: 'Today'
+          },
+          {
+            uid: 'usr_whitfield_4417',
+            name: 'Michael & Elena Whitfield',
+            email: 'm.whitfield@example.com',
+            preparer: 'Denise R., CPA',
+            scope: 'TY2026 Form 1040 (Joint)',
+            unread: 0,
+            preview: 'Individual return — federal Form 1040',
+            time: 'Yesterday'
+          },
+          {
+            uid: 'usr_okonjo_3120',
+            name: 'Ada Okonjo',
+            email: 'ada@okonjodesign.com',
+            preparer: 'Marcus Chen, EA',
+            scope: 'TY2026 Form 1040 + Sched C',
+            unread: 0,
+            preview: 'Square 1099-K sales reconciliation',
+            time: '2d ago'
+          },
+          {
+            uid: 'usr_vance_9011',
+            name: 'Vance Logistics Corp',
+            email: 'operations@vancelogistics.com',
+            preparer: 'Denise R., CPA',
+            scope: 'TY2026 Form 1120-S Corporate',
+            unread: 0,
+            preview: 'Corporate filing extension',
+            time: '3d ago'
+          },
+          {
+            uid: 'usr_brennan_llc',
+            name: 'Brennan Holdings LLC',
+            email: 'r.brennan@brennanholdings.com',
+            preparer: 'Denise R., CPA',
+            scope: 'TY2026 Form 1065 Partnership',
+            unread: 0,
+            preview: 'K-1 schedule state apportionment',
+            time: '4d ago'
+          },
+          {
+            uid: 'usr_jenkins_8819',
+            name: 'Sarah Jenkins',
+            email: 'sarah.jenkins@example.com',
+            preparer: 'Denise R., CPA',
+            scope: 'TY2026 Form 1040 (Individual)',
+            unread: 0,
+            preview: 'W-2 income documentation',
+            time: '5d ago'
+          }
+        ],
+
+        activeUid: 'WLvwIL2KC1h0yqo8XGTk88KzjNw1',
+        activeMessages: [],
+        unsubscribe: null,
+        messagesUnsub: null,
+
+        findClient(uid) {
+          if (!uid) return null;
+          return this.clients.find(function (c) {
+            return c.uid === uid || (Array.isArray(c.aliasUids) && c.aliasUids.includes(uid));
+          }) || null;
+        },
+
+        formatTime(iso) {
+          if (!iso) return 'Today';
+          try {
+            var d = new Date(iso);
+            if (isNaN(d.getTime())) return iso;
+            var now = new Date();
+            var isToday = d.toDateString() === now.toDateString();
+            var timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            if (isToday) return 'Today ' + timeStr;
+            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return d.getDate() + ' ' + months[d.getMonth()] + ' ' + timeStr;
+          } catch (_) {
+            return 'Today';
+          }
+        },
+
+        async init() {
+          console.log('[DEBUG-TEMP] init() started');
+          var self = this;
+          var bridge = window.FirebaseBridge;
+
+          // 1. Check URL query param for specific client selection
+          var urlParams = new URLSearchParams(window.location.search);
+          var queryUid = urlParams.get('client') || urlParams.get('uid');
+          if (queryUid) {
+            var matched = self.findClient(queryUid);
+            if (matched) self.activeUid = matched.uid;
+          }
+
+          // 2. Query practice backlog clients from bridge if available
+          if (bridge && typeof bridge.getFirmOperationsData === 'function') {
+            try {
+              console.log('[DEBUG-TEMP] init() reached step 2, calling getFirmOperationsData');
+              var ops = await bridge.getFirmOperationsData();
+              if (ops && Array.isArray(ops.clients)) {
+                ops.clients.forEach(function (oc) {
+                  var uid = oc.clientUid || oc.id;
+                  if (!self.findClient(uid)) {
+                    self.clients.push({
+                      uid: uid,
+                      name: oc.name || oc.clientName || 'Taxpayer Client',
+                      email: oc.email || '',
+                      preparer: oc.assignedPreparer || 'Denise R., CPA',
+                      scope: oc.filingType || 'Form 1040',
+                      unread: oc.unreadMsgs || 0,
+                      preview: 'Practice engagement file active...',
+                      time: 'Recent'
+                    });
+                  }
+                });
+              }
+
+              // 2b. Add roster rows for clients who have messaged but have no engagement yet
+              if (bridge && typeof bridge.getFirmOperationsData === 'function' && ops && Array.isArray(ops.clientMessages)) {
+                ops.clientMessages.forEach(function (cm) {
+                  var cid = cm.clientId;
+                  if (!cid || self.findClient(cid)) return;
+                  var isClientMsg = cm.lastSenderRole === 'client';
+                  self.clients.push({
+                    uid: cid,
+                    name: isClientMsg ? (cm.clientName || 'Unknown Client') : 'Unknown Client',
+                    email: '',
+                    preparer: 'Unassigned',
+                    scope: 'No active engagement',
+                    unread: cm.unreadCount || 0,
+                    preview: isClientMsg ? (cm.lastMessage || '') : '',
+                    time: 'Recent'
+                  });
+                });
+              }
+            } catch (opsErr) { console.error('[Messages] Failed to build roster from operations data:', opsErr); }
+          }
+
+          // 3. Live feed: previews, unread counts and message-only clients, kept current by one Firestore listener
+          if (typeof self.messagesUnsub === 'function') {
+            try { self.messagesUnsub(); } catch (_) { }
+            self.messagesUnsub = null;
+          }
+          if (bridge && typeof bridge.subscribeAllMessages === 'function') {
+            self.messagesUnsub = bridge.subscribeAllMessages(
+              function (threads) { self.onLiveThreads(threads); },
+              function (err) { self.showFeedError(err); }
+            );
+          } else {
+            self.showFeedError({ code: 'unavailable', message: 'Live message feed is not available.' });
+          }
+
+          self.renderChannelList();
+          await self.selectClient(self.activeUid);
+          if (!self._eventsBound) {
+            self._eventsBound = true;
+            self.bindEvents();
+            self.listenCrossTab();
+          }
+          if (!self._pageHideBound) {
+            self._pageHideBound = true;
+            window.addEventListener('pagehide', function () {
+              if (typeof self.messagesUnsub === 'function') self.messagesUnsub();
+            });
+          }
+        },
+
+        // Called on every snapshot of the live message feed (newest thread first)
+        onLiveThreads(threads) {
+          var self = this;
+          if (!Array.isArray(threads)) return;
+          self.clearFeedError();
+          var seen = {};
+          threads.forEach(function (t) {
+            var cid = t && t.clientId;
+            if (!cid) return;
+            var client = self.findClient(cid);
+            if (!client) {
+              client = {
+                uid: cid,
+                name: t.clientName || (t.lastSenderRole === 'client' ? t.latestSenderName : null) || 'Unknown Client',
+                email: '',
+                preparer: 'Unassigned',
+                scope: 'No active engagement',
+                unread: 0,
+                preview: '',
+                time: 'Recent'
+              };
+              self.clients.push(client);
+            }
+            // A client can have several uids (aliasUids): the first thread seen is the newest and sets preview/time,
+            // unread counts add up across the aliases.
+            if (!seen[client.uid]) {
+              seen[client.uid] = true;
+              client.unread = 0;
+              if (t.lastMessage) client.preview = String(t.lastMessage).slice(0, 50);
+              if (t.lastMessageAt) client.time = self.formatTime(t.lastMessageAt);
+            }
+            var isOpen = client.uid === self.activeUid || (client.aliasUids && client.aliasUids.includes(self.activeUid));
+            if (!isOpen) client.unread += (t.unreadCount || 0);
+          });
+          self.renderChannelList(document.getElementById('channel-search-input')?.value);
+        },
+
+        // A feed failure must be visible: banner above the roster, toast, and a console error
+        showFeedError(err) {
+          var code = (err && err.code) || 'unknown';
+          console.error('[Messages] Live message feed error:', code, (err && err.message) || err);
+          var list = document.getElementById('channel-list-body');
+          if (list && list.parentNode) {
+            var banner = document.getElementById('roster-feed-error');
+            if (!banner) {
+              banner = document.createElement('div');
+              banner.id = 'roster-feed-error';
+              banner.setAttribute('role', 'alert');
+              banner.style.cssText = 'padding:10px 14px;background:#b42318;color:#fff;font-size:.78rem;line-height:1.4;';
+              list.parentNode.insertBefore(banner, list);
+            }
+            banner.textContent = 'Live message feed unavailable (' + code + '). The client list may be out of date.';
+          }
+          if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+            window.FileRoomLayout.showToast('Live message feed error: ' + code, 'err');
+          }
+        },
+
+        clearFeedError() {
+          var banner = document.getElementById('roster-feed-error');
+          if (banner && banner.parentNode) banner.parentNode.removeChild(banner);
+        },
+
+        renderChannelList(filterText) {
+          var self = this;
+          var container = document.getElementById('channel-list-body');
+          if (!container) return;
+
+          filterText = (filterText || '').toLowerCase().trim();
+          var filtered = self.clients.filter(function (c) {
+            if (!filterText) return true;
+            return c.name.toLowerCase().includes(filterText) ||
+              c.email.toLowerCase().includes(filterText) ||
+              c.scope.toLowerCase().includes(filterText);
+          });
+
+          if (filtered.length === 0) {
+            container.innerHTML = '<div style="padding:24px;text-align:center;color:var(--ink-3);font-size:.8rem">No clients match search</div>';
+            return;
+          }
+
+          container.innerHTML = filtered.map(function (c) {
+            var isActive = c.uid === self.activeUid || (c.aliasUids && c.aliasUids.includes(self.activeUid));
+            var initials = c.name.split(' ').map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+            var unreadBadge = c.unread > 0 ? '<span class="channel-badge-unread">' + c.unread + '</span>' : '';
+            var previewText = c.preview || c.scope;
+
+            return [
+              '<div class="channel-item ' + (isActive ? 'active' : '') + '" data-uid="' + escapeHtml(c.uid) + '">',
+              '  <div class="channel-avatar">' + escapeHtml(initials) + '</div>',
+              '  <div class="channel-meta">',
+              '    <div class="channel-name">',
+              '      <span>' + escapeHtml(c.name) + '</span>',
+              '      <span class="channel-time">' + escapeHtml(c.time || 'Today') + '</span>',
+              '    </div>',
+              '    <div class="channel-preview" style="display:flex;justify-content:space-between;align-items:center;">',
+              '      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;">' + escapeHtml(previewText) + '</span>',
+              unreadBadge,
+              '    </div>',
+              '    <div style="font-size:.68rem;color:var(--ink-3);margin-top:2px">' + escapeHtml(c.email || c.uid) + '</div>',
+              '  </div>',
+              '</div>'
+            ].join('');
+          }).join('');
+
+          container.querySelectorAll('.channel-item').forEach(function (el) {
+            el.addEventListener('click', function () {
+              var uid = el.getAttribute('data-uid');
+              self.selectClient(uid);
+            });
+          });
+        },
+
+        async selectClient(uid) {
+          var self = this;
+          var client = self.findClient(uid) || self.clients[0];
+          self.activeUid = client.uid;
+
+          var nameEl = document.getElementById('thread-client-name');
+          var uidEl = document.getElementById('thread-client-uid');
+          if (nameEl) nameEl.textContent = client.name + ' (' + client.scope + ')';
+          if (uidEl) uidEl.textContent = 'UID: ' + client.uid + ' · Assigned: ' + client.preparer + (client.email ? ' · ' + client.email : '');
+
+          self.renderChannelList(document.getElementById('channel-search-input')?.value);
+
+          var threadArea = document.getElementById('thread-messages-area');
+          if (threadArea) {
+            threadArea.innerHTML = '<div style="text-align:center;padding:36px;color:var(--ink-3);font-size:.85rem">Loading secure IRC § 7216 messages...</div>';
+          }
+
+          // Unsubscribe previous subscription
+          if (typeof self.unsubscribe === 'function') {
+            try { self.unsubscribe(); } catch (_) { }
+            self.unsubscribe = null;
+          }
+
+          var bridge = window.FirebaseBridge;
+          if (bridge) {
+            try {
+              var res = await bridge.getMessages(client.uid);
+              if (res && Array.isArray(res.data)) {
+                self.activeMessages = res.data;
+                self.renderMessages(self.activeMessages, client);
+                if (res.data.length > 0) {
+                  var last = res.data[res.data.length - 1];
+                  client.preview = (last.text || last.content || client.preview).slice(0, 50);
+                  client.time = self.formatTime(last.createdAt || last._isoTime);
+                }
+              }
+            } catch (err) {
+              console.warn('Error loading messages for', client.uid, err);
+            }
+
+            // Real-time subscribe
+            if (typeof bridge.subscribeMessages === 'function') {
+              try {
+                self.unsubscribe = bridge.subscribeMessages(function (updatedList) {
+                  if (Array.isArray(updatedList)) {
+                    self.activeMessages = updatedList;
+                    self.renderMessages(self.activeMessages, client);
+                    if (updatedList.length > 0) {
+                      var last = updatedList[updatedList.length - 1];
+                      client.preview = (last.text || last.content || client.preview).slice(0, 50);
+                      client.time = self.formatTime(last.createdAt || last._isoTime);
+                      self.renderChannelList(document.getElementById('channel-search-input')?.value);
+                    }
+                  }
+                }, null, 'eng_2026_' + client.uid, client.uid);
+              } catch (_) { }
+            }
+
+            // Mark unread messages as read by firm
+            if (typeof bridge.markMessagesAsRead === 'function' && Array.isArray(self.activeMessages)) {
+              var unreadIds = self.activeMessages
+                .filter(function (m) {
+                  var isClientMsg = m.senderRole === 'client' || m.senderId === client.uid || (client.aliasUids && client.aliasUids.includes(m.senderId));
+                  return isClientMsg && !m.readByFirm;
+                })
+                .map(function (m) { return m.id || m.messageId; })
+                .filter(Boolean);
+
+              if (unreadIds.length > 0) {
+                bridge.markMessagesAsRead(unreadIds, 'firm').catch(function () { });
+                client.unread = 0;
+                self.renderChannelList(document.getElementById('channel-search-input')?.value);
+              }
+            }
+          }
+        },
+
+        renderMessages(messages, client) {
+          var container = document.getElementById('thread-messages-area');
+          if (!container) return;
+          var curClient = client || this.findClient(this.activeUid) || this.clients[0];
+
+          if (!messages || messages.length === 0) {
+            container.innerHTML = [
+              '<div style="text-align:center;padding:60px 20px;color:var(--ink-2);font-size:.88rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">',
+              '  <div style="font-size:2.4rem;line-height:1">✉</div>',
+              '  <div style="font-weight:600;color:var(--ink);font-size:1.05rem">Secure IRC § 7216 Messaging Channel</div>',
+              '  <div style="max-width:440px;line-height:1.5">No messages in this client file yet. All exchanges in this channel are encrypted at rest and committed to the statutory audit ledger.</div>',
+              '</div>'
+            ].join('');
+            return;
+          }
+
+          var self = this;
+          var html = messages.map(function (m) {
+            var isFirm = m.senderRole === 'firm_staff' || m.senderRole === 'firm_preparer' ||
+              m.senderRole === 'firm_admin' || m.senderRole === 'preparer' ||
+              m.senderRole === 'staff' || m.senderRole === 'assistant' ||
+              m.isStaff || m.senderId === 'staff_denise_cpa' ||
+              (m.avatar === 'DR' || m.avatar === 'PAT');
+
+            var senderTitle = isFirm
+              ? (m.senderName || 'Denise R., CPA')
+              : (m.senderName || curClient.name || 'Client');
+
+            var timeStr = self.formatTime(m.createdAt || m._isoTime);
+            var safeText = (m.text || m.content || '')
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;');
+
+            return [
+              '<div class="msg-bubble-wrap ' + (isFirm ? 'firm' : 'client') + '">',
+              '  <div class="msg-bubble">' + safeText + '</div>',
+              '  <div class="msg-info">',
+              '    <b>' + escapeHtml(senderTitle) + '</b> &middot; ' + escapeHtml(timeStr),
+              isFirm ? ' &middot; <span style="color:var(--ok)">✓ Sent</span>' : '',
+              '  </div>',
+              '</div>'
+            ].join('');
+          }).join('');
+
+          container.innerHTML = html;
+          container.scrollTop = container.scrollHeight;
+        },
+
+        async sendMessage() {
+          var input = document.getElementById('firm-msg-input');
+          if (!input) return;
+          var text = input.value.trim();
+          if (!text) return;
+
+          input.value = '';
+          var bridge = window.FirebaseBridge;
+          var client = this.findClient(this.activeUid) || this.clients[0];
+
+          var practitionerName = (bridge && typeof bridge.getPractitionerName === 'function')
+            ? bridge.getPractitionerName()
+            : 'Denise R., CPA (Lead Practitioner)';
+
+          var msgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+          var nowIso = new Date().toISOString();
+          var msgObj = {
+            id: msgId,
+            messageId: msgId,
+            clientId: client.uid,
+            clientUid: client.uid,
+            uid: client.uid,
+            text: text,
+            senderName: practitionerName,
+            senderRole: 'firm_staff',
+            isStaff: true,
+            avatar: 'DR',
+            engagementId: 'eng_2026_' + client.uid,
+            createdAt: nowIso
+          };
+
+          // Optimistic instant render
+          this.activeMessages.push(msgObj);
+          this.renderMessages(this.activeMessages, client);
+
+          // Update channel list preview
+          var prevPreview = client.preview, prevTime = client.time;
+          client.preview = text.slice(0, 50);
+          client.time = 'Just now';
+          this.renderChannelList(document.getElementById('channel-search-input')?.value);
+
+          var sendFailed = false, sendFailMsg = '';
+          if (bridge && typeof bridge.sendMessage === 'function') {
+            try {
+              var sendRes = await bridge.sendMessage(text, msgObj);
+              if (sendRes && sendRes.success === false) {
+                sendFailed = true;
+                sendFailMsg = sendRes.permissionDenied ? 'Permission denied: this account is not authorized to message clients.' : (sendRes.error || 'The message could not be saved.');
+              }
+            } catch (err) {
+              console.warn('Error transmitting message:', err);
+              sendFailed = true;
+              sendFailMsg = (err && err.message) || 'The message could not be sent.';
+            }
+          } else {
+            sendFailed = true;
+            sendFailMsg = 'Messaging service is not available.';
+          }
+
+          if (sendFailed) {
+            var failedIdx = this.activeMessages.indexOf(msgObj);
+            if (failedIdx !== -1) this.activeMessages.splice(failedIdx, 1);
+            this.renderMessages(this.activeMessages, client);
+            client.preview = prevPreview;
+            client.time = prevTime;
+            this.renderChannelList(document.getElementById('channel-search-input')?.value);
+            input.value = text;
+            if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+              window.FileRoomLayout.showToast('Message NOT sent: ' + sendFailMsg, 'err');
+            }
+            return;
+          }
+          if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+            window.FileRoomLayout.showToast('✓ Message transmitted to ' + client.name, 'ok');
+          }
+        },
+
+        bindEvents() {
+          var self = this;
+          var sendBtn = document.getElementById('firm-msg-send-btn');
+          var input = document.getElementById('firm-msg-input');
+
+          if (sendBtn) {
+            sendBtn.addEventListener('click', function () {
+              self.sendMessage();
+            });
+          }
+
+          if (input) {
+            input.addEventListener('keydown', function (e) {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                self.sendMessage();
+              }
+            });
+          }
+
+          var searchInput = document.getElementById('channel-search-input');
+          if (searchInput) {
+            searchInput.addEventListener('input', function () {
+              self.renderChannelList(this.value);
+            });
+          }
+
+          var btnRefresh = document.getElementById('btn-refresh-msgs');
+          if (btnRefresh) {
+            btnRefresh.addEventListener('click', function () {
+              self.selectClient(self.activeUid);
+            });
+          }
+
+          var btnClear = document.getElementById('btn-clear-client-thread');
+          if (btnClear) {
+            btnClear.addEventListener('click', function () {
+              var client = self.findClient(self.activeUid) || self.clients[0];
+              try {
+                localStorage.removeItem('tfr_local_messages_' + client.uid);
+                if (client.aliasUids) {
+                  client.aliasUids.forEach(function (au) {
+                    localStorage.removeItem('tfr_local_messages_' + au);
+                  });
+                }
+                localStorage.setItem('tfr_messages_cleared_' + client.uid, 'true');
+              } catch (_) { }
+              self.activeMessages = [];
+              self.renderMessages([], client);
+              client.preview = 'Thread cleared';
+              self.renderChannelList(document.getElementById('channel-search-input')?.value);
+              if (window.FileRoomLayout) {
+                window.FileRoomLayout.showToast('Client conversation thread cleared locally.', 'info');
+              }
+            });
+          }
+        },
+
+        listenCrossTab() {
+          var self = this;
+          var handleIncoming = function (detail) {
+            if (!detail) return;
+            var cId = detail.clientId || (detail.data && detail.data.clientId);
+            if (!cId) return;
+
+            var client = self.findClient(cId);
+            if (client) {
+              var txt = (detail.data && detail.data.text) || detail.text || '';
+              if (txt) {
+                client.preview = txt.slice(0, 50);
+                client.time = 'Just now';
+              }
+              var isCurrent = client.uid === self.activeUid || (client.aliasUids && client.aliasUids.includes(self.activeUid));
+              if (isCurrent) {
+                self.selectClient(self.activeUid);
+              } else {
+                client.unread = (client.unread || 0) + 1;
+                self.renderChannelList(document.getElementById('channel-search-input')?.value);
+              }
+            }
+          };
+
+          try {
+            if (typeof BroadcastChannel !== 'undefined') {
+              var bc = new BroadcastChannel('tfr_messages_sync');
+              bc.onmessage = function (ev) {
+                handleIncoming(ev && ev.data);
+              };
+            }
+          } catch (_) { }
+
+          window.addEventListener('tfr:message_sent', function (ev) {
+            handleIncoming(ev && ev.detail);
+          });
+          window.addEventListener('tfr:message_received', function (ev) {
+            handleIncoming(ev && ev.detail);
+          });
+        }
+      };
+
+      // Backend Sync Button: forces a fresh read + seed re-attach
+      var btnSync = document.getElementById('btn-sync-messages');
+      if (btnSync) {
+        btnSync.addEventListener('click', async function () {
+          btnSync.disabled = true;
+          btnSync.innerHTML = '<span>↻</span> Connecting Firebase...';
+          var bridge = window.FirebaseBridge;
+          if (bridge) {
+            try {
+              if (typeof bridge.populatePracticeBacklog === 'function') {
+                bridge.populatePracticeBacklog();
+              }
+              if (typeof bridge.seedFirmPracticeData === 'function') {
+                await bridge.seedFirmPracticeData(true);
+              }
+              await FirmMessages.init();
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('✓ Connected to backend Firebase (uk-client-d90d5) · Messages Synchronized', 'ok');
+              }
+            } catch (err) {
+              console.warn('Sync error:', err);
+            } finally {
+              btnSync.disabled = false;
+              btnSync.innerHTML = 'Live Backend Connected';
+            }
+          }
+        });
+      }
+
+      var started = false;
+      function initMessagesApp() {
+        if (started) return;
+        started = true;
+        FirmMessages.init();
+      }
+
+      if (window.FirebaseBridge) {
+        initMessagesApp();
+      } else {
+        var retries = 0;
+        var timer = setInterval(function () {
+          retries++;
+          if (window.FirebaseBridge || retries >= 25) {
+            clearInterval(timer);
+            initMessagesApp();
+          }
+        }, 100);
+        window.addEventListener('firebase-bridge-ready', function () { clearInterval(timer); initMessagesApp(); }, { once: true });
+        window.addEventListener('firebase-ready', function () { clearInterval(timer); initMessagesApp(); }, { once: true });
+      }
+    });
+  </script>
+</body>
+
+</html>

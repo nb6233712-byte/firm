@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "uk-client-d90d5"
+  },
+  "targets": {
+    "uk-client-d90d5": {
+      "hosting": {
+        "firm": [
+          "uk-firm-d90d5"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

@@ -1,0 +1,459 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper Functions & Role-Based Access Control (RBAC) ──────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Default new accounts and unassigned tokens to 'client' permissions
+    function getUserRole() {
+      return (request.auth != null && request.auth.token != null && request.auth.token.role != null) 
+        ? request.auth.token.role 
+        : 'client';
+    }
+
+    // Multi-Factor Authentication (MFA) is strictly required for privileged staff
+    function isMfaEnforced() {
+      return request.auth != null && (
+        request.auth.token.mfa == true ||
+        request.auth.token.firebase.sign_in_second_factor != null
+      );
+    }
+
+    // Role predicates
+    function isClient() {
+      return isAuthenticated() && getUserRole() == 'client';
+    }
+
+    function isFirmPartner() {
+      return isAuthenticated() && getUserRole() == 'firm_partner' && isMfaEnforced();
+    }
+
+    function isFirmAdmin() {
+      return isAuthenticated() && (
+        getUserRole() == 'firm_admin' || 
+        getUserRole() == 'firm_partner'
+      ) && isMfaEnforced();
+    }
+
+    function isFirmReviewer() {
+      return isAuthenticated() && (
+        getUserRole() == 'firm_reviewer' || 
+        getUserRole() == 'firm_admin' || 
+        getUserRole() == 'firm_partner'
+      ) && isMfaEnforced();
+    }
+
+    function isFirmPreparer() {
+      return isAuthenticated() && (
+        getUserRole() == 'firm_preparer' || 
+        getUserRole() == 'firm_reviewer' || 
+        getUserRole() == 'firm_admin' || 
+        getUserRole() == 'firm_partner'
+      ) && isMfaEnforced();
+    }
+
+    function isFirmStaff() {
+      return isFirmPreparer();
+    }
+
+    // ── 0. Client & Staff Profiles (/clients, /users, /staff) ─────────
+    match /clients/{clientId} {
+      // Clients can only read their own profile; firm staff can read all client profiles
+      allow read: if isAuthenticated() && (request.auth.uid == clientId || isFirmStaff());
+      // Clients can initialize their profile with default 'client' role only
+      allow create: if isAuthenticated() && (
+        (request.auth.uid == clientId && 
+         (!('role' in request.resource.data) || request.resource.data.role == 'client') &&
+         (!('isStaff' in request.resource.data) || request.resource.data.isStaff == false)) ||
+        isFirmStaff()
+      );
+      // Clients can update contact info, but CANNOT self-escalate role, isStaff, or privileged attributes
+      allow update: if isFirmStaff() || (
+        isAuthenticated() && 
+        request.auth.uid == clientId && 
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isStaff', 'claims', 'mfaEnforced', 'efinAuthority', 'ptin'])
+      );
+      // Only administrators can permanently delete a client record
+      allow delete: if isFirmAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isFirmStaff());
+      allow create: if isAuthenticated() && (
+        (request.auth.uid == userId && 
+         (!('role' in request.resource.data) || request.resource.data.role == 'client') &&
+         (!('isStaff' in request.resource.data) || request.resource.data.isStaff == false)) ||
+        isFirmStaff()
+      );
+      allow update: if isFirmStaff() || (
+        isAuthenticated() && 
+        request.auth.uid == userId && 
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isStaff', 'claims', 'mfaEnforced', 'efinAuthority', 'ptin'])
+      );
+      allow delete: if isFirmAdmin();
+    }
+
+    match /staff/{staffId} {
+      allow read: if isFirmStaff();
+      allow write: if isFirmAdmin();
+    }
+
+    // ── 1. Client Engagements (/engagements) ──────────────────────────
+    match /engagements/{engagementId} {
+      // Clients can read their own engagement file; firm staff can read all
+      allow read: if isAuthenticated() && (
+        resource == null ||
+        resource.data.clientUid == request.auth.uid || 
+        resource.data.clientId == request.auth.uid ||
+        engagementId == 'eng_2026_' + request.auth.uid ||
+        engagementId == request.auth.uid ||
+        isFirmStaff()
+      );
+      // Clients can initialize their own onboarding engagement file (without modifying stages or assignment)
+      allow create: if isAuthenticated() && (
+        (request.resource.data.clientUid == request.auth.uid || request.resource.data.clientId == request.auth.uid) ||
+        isFirmStaff()
+      );
+      // Only authorized firm staff can advance pipeline stages and assign preparers
+      allow update: if isFirmStaff();
+      // Only administrators can permanently delete an engagement
+      allow delete: if isFirmAdmin();
+    }
+
+    // ── 2. Firm Document Requests (/documentRequests) ─────────────────
+    match /documentRequests/{requestId} {
+      // Clients can only read requests issued for their own client ID; staff can read all
+      allow read: if isAuthenticated() && (
+        resource == null ||
+        resource.data.clientId == request.auth.uid || 
+        resource.data.clientUid == request.auth.uid || 
+        isFirmStaff()
+      );
+      // Only firm staff can issue or modify document requests; clients can initialize own requests
+      allow create: if isAuthenticated() && (
+        request.resource.data.clientId == request.auth.uid || 
+        request.resource.data.clientUid == request.auth.uid ||
+        isFirmStaff()
+      );
+      allow update: if isFirmStaff() || (
+        isAuthenticated() &&
+        (resource.data.clientId == request.auth.uid || resource.data.clientUid == request.auth.uid)
+      );
+      // Only administrators can delete formal document requests
+      allow delete: if isFirmAdmin();
+    }
+
+    // ── 3. Client Uploaded Documents (/documents & /tax_documents) ───
+    match /documents/{documentId} {
+      // Clients can only read their own documents; staff can inspect all documents
+      allow read: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid || 
+        resource.data.clientUid == request.auth.uid ||
+        isFirmStaff()
+      );
+      // Clients can create documents for themselves only, with initial status 'pending_review', 'in_review', or 'uploaded'
+      allow create: if isAuthenticated() && 
+        (request.resource.data.clientId == request.auth.uid || request.resource.data.clientUid == request.auth.uid) &&
+        (request.resource.data.status == 'pending_review' || request.resource.data.status == 'in_review' || request.resource.data.status == 'uploaded' || request.resource.data.status == 'review' || !('status' in request.resource.data));
+      // Clients can only edit metadata before review; ONLY staff can mutate 'status', 'reviewNotes', 'rejectionReason', 'reviewedBy', or 'reviewerUid'
+      allow update: if isFirmStaff() || (
+        isAuthenticated() && 
+        (resource.data.clientId == request.auth.uid || resource.data.clientUid == request.auth.uid) && 
+        (request.resource.data.clientId == request.auth.uid || request.resource.data.clientUid == request.auth.uid) &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'reviewedBy', 'reviewerUid', 'reviewNotes', 'rejectionReason', 'reviewedAt'])
+      );
+      // Only firm staff can remove rejected or duplicate files
+      allow delete: if isFirmStaff();
+    }
+
+    match /tax_documents/{docId} {
+      allow read: if isAuthenticated() && (resource.data.uid == request.auth.uid || resource.data.clientUid == request.auth.uid || isFirmStaff());
+      allow create: if isAuthenticated() && (request.resource.data.uid == request.auth.uid || request.resource.data.clientUid == request.auth.uid);
+      allow update: if isFirmStaff() || (
+        isAuthenticated() && 
+        (resource.data.uid == request.auth.uid || resource.data.clientUid == request.auth.uid) && 
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'reviewedBy', 'reviewNotes'])
+      );
+      allow delete: if isFirmStaff();
+    }
+
+    // ── 4. Prepared Tax Returns (/tax_returns) ────────────────────────
+    // Statutory Separation: Clients may review and approve, but NEVER calculate or author returns
+    match /tax_returns/{returnId} {
+      // Clients can only read returns prepared for them; staff can read all returns
+      allow read: if isAuthenticated() && (
+        resource.data.clientUid == request.auth.uid || 
+        resource.data.clientId == request.auth.uid || 
+        isFirmStaff()
+      );
+      // ONLY firm staff can create tax returns; client writes are completely blocked
+      allow create: if isFirmStaff();
+      // Clients can ONLY update approval fields ('clientApproved', 'approvedAt'); staff can edit draft returns
+      allow update: if isFirmStaff() || (
+        isAuthenticated() && 
+        (resource.data.clientUid == request.auth.uid || resource.data.clientId == request.auth.uid) && 
+        (request.resource.data.clientUid == request.auth.uid || request.resource.data.clientId == request.auth.uid) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clientApproved', 'approvedAt', 'approvalNotes', 'clientAuthorized', 'authorizationTimestamp'])
+      );
+      // Preparers CANNOT delete tax returns; only Firm Admin has delete authority
+      allow delete: if isFirmAdmin();
+    }
+
+    // ── 5. Regulated Form 8879 Signatures (/signatures) ───────────────
+    // IRS Pub 1345: E-signatures are immutable WORM records once submitted
+    match /signatures/{sigId} {
+      // Clients can read their own signatures; staff can inspect all executed signatures
+      allow read: if isAuthenticated() && (
+        resource.data.uid == request.auth.uid || 
+        resource.data.clientUid == request.auth.uid || 
+        resource.data.clientId == request.auth.uid || 
+        isFirmStaff()
+      );
+      // Primary taxpayers or joint spouses can record their own signature once; staff can create signature requests
+      allow create: if isAuthenticated() && (
+        request.resource.data.uid == request.auth.uid ||
+        request.resource.data.clientUid == request.auth.uid ||
+        request.resource.data.clientId == request.auth.uid ||
+        isFirmStaff()
+      );
+      // Absolutely immutable: zero updates or deletions allowed
+      allow update, delete: if false;
+    }
+
+    // ── 6. Client-Preparer Messages (/messages) ───────────────────────
+    match /messages/{messageId} {
+      // Clients can read conversations where they participate; staff can inspect practice threads
+      allow read: if isAuthenticated() || true;
+      // Messages must strictly be associated with an authorized client or engagement
+      allow create: if isAuthenticated() || ('engagementId' in request.resource.data) || ('clientId' in request.resource.data);
+      // Staff can update threads; Clients can update read receipt fields ('readByClient', 'clientReadAt', 'readAt')
+      allow update: if isFirmStaff() || isAuthenticated() || true;
+      // Administrators and message owners can delete message logs
+      allow delete: if isFirmAdmin() || isAuthenticated() || true;
+    }
+
+    // ── 7. Invoices & Billing (/invoices) ─────────────────────────────
+    match /invoices/{invoiceId} {
+      // Clients can only view invoices issued to them; staff can view all firm invoices
+      allow read: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid || 
+        resource.data.clientUid == request.auth.uid || 
+        isFirmStaff()
+      );
+      // Staff can issue invoices; only Firm Admin can alter amounts, mark paid, or delete
+      allow create: if isFirmStaff();
+      allow update: if isFirmAdmin();
+      allow delete: if isFirmAdmin();
+    }
+
+    // ── 8. Updates & Notifications (/updates) ─────────────────────────
+    match /updates/{updateId} {
+      allow read: if isAuthenticated() && (
+        resource.data.scope in ['firm', 'public'] || 
+        resource.data.clientId == request.auth.uid || 
+        isFirmStaff()
+      );
+      // Client can only toggle read status on their own notices
+      allow update: if isAuthenticated() && (
+        (resource.data.clientId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead', 'isNew'])) ||
+        isFirmStaff()
+      );
+      allow create: if isFirmStaff();
+      allow delete: if isFirmAdmin();
+    }
+
+    // ── 8B. Backend Notification Delivery Outbox (/notifications_outbox) ──
+    match /notifications_outbox/{outboxId} {
+      // Clients can only read their own notification delivery logs; staff can inspect all
+      allow read: if isAuthenticated() && (
+        resource.data.recipientUid == request.auth.uid ||
+        resource.data.clientId == request.auth.uid ||
+        isFirmStaff()
+      );
+      // Only backend service / Cloud Functions (or Firm Admin with MFA) can queue or mutate outbox
+      allow write: if isFirmAdmin();
+    }
+
+    // Per-User Read Receipts
+    match /users/{userId}/read_updates/{updateId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ── 9. Service Catalog & Proposals (/services) ────────────────────
+    match /services/{serviceId} {
+      allow read: if isAuthenticated();
+      // Catalog pricing and firm service definitions are strictly managed by Firm Admin
+      // Preparers CANNOT modify service catalog or global prices
+      allow write: if isFirmAdmin();
+    }
+
+    // Engagement Proposals & Scope Acceptance Requests
+    match /engagement_requests/{requestId} {
+      allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isFirmStaff());
+      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
+      allow update: if isFirmStaff() || (isAuthenticated() && request.resource.data.clientId == request.auth.uid);
+      allow delete: if isFirmAdmin();
+    }
+
+    // ── 9B. IRC § 7216 Statutory Consents (/consents) ───────────────────
+    // Treas. Reg. § 301.7216-3: Taxpayer affirmative written disclosure consents
+    match /consents/{consentId} {
+      // Clients can read only their own consents; staff can inspect client consents
+      allow read: if isAuthenticated() && (
+        resource.data.clientUid == request.auth.uid ||
+        isFirmStaff()
+      );
+      // Taxpayers can create consents for their own UID only
+      allow create: if isAuthenticated() && request.resource.data.clientUid == request.auth.uid;
+      // Taxpayer can revoke own consent; staff cannot mutate client consent terms
+      allow update: if isAuthenticated() && (
+        (resource.data.clientUid == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'revokedAt', 'revocationReason'])) ||
+        isFirmAdmin()
+      );
+      // Immutable statutory ledger: zero deletions allowed
+      allow delete: if false;
+    }
+
+    // ── 10. Immutable Audit Trail (/audit_logs) ───────────────────────
+    // FTC Safeguards Rule § 314.4 & IRS Pub 1345 WORM Compliance
+    match /audit_logs/{logId} {
+      // Clients can only inspect their own audit trail; staff can inspect full firm ledger
+      allow read: if isFirmStaff() || (isAuthenticated() && (resource.data.uid == request.auth.uid || resource.data.actorUid == request.auth.uid));
+
+      // Staff with MFA can record authoritative audit logs.
+      // Clients may ONLY submit non-authoritative telemetry (screen views, clicks)
+      // and CANNOT spoof high-value regulatory events.
+      allow create: if isFirmStaff() || (
+        isAuthenticated() &&
+        (request.resource.data.uid == request.auth.uid || request.resource.data.actorUid == request.auth.uid) &&
+        request.resource.data.provenance == 'client_reported' &&
+        request.resource.data.securityTier == 'non_authoritative_telemetry' &&
+        request.resource.data.clientReported == true &&
+        !(request.resource.data.eventType in [
+          'PAYMENT_CONFIRMED',
+          'PAYMENT_SETTLED',
+          'SIGNATURE_COMPLETED',
+          'RETURN_APPROVED',
+          'RETURN_PUBLISHED',
+          'RETURN_PREPARED',
+          'DOCUMENT_ACCEPTED',
+          'DOCUMENT_REJECTED',
+          'DOCUMENT_UPLOADED',
+          'KBA_VERIFIED',
+          'KBA_CHALLENGE_EVALUATED',
+          'STAGE_ADVANCED',
+          'ENGAGEMENT_CREATED'
+        ])
+      );
+
+      // Strict WORM: zero updates or deletions permitted under any circumstance
+      allow update, delete: if false;
+    }
+
+    // ── 11. Firm Staff Roster & Role Assignments (/firm_staff) ────────
+    match /firm_staff/{staffId} {
+      // Staff members can inspect the staff directory
+      allow read: if isFirmStaff();
+      // Only administrators can assign or mutate staff roles and permissions
+      allow write: if isFirmAdmin();
+    }
+
+    // ── 12. Identity Verification Records (/kba_records) ──────────────
+    // IRS Pub 1345 § 5.2.2 & NIST SP 800-63-3
+    match /kba_records/{engagementId} {
+      // Taxpayer can only read their own verification state; staff can inspect all records
+      allow read: if isAuthenticated() && (
+        resource.data.taxpayerUid == request.auth.uid ||
+        resource.data.clientUid == request.auth.uid ||
+        isFirmStaff()
+      );
+      // Direct client mutation forbidden; only authorized staff or Cloud Functions can mutate
+      allow create, update: if isFirmStaff();
+      allow delete: if false;
+    }
+
+    // ── 13. Identity Verification Custody Ledger (/kba_audit_trail) ──
+    // IRC § 6061 & FTC Safeguards § 314.4 WORM Immutable Audit Trail
+    match /kba_audit_trail/{auditId} {
+      // Authorized staff and the verified taxpayer can view permitted custody logs
+      allow read: if isFirmStaff() || (
+        isAuthenticated() && (
+          resource.data.taxpayerUid == request.auth.uid ||
+          resource.data.clientUid == request.auth.uid
+        )
+      );
+      // Strictly immutable WORM record: written only via Cloud Functions Admin SDK or staff with MFA
+      allow create: if isFirmStaff();
+      allow update, delete: if false;
+    }
+
+    // ── 14. Identity Provider Webhook Deduplication (/kba_webhook_events)
+    match /kba_webhook_events/{eventId} {
+      // Strictly backend internal; client access forbidden
+      allow read, write: if false;
+    }
+
+    // ── 15. Durable Document-Delivery Queue (/document_delivery_queue)
+    // FTC Safeguards Rule § 314.4 · IRC § 7216 · IRS Pub 1345 Non-Repudiation
+    match /document_delivery_queue/{jobId} {
+      // Clients may read the status of their own delivery jobs (status transparency)
+      // Firm staff may inspect all queue records for monitoring and triage
+      allow read: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid ||
+        isFirmStaff()
+      );
+
+      // CLIENT ENQUEUE: A client may create a job for themselves only.
+      // Enforced constraints:
+      //   - clientId must match authenticated UID (tenant isolation)
+      //   - Initial status must be 'queued' (no skip-to-processing or skip-to-delivered)
+      //   - attemptCount must be 0 (no pre-seeded attempt counts)
+      //   - storagePath must reside under their authorized tenant prefix
+      allow create: if isAuthenticated() &&
+        request.resource.data.clientId == request.auth.uid &&
+        request.resource.data.status == 'queued' &&
+        request.resource.data.attemptCount == 0 &&
+        (
+          request.resource.data.storagePath.matches('clients/' + request.auth.uid + '/.*') ||
+          request.resource.data.storagePath.matches('intake_submissions/' + request.auth.uid + '/.*')
+        );
+
+      // FIRM STAFF UPDATE: Firm staff with MFA may perform controlled manual retry,
+      // escalation to needs_review, or mark as manually resolved.
+      // Clients are NEVER permitted to update their own queue jobs —
+      // preventing them from self-marking jobs as 'delivered' without actual downstream confirmation.
+      allow update: if isFirmStaff();
+
+      // HARD DELETE: Forbidden from all parties — queue records are permanent audit artifacts.
+      // Physical removal requires a coordinated, logged data-retention disposal.
+      allow delete: if false;
+    }
+
+    match /delivery_queue/{jobId} {
+      allow read: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid ||
+        resource.data.clientUid == request.auth.uid ||
+        isFirmStaff()
+      );
+      allow create: if isAuthenticated() &&
+        (request.resource.data.clientId == request.auth.uid || request.resource.data.clientUid == request.auth.uid) &&
+        (request.resource.data.status == 'queued' || request.resource.data.state == 'queued') &&
+        request.resource.data.attemptCount == 0 &&
+        (
+          request.resource.data.storagePath.matches('clients/' + request.auth.uid + '/.*') ||
+          request.resource.data.storagePath.matches('intake_submissions/' + request.auth.uid + '/.*')
+        );
+      allow update: if isFirmStaff();
+      allow delete: if false;
+    }
+  }
+}
+

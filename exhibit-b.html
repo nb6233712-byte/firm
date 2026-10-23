@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Exhibit B: System Architecture — Firm Operations — The File Room</title>
+  <meta name="description" content="Technical architecture, data schemas, security boundaries, and trust matrix — The File Room by Pivot Aide Tax.">
+
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+</head>
+
+<body>
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <div class="app" id="app">
+        <header class="appbar"></header>
+
+        <div class="workspace">
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+          <aside class="side" id="side" aria-label="Firm Operations Navigation"></aside>
+
+          <main class="body" id="body">
+            <div id="page-breadcrumbs"></div>
+
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <h1>Exhibit B: System Architecture &amp; Schemas</h1>
+                <p class="page-subtitle">Security boundaries, Firebase schemas, Cloud Functions endpoints, and trust zones</p>
+              </div>
+              <div class="page-actions-wrap">
+                <a href="dashboard.html" class="btn sm btn-o">&larr; Operations Triage</a>
+              </div>
+            </div>
+
+            <div class="card p-lg mb-lg" style="background:var(--surface);">
+              <div style="display:flex;flex-direction:column;gap:18px;font-size:.85rem;line-height:1.55;">
+                <div style="padding:14px 18px;background:var(--surface-2);border-left:4px solid var(--brand);border-radius:6px;">
+                  <h3 style="font-family:var(--f-display);margin:0 0 6px 0;font-size:1.05rem;">1. Cloud Firestore Database Schemas (11 Collections)</h3>
+                  <p style="margin:0;color:var(--ink-2);">
+                    <code>/engagements</code>, <code>/documentRequests</code>, <code>/documents</code>, <code>/tax_documents</code>, <code>/tax_returns</code>, <code>/signatures</code>, <code>/messages</code>, <code>/invoices</code>, <code>/updates</code>, <code>/consents</code>, <code>/audit_logs</code>, and <code>/firm_staff</code>. Cross-tenant access strictly blocked via resource.clientUid checks in firestore.rules.
+                  </p>
+                </div>
+
+                <div style="padding:14px 18px;background:var(--surface-2);border-left:4px solid var(--gold);border-radius:6px;">
+                  <h3 style="font-family:var(--f-display);margin:0 0 6px 0;font-size:1.05rem;">2. Cloud Storage Vault Hierarchy</h3>
+                  <p style="margin:0;color:var(--ink-2);">
+                    Client documents stored at <code>clients/{userId}/tax-years/{taxYear}/documents/{documentId}</code> with 25MB ceiling and MIME restriction. Prepared returns stored at <code>clients/{userId}/returns/{returnFileId}</code>, writable exclusively by authorized practitioners.
+                  </p>
+                </div>
+
+                <div style="padding:14px 18px;background:var(--surface-2);border-left:4px solid var(--ok);border-radius:6px;">
+                  <h3 style="font-family:var(--f-display);margin:0 0 6px 0;font-size:1.05rem;">3. Trusted Cloud Functions Endpoints</h3>
+                  <p style="margin:0;color:var(--ink-2);">
+                    Document acceptance/rejection (<code>documentReviewHandler</code>), return publication (<code>publishPreparedReturnHandler</code>), role management (<code>provisionStaffRoleHandler</code>), and payment webhook processing (<code>paymentWebhookHandler</code>) enforce non-bypassable backend validation.
+                  </p>
+                </div>
+
+                <div style="padding:14px 18px;background:var(--surface-2);border-left:4px solid var(--warn);border-radius:6px;">
+                  <h3 style="font-family:var(--f-display);margin:0 0 6px 0;font-size:1.05rem;">4. Zero-Trust Identity &amp; ERO Gateways</h3>
+                  <p style="margin:0;color:var(--ink-2);">
+                    Electronic Return Originator (ERO) compliance boundaries, multi-layered session validation, cryptographic signature tamper seals, and strict segregation between untrusted taxpayer client views and authorized firm console operations.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card modal-wide" id="modal-container"></div>
+  </div>
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017_svg_icons"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.FileRoomLayout && typeof window.FileRoomLayout.init === 'function') {
+        window.FileRoomLayout.init({
+          portal: 'firm',
+          activePage: 'exhibit-b',
+          breadcrumbs: [
+            { title: 'The File Room', href: 'index.html' },
+            { title: 'Firm Operations', href: 'dashboard.html' },
+            { title: 'Exhibit B: Architecture' }
+          ]
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Document Intake &amp; Exception Review — Firm Operations — The File Room</title>
+  <meta name="description" content="Practitioner document intake queue, bounded retries, vault custody status, exception management, and Circular 230 § 10.22 review — The File Room by Pivot Aide Tax.">
+
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='22 4 156 172'%3E%3Cellipse cx='100' cy='88' rx='69' ry='67' fill='%231D3D51'/%3E%3Cellipse cx='100' cy='90' rx='59' ry='55' fill='%232C5169'/%3E%3Ccircle cx='73' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='127' cy='90' r='26' fill='%23F2F8FC'/%3E%3Ccircle cx='73' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='127' cy='90' r='16' fill='%23019FFF'/%3E%3Ccircle cx='73' cy='90' r='7.5' fill='%2306202D'/%3E%3Ccircle cx='127' cy='90' r='7.5' fill='%2306202D'/%3E%3Cpath d='M100 103 L110 121 L100 131 L90 121 Z' fill='%23EAE42F'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shared-layout.css">
+</head>
+
+<body>
+  <div class="stage desk-mode" id="stage">
+    <div class="device desk" id="device">
+      <div class="notch"><span>9:41</span><span class="dot"></span><span>●●●●</span></div>
+
+      <div class="app" id="app">
+        <header class="appbar"></header>
+
+        <div class="workspace">
+          <div class="drawer-backdrop" id="drawer-backdrop"></div>
+          <aside class="side" id="side" aria-label="Firm Operations Navigation"></aside>
+
+          <main class="body" id="body">
+            <div id="page-breadcrumbs"></div>
+
+            <div class="page-header-row">
+              <div class="page-title-wrap">
+                <h1>Document Intake &amp; Exception Review</h1>
+                <p class="page-subtitle">Practitioner Ingestion, Vault Custody &amp; Diligence &middot; Treasury Circular 230 § 10.22 Verified</p>
+              </div>
+              <div class="page-actions-wrap" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <button type="button" class="btn sm" id="btn-sync-docs" style="background:#10B981;color:#FFFFFF;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;padding:7px 14px;border-radius:var(--radius-sm);" title="Live Backend Connected · 0 Pending">Live Backend Connected &middot; 0 Pending</button>
+                <a href="dashboard.html" class="btn sm btn-o">&larr; Operations Triage</a>
+              </div>
+            </div>
+
+            <!-- Review Queue State Demo Controls -->
+
+            <!-- Authoritative Document Intake & Exception Review Container -->
+            <div id="docs-review-content-area"></div>
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card modal-wide" id="modal-container"></div>
+  </div>
+  <div id="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/core/layout.js?v=20261017_svg_icons"></script>
+  <script src="js/firm/documents.js?v=20261017_svg_icons"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      FileRoomLayout.init({
+        portal: 'firm',
+        activePage: 'documents',
+        breadcrumbs: [
+          { title: 'The File Room', href: 'index.html' },
+          { title: 'Firm Operations', href: 'dashboard.html' },
+          { title: 'Document Intake & Exception Review' }
+        ]
+      });
+
+      // -- Live document queue (Firestore documentRequests) --
+      // Builds a queue record in the same shape FirmDocuments._loadRecords() uses for documentRequests.
+      function mapLiveDocumentRequest(item) {
+        var d = Object.assign({}, item);
+        var docId = d.requestId || d.id;
+        var cName = d.clientName;
+        if (!cName && d.clientEmail) cName = String(d.clientEmail).split('@')[0];
+        if (!cName) cName = 'Client';
+        var cUid = d.clientUid || d.clientId || 'client_vault';
+        return Object.assign({
+          _docId: docId,
+          jobId: docId,
+          documentId: d.documentId || docId,
+          fileName: d.fileName || d.name || 'tax_document.pdf',
+          documentTitle: d.title || 'Tax Document',
+          clientName: cName,
+          clientEmail: d.clientEmail || '',
+          clientId: cUid,
+          clientUid: cUid,
+          engagementId: d.engagementId || ('eng_' + cUid + '_2026'),
+          requestId: docId,
+          taxYear: d.taxYear || 2026,
+          category: d.category || 'Tax Document',
+          status: d.status === 'uploaded' ? 'review' : d.status,
+          state: d.status === 'uploaded' ? 'review' : d.status,
+          storagePath: d.storagePath,
+          downloadUrl: d.downloadUrl || '',
+          sha256Checksum: d.sha256Checksum,
+          fileSizeBytes: d.fileSizeBytes || d.fileSize,
+          createdAt: d.uploadedAt || d.createdAt || new Date().toISOString()
+        }, d);
+      }
+
+      function clearQueueError() {
+        var banner = document.getElementById('docs-queue-feed-error');
+        if (banner && banner.parentNode) banner.parentNode.removeChild(banner);
+      }
+
+      if (window.FirmDocuments) {
+        // Merge a live snapshot (newest first) into the list the page already renders: update in place or add on top.
+        window.FirmDocuments.onLiveDocumentQueue = function (items) {
+          var self = this;
+          if (!Array.isArray(items)) return;
+          clearQueueError();
+          var records = self.state.records;
+          items.slice().reverse().forEach(function (item) {
+            var rec = mapLiveDocumentRequest(item);
+            var idx = -1;
+            for (var i = 0; i < records.length; i++) {
+              if (records[i]._docId === rec._docId || records[i].jobId === rec._docId) { idx = i; break; }
+            }
+            if (idx >= 0) Object.assign(records[idx], rec);
+            else records.unshift(rec);
+          });
+          self._updateMetrics(records);
+          self._renderRecords();
+        };
+
+        // A feed failure is shown next to the queue; the last successfully loaded queue stays on screen.
+        window.FirmDocuments.showQueueError = function (err) {
+          var code = (err && err.code) || 'unknown';
+          console.error('[FirmDocuments] Live document queue error:', code, (err && err.message) || err);
+          var list = document.getElementById('intake-records-container');
+          if (list && list.parentNode) {
+            var banner = document.getElementById('docs-queue-feed-error');
+            if (!banner) {
+              banner = document.createElement('div');
+              banner.id = 'docs-queue-feed-error';
+              banner.setAttribute('role', 'alert');
+              banner.style.cssText = 'padding:10px 14px;margin-bottom:10px;background:#b42318;color:#fff;font-size:.8rem;line-height:1.4;border-radius:4px;';
+              list.parentNode.insertBefore(banner, list);
+            }
+            banner.textContent = 'Live document updates unavailable (' + code + '). Showing the last loaded queue.';
+          }
+          if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+            window.FileRoomLayout.showToast('Live document feed error: ' + code, 'err');
+          }
+        };
+      }
+
+      function startLiveDocumentQueue() {
+        var FD = window.FirmDocuments;
+        var bridge = window.FirebaseBridge;
+        if (!FD || !bridge || typeof bridge.subscribeDocumentQueue !== 'function') return;
+        if (!document.getElementById('intake-records-container')) return;   // access denied: no queue on screen
+        if (typeof FD.docQueueUnsub === 'function') {
+          try { FD.docQueueUnsub(); } catch (_) { }
+          FD.docQueueUnsub = null;
+        }
+        FD.docQueueUnsub = bridge.subscribeDocumentQueue(
+          function (items) { FD.onLiveDocumentQueue(items); },
+          function (err) { FD.showQueueError(err); }
+        );
+        if (!window._docQueuePageHideBound) {
+          window._docQueuePageHideBound = true;
+          window.addEventListener('pagehide', function () {
+            if (typeof FD.docQueueUnsub === 'function') FD.docQueueUnsub();
+          });
+        }
+      }
+
+      function initIntakeConsole() {
+        var user = (typeof AuthGuard !== 'undefined' && AuthGuard.getCurrentUser && AuthGuard.getCurrentUser()) || (window.FirebaseBridge && window.FirebaseBridge.currentUser);
+        var isStaff = Boolean(
+          user && (
+            user.role === 'firm_admin' ||
+            user.role === 'firm_partner' ||
+            user.role === 'firm_reviewer' ||
+            user.role === 'firm_preparer' ||
+            user.role === 'firm_staff' ||
+            user.isStaff
+          )
+        );
+
+        if (window.FirmDocuments && typeof window.FirmDocuments.init === 'function') {
+          window.FirmDocuments.init();
+          startLiveDocumentQueue();
+        }
+      }
+
+      // Storage Vault Document Viewer Bridge Handler
+      function buildVaultViewLink(item) {
+        return '<a href="javascript:void(0)" class="view-vault-link" data-doc-id="' + (item.docId || '') + '" data-client="' + (item.client || '') + '" data-name="' + (item.name || '') + '" data-url="' + (item.downloadUrl || '') + '">View in Storage Vault &nearr;</a>';
+      }
+
+      function bindVaultDocumentViewer(container) {
+        if (!container) return;
+        var links = container.querySelectorAll('.view-vault-link');
+        links.forEach(function (link) {
+          link.addEventListener('click', function (e) {
+            e.preventDefault();
+            var docId = link.getAttribute('data-doc-id');
+            var client = link.getAttribute('data-client');
+            var name = link.getAttribute('data-name');
+            var url = link.getAttribute('data-url');
+            if (window.FileRoomLayout && typeof window.FileRoomLayout.openVaultDocumentViewer === 'function') {
+              window.FileRoomLayout.openVaultDocumentViewer({
+                docId: docId,
+                title: name,
+                client: client,
+                downloadUrl: url
+              });
+            }
+          });
+        });
+      }
+
+      var btnSyncDocs = document.getElementById('btn-sync-docs');
+      if (btnSyncDocs) {
+        btnSyncDocs.addEventListener('click', async function () {
+          btnSyncDocs.disabled = true;
+          btnSyncDocs.innerHTML = '<span>⏳</span> Synchronizing...';
+          var bridge = window.FirebaseBridge;
+          if (bridge) {
+            try {
+              if (typeof bridge.seedFirmPracticeData === 'function') {
+                await bridge.seedFirmPracticeData(true);
+              }
+              var btnLive = document.getElementById('btn-state-live');
+              if (btnLive) {
+                btnLive.click();
+              } else if (window.FirmDocuments && typeof window.FirmDocuments.init === 'function') {
+                window.FirmDocuments.init();
+              }
+              if (window.FileRoomLayout && typeof window.FileRoomLayout.showToast === 'function') {
+                window.FileRoomLayout.showToast('✓ Connected to backend Firebase (uk-client-d90d5) · Intake Stream Synchronized', 'ok');
+              }
+              btnSyncDocs.innerHTML = 'Live Backend Connected &middot; 0 Pending';
+              btnSyncDocs.style.background = '#10B981';
+              btnSyncDocs.style.color = '#FFFFFF';
+            } catch (err) {
+              console.warn('Sync error:', err);
+            } finally {
+              btnSyncDocs.disabled = false;
+            }
+          }
+        });
+      }
+
+      if (window.FirebaseBridge) {
+        initIntakeConsole();
+      } else {
+        var attempts = 0;
+        var timer = setInterval(function () {
+          attempts++;
+          if (window.FirebaseBridge || attempts >= 15) {
+            clearInterval(timer);
+            initIntakeConsole();
+          }
+        }, 100);
+        window.addEventListener('firebase-bridge-ready', function () { clearInterval(timer); initIntakeConsole(); }, { once: true });
+        window.addEventListener('firebase-ready', function () { clearInterval(timer); initIntakeConsole(); }, { once: true });
+        setTimeout(initIntakeConsole, 1500);
+      }
+    });
+  </script>
+</body>
+
+</html>
